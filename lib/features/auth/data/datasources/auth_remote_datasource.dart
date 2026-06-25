@@ -8,6 +8,11 @@ class AuthRemoteDataSource {
   Account get account => Account(client);
 
   Future<User> login(String email, String password) async {
+    try {
+      await account.deleteSession(sessionId: 'current');
+    } catch (_) {
+      // No había sesión activa, continuar normalmente
+    }
     await account.createEmailPasswordSession(email: email, password: password);
     return await account.get();
   }
@@ -17,8 +22,10 @@ class AuthRemoteDataSource {
   }
 
   Future<User> changePassword(String password) async {
-    await account.get();
-    return await account.updatePassword(password: password);
+    return await account.updatePassword(
+      password: password,
+      oldPassword: 'Ecuador2026',
+    );
   }
 
   Future<void> logout() async {
