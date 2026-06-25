@@ -5,6 +5,7 @@ import 'core/appwrite_client.dart';
 import 'core/connectivity_service.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/entities/app_user.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
@@ -15,6 +16,7 @@ import 'features/auth/presentation/pages/change_password_page.dart';
 
 import 'features/actas/data/datasources/acta_datasource.dart';
 import 'features/actas/data/repositories/acta_repository_impl.dart';
+import 'features/actas/domain/repositories/acta_repository.dart';
 import 'features/actas/domain/usecases/create_acta.dart';
 import 'features/actas/domain/usecases/obtener_actas.dart';
 import 'features/actas/domain/usecases/actualizar_acta.dart';
@@ -25,6 +27,7 @@ import 'features/actas/presentation/pages/list_actas_page.dart';
 
 import 'features/recintos/data/datasources/recinto_datasource.dart';
 import 'features/recintos/data/repositories/recinto_repository_impl.dart';
+import 'features/recintos/domain/repositories/recinto_repository.dart';
 import 'features/recintos/domain/usecases/crear_recinto.dart';
 import 'features/recintos/domain/usecases/obtener_recintos.dart';
 import 'features/recintos/domain/usecases/asignar_coordinador.dart';
@@ -43,7 +46,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   hiveService = await HiveService.init();
 
-  final actaDatasource = ActaDatasource(databases);
+  final actaDatasource = ActaDatasource(tablesDB);
   final actaRepository = ActaRepositoryImpl(actaDatasource, hiveService: hiveService);
   syncService = SyncService(hiveService, actaDatasource);
 
@@ -53,8 +56,8 @@ void main() async {
   connectivityService.startMonitoring();
 
   final authRemoteDS = AuthRemoteDataSource();
-  final authRepository = AuthRepositoryImpl(authRemoteDS, databases);
-  final recintoDatasource = RecintoDatasource(databases);
+  final authRepository = AuthRepositoryImpl(authRemoteDS, tablesDB);
+  final recintoDatasource = RecintoDatasource(tablesDB);
   final recintoRepository = RecintoRepositoryImpl(recintoDatasource);
 
   runApp(MyApp(
@@ -65,9 +68,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final AuthRepositoryImpl authRepository;
-  final ActaRepositoryImpl actaRepository;
-  final RecintoRepositoryImpl recintoRepository;
+  final AuthRepository authRepository;
+  final ActaRepository actaRepository;
+  final RecintoRepository recintoRepository;
 
   const MyApp({
     super.key,

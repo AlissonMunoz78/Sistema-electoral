@@ -32,8 +32,11 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Crear recinto',
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CrearRecintoPage()))
-                .then((_) => context.read<RecintoBloc>().add(CargarRecintosEvent())),
+            onPressed: () async {
+              await Navigator.push(context, MaterialPageRoute(builder: (_) => const CrearRecintoPage()));
+              if (!context.mounted) return;
+              context.read<RecintoBloc>().add(CargarRecintosEvent());
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -106,7 +109,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
                       ],
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _mostrarDetalle(context, r.id, r.nombre),
+                    onTap: () => _mostrarDetalle(context, r.id, r.nombre, r.numeroJRV),
                   ),
                 );
               },
@@ -118,7 +121,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     );
   }
 
-  void _mostrarDetalle(BuildContext context, String? id, String nombre) {
+  void _mostrarDetalle(BuildContext context, String? id, String nombre, int numeroJRV) {
     showModalBottomSheet(
       context: context,
       builder: (ctx) => Padding(
@@ -142,9 +145,9 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
               Navigator.pop(ctx);
               await _mostrarGpsActas(context, id);
             }),
-            _opcion(ctx, 'Ver avance (actas registradas vs pendientes)', Icons.bar_chart, () {
+            _opcion(ctx, 'Ver avance (actas registradas vs pendientes)', Icons.bar_chart, () async {
               Navigator.pop(ctx);
-              _mostrarAvance(context, id, nombre);
+              await _mostrarAvance(context, id, nombre, numeroJRV);
             }),
           ],
         ),
@@ -162,7 +165,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
   }
 
   Future<void> _mostrarGpsActas(BuildContext context, String? recintoId) async {
-    final datasource = ActaDatasource(databases);
+    final datasource = ActaDatasource(tablesDB);
     try {
       final actas = await datasource.obtenerActas();
       final actasConGps = actas.where((a) => a['latitud'] != null && a['longitud'] != null).toList();
@@ -189,7 +192,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
                     },
                   ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrir'))],
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar'))],
         ),
       );
     } catch (_) {
@@ -201,23 +204,42 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     }
   }
 
-  void _mostrarAvance(BuildContext context, String? recintoId, String nombre) {
-    // Placeholder para avance
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Avance - $nombre'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('Actas registradas: (pendiente de implementar consulta)'),
-            SizedBox(height: 8),
-            Text('Actas pendientes: (pendiente de implementar consulta)'),
-          ],
+  Future<void> _mostrarAvance(BuildContext context, String? recintoId, String nombre, int numeroJRV) async {
+    final datasource = ActaDatasource(tablesDB);
+    try {
+      final actas = await datasource.obtenerActas();
+      final actasAlcalde = actas.where((a) => a['dignidad'] == 'alcalde').length;
+      final actasPrefecto = actas.where((a) => a['dignidad'] == 'prefecto').length;
+      final totalRegistradas = actasAlcalde + actasPrefecto;
+      final totalEsperado = numeroJRV * 2;
+      final pendientes = totalEsperado - totalRegistradas;
+
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Avance — $nombre'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Actas de Alcalde registradas: $actasAlcalde / $numeroJRV'),
+              const SizedBox(height: 4),
+              Text('Actas de Prefecto registradas: $actasPrefecto / $numeroJRV'),
+              const SizedBox(height: 4),
+              Text('Total registradas: $totalRegistradas / $totalEsperado'),
+              const SizedBox(height: 4),
+              Text('Pendientes: $pendientes'),
+            ],
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar'))],
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrir'))],
-      ),
-    );
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al consultar avance: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 }

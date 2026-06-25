@@ -13,4 +13,5 @@ Client client = Client()
     .setProject(appwriteProjectId);
 
 Databases get databases => Databases(client);
+TablesDB get tablesDB => TablesDB(client);
 Storage get storage => Storage(client);

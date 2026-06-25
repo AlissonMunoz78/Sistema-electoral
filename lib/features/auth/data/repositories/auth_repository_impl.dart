@@ -1,5 +1,4 @@
-import 'package:appwrite/appwrite.dart' as appwrite;
-
+import 'package:appwrite/appwrite.dart';
 import '../../../../core/appwrite_client.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -8,7 +7,7 @@ import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
-  final appwrite.Databases db;
+  final TablesDB db;
 
   AuthRepositoryImpl(this.remoteDataSource, this.db);
 
@@ -47,10 +46,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<UserModel> _getUserPrefs(String userId) async {
     try {
-      final doc = await db.getDocument(
+      final doc = await db.getRow(
         databaseId: appwriteDatabaseId,
-        collectionId: appwriteUsersCollectionId,
-        documentId: userId,
+        tableId: appwriteUsersCollectionId,
+        rowId: userId,
       );
       return UserModel.fromJson(doc.data);
     } catch (_) {
@@ -60,10 +59,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<void> _updateUserPrefs(String userId, Map<String, dynamic> data) async {
     try {
-      await db.updateDocument(
+      await db.updateRow(
         databaseId: appwriteDatabaseId,
-        collectionId: appwriteUsersCollectionId,
-        documentId: userId,
+        tableId: appwriteUsersCollectionId,
+        rowId: userId,
         data: data,
       );
     } catch (_) {}

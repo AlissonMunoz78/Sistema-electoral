@@ -113,10 +113,10 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
       return;
     }
     try {
-      await databases.createDocument(
+      await tablesDB.createRow(
         databaseId: appwriteDatabaseId,
-        collectionId: appwriteUsersCollectionId,
-        documentId: ID.unique(),
+        tableId: appwriteUsersCollectionId,
+        rowId: ID.unique(),
         data: {
           'email': _emailCtrl.text,
           'nombre': _nombreCtrl.text,

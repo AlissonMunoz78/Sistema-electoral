@@ -3,33 +3,33 @@ import '../../../../core/appwrite_client.dart';
 import '../models/recinto_model.dart';
 
 class RecintoDatasource {
-  final Databases db;
+  final TablesDB db;
 
   RecintoDatasource(this.db);
 
   Future<void> crearRecinto(RecintoModel recinto) async {
-    await db.createDocument(
+    await db.createRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
-      documentId: ID.unique(),
+      tableId: appwriteRecintosCollectionId,
+      rowId: ID.unique(),
       data: recinto.toJson(),
     );
   }
 
   Future<List<Map<String, dynamic>>> obtenerRecintos() async {
-    final result = await db.listDocuments(
+    final result = await db.listRows(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
+      tableId: appwriteRecintosCollectionId,
     );
-    return result.documents.map((e) => e.data).toList();
+    return result.rows.map((e) => e.data).toList();
   }
 
   Future<Map<String, dynamic>?> obtenerRecinto(String id) async {
     try {
-      final doc = await db.getDocument(
+      final doc = await db.getRow(
         databaseId: appwriteDatabaseId,
-        collectionId: appwriteRecintosCollectionId,
-        documentId: id,
+        tableId: appwriteRecintosCollectionId,
+        rowId: id,
       );
       return doc.data;
     } catch (_) {
@@ -38,10 +38,10 @@ class RecintoDatasource {
   }
 
   Future<void> actualizarRecinto(String id, Map<String, dynamic> data) async {
-    await db.updateDocument(
+    await db.updateRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
-      documentId: id,
+      tableId: appwriteRecintosCollectionId,
+      rowId: id,
       data: data,
     );
   }

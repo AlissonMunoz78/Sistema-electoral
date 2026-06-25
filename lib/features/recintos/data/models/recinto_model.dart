@@ -2,22 +2,14 @@ import '../../domain/entities/recinto.dart';
 
 class RecintoModel extends Recinto {
   RecintoModel({
-    String? id,
-    required String nombre,
-    required String provincia,
-    required String canton,
-    required String parroquia,
-    required int numeroJRV,
-    String? coordinadorId,
-  }) : super(
-          id: id,
-          nombre: nombre,
-          provincia: provincia,
-          canton: canton,
-          parroquia: parroquia,
-          numeroJRV: numeroJRV,
-          coordinadorId: coordinadorId,
-        );
+    super.id,
+    required super.nombre,
+    required super.provincia,
+    required super.canton,
+    required super.parroquia,
+    required super.numeroJRV,
+    super.coordinadorId,
+  });
 
   factory RecintoModel.fromJson(Map<String, dynamic> json) {
     return RecintoModel(

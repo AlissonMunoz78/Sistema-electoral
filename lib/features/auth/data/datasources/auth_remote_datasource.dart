@@ -8,7 +8,7 @@ class AuthRemoteDataSource {
   Account get account => Account(client);
 
   Future<User> login(String email, String password) async {
-    final session = await account.createEmailPasswordSession(email: email, password: password);
+    await account.createEmailPasswordSession(email: email, password: password);
     return await account.get();
   }
 
@@ -17,8 +17,8 @@ class AuthRemoteDataSource {
   }
 
   Future<User> changePassword(String password) async {
-    final user = await account.get();
-    return await account.updatePassword(password: password, oldPassword: '');
+    await account.get();
+    return await account.updatePassword(password: password);
   }
 
   Future<void> logout() async {
