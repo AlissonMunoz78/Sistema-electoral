@@ -18,12 +18,12 @@ class UserModel extends AppUser {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['\$id'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      role: _parseRole(json['role'] as String? ?? 'observer'),
-      mustChangePassword: json['mustChangePassword'] as bool? ?? false,
-      recintoId: json['recintoId'] as String?,
-      mesaId: json['mesaId'] as int?,
-      nombre: json['nombre'] as String?,
+      email: json['correo'] as String? ?? '',
+      role: _parseRole(json['rol'] as String? ?? 'veedor'),
+      mustChangePassword: (json['primerLogin'] as String? ?? 'true') == 'true',
+      recintoId: json['recintold'] as String?,
+      mesaId: null,
+      nombre: '${json['nombres'] ?? ''} ${json['apellidos'] ?? ''}'.trim(),
     );
   }
 
@@ -39,8 +39,10 @@ class UserModel extends AppUser {
   static UserRole _parseRole(String role) {
     switch (role) {
       case 'coordinatorProvincial':
+      case 'provincial':
         return UserRole.coordinatorProvincial;
       case 'coordinatorRecinto':
+      case 'recinto':
         return UserRole.coordinatorRecinto;
       default:
         return UserRole.observer;

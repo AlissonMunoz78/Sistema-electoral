@@ -27,7 +27,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<AppUser> changePassword(String newPassword) async {
     final user = await remoteDataSource.changePassword(newPassword);
     final prefs = await _getUserPrefs(user.$id);
-    await _updateUserPrefs(user.$id, {'mustChangePassword': false});
+    await _updateUserPrefs(user.$id, {'primerLogin': 'false'});
     return UserModel(
       id: user.$id,
       email: user.email,
@@ -65,6 +65,15 @@ class AuthRepositoryImpl implements AuthRepository {
         rowId: userId,
         data: data,
       );
-    } catch (_) {}
+    } catch (_) {
+      try {
+        await db.createRow(
+          databaseId: appwriteDatabaseId,
+          tableId: appwriteUsersCollectionId,
+          rowId: userId,
+          data: data,
+        );
+      } catch (_) {}
+    }
   }
 }

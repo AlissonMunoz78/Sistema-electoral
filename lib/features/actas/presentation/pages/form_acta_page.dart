@@ -114,8 +114,8 @@ class _FormActaPageState extends State<FormActaPage> {
   }
 
   Future<void> takePhoto() async {
+    final messenger = ScaffoldMessenger.of(context);
     await _obtenerGPS();
-    if (_latitud == null) return;
 
     final picked = await picker.pickImage(
       source: ImageSource.camera,
@@ -126,6 +126,15 @@ class _FormActaPageState extends State<FormActaPage> {
     setState(() {
       imageFile = File(picked.path);
     });
+
+    if (_latitud == null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Foto tomada. Advertencia: no se obtuvo GPS.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   void _mostrarError(String msg) {
