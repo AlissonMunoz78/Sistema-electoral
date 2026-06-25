@@ -1,11 +1,13 @@
 import 'dart:io';
 
-// Nombre del archivo final que contendrá todo tu código
+// Archivo de salida
 const outputFileName = 'contexto_proyecto.md';
-final rootDir = Directory.current.path;
 
-// Carpetas que ignoramos porque son pesadas o no contienen código fuente útil
-const ignoreDirs = [
+// Directorio raíz del proyecto
+final rootDir = Directory.current;
+
+// Carpetas a ignorar (comparadas por nombre de segmento, no por ruta completa)
+const ignoreDirs = {
   '.dart_tool',
   '.idea',
   '.vscode',
@@ -13,72 +15,96 @@ const ignoreDirs = [
   'build',
   '.flutter-plugins',
   '.flutter-plugins-dependencies',
-  'android/.gradle',
-  'ios/Pods',
-  'ios/.symlinks',
+  'android',
+  'ios',
   'linux',
   'macos',
   'windows',
   'web',
-];
+};
 
-// Archivos específicos que no queremos incluir
-const ignoreFiles = [
+// Archivos que no queremos incluir
+const ignoreFiles = {
   'pubspec.lock',
   outputFileName,
   'export_context_flutter.dart',
-];
+};
 
 // Extensiones permitidas
-const allowedExtensions = ['.dart', '.yaml', '.yml', '.json', '.md', '.arb'];
+const allowedExtensions = {
+  '.dart',
+  '.yaml',
+  '.yml',
+  '.json',
+  '.md',
+  '.arb',
+};
 
-void buildContext(Directory currentDir, IOSink outputSink) {
-  final items = currentDir.listSync();
+// Verifica si un directorio debe ignorarse
+bool shouldIgnorePath(String path) {
+  final segments = path.split(Platform.pathSeparator);
+  return segments.any((segment) => ignoreDirs.contains(segment));
+}
 
-  for (final item in items) {
-    final name = item.path.split(Platform.pathSeparator).last;
+void buildContext(Directory dir, IOSink sink) {
+  for (final entity in dir.listSync(followLinks: false)) {
+    final path = entity.path;
+    final name = path.split(Platform.pathSeparator).last;
 
-    if (item is Directory) {
-      // Ignorar directorios de la lista y los ocultos (excepto .dart_tool etc ya cubiertos)
-      final shouldIgnore = ignoreDirs.any((ignored) => item.path.endsWith(ignored)) ||
-          (name.startsWith('.') && !ignoreDirs.contains(name));
-      if (!shouldIgnore) {
-        buildContext(item, outputSink);
+    // IGNORAR directorios
+    if (entity is Directory) {
+      if (!shouldIgnorePath(path)) {
+        buildContext(entity, sink);
       }
-    } else if (item is File) {
+      continue;
+    }
+
+    // SOLO archivos
+    if (entity is File) {
       final ext = name.contains('.') ? '.${name.split('.').last}' : '';
+
       final isAllowedExtension = allowedExtensions.contains(ext);
 
-      // Permitir archivos de configuración (pubspec, analysis_options, etc.)
-      final isConfigFile = name.startsWith('.') || name.contains('config') || name == 'pubspec.yaml';
+      final isConfigFile =
+          name == 'pubspec.yaml' ||
+          name == 'analysis_options.yaml' ||
+          name.startsWith('.') ||
+          name.contains('config');
 
-      if (!ignoreFiles.contains(name) && (isAllowedExtension || isConfigFile)) {
-        try {
-          final content = item.readAsStringSync();
-          final relativePath = item.path.replaceFirst('$rootDir${Platform.pathSeparator}', '');
+      if (ignoreFiles.contains(name)) continue;
 
-          final separator = '\n\n================================================\n';
-          final fileHeader = '📄 ARCHIVO: $relativePath\n================================================\n\n';
+      if (!(isAllowedExtension || isConfigFile)) continue;
 
-          outputSink.write(separator + fileHeader + content);
-        } catch (e) {
-          stderr.writeln('Error leyendo ${item.path}: $e');
-        }
+      try {
+        final content = entity.readAsStringSync();
+
+        final relativePath = path.replaceFirst(
+          '${rootDir.path}${Platform.pathSeparator}',
+          '',
+        );
+
+        sink.writeln('\n\n================================================');
+        sink.writeln('📄 ARCHIVO: $relativePath');
+        sink.writeln('================================================\n');
+        sink.writeln(content);
+      } catch (e) {
+        stderr.writeln('⚠️ Error leyendo $path: $e');
       }
     }
   }
 }
 
 void main() {
-  final outputFile = File('$rootDir${Platform.pathSeparator}$outputFileName');
+  final outputFile = File('${rootDir.path}${Platform.pathSeparator}$outputFileName');
   final sink = outputFile.openWrite();
 
-  sink.write('# Contexto Completo del Proyecto Flutter\n');
-  stderr.writeln('Recopilando código...');
+  sink.writeln('# Contexto Completo del Proyecto Flutter\n');
 
-  buildContext(Directory(rootDir), sink);
+  stdout.writeln('🔍 Escaneando proyecto completo...');
+
+  buildContext(rootDir, sink);
 
   sink.close().then((_) {
-    stderr.writeln('Listo. Todo tu código se ha consolidado en el archivo: $outputFileName');
+    stdout.writeln('✅ Listo. Archivo generado: $outputFileName');
   });
 }

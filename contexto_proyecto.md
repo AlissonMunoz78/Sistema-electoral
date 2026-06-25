@@ -1,6 +1,7 @@
 # Contexto Completo del Proyecto Flutter
 
 
+
 ================================================
 📄 ARCHIVO: .gitignore
 ================================================
@@ -50,6 +51,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
 
 
 ================================================
@@ -103,6 +105,7 @@ migration:
     - 'ios/Runner.xcodeproj/project.pbxproj'
 
 
+
 ================================================
 📄 ARCHIVO: analysis_options.yaml
 ================================================
@@ -137,266 +140,6 @@ linter:
 # https://dart.dev/guides/language/analysis-options
 
 
-================================================
-📄 ARCHIVO: android\.gitignore
-================================================
-
-gradle-wrapper.jar
-/.gradle
-/captures/
-/gradlew
-/gradlew.bat
-/local.properties
-GeneratedPluginRegistrant.java
-.cxx/
-
-# Remember to never publicly share your keystore.
-# See https://flutter.dev/to/reference-keystore
-key.properties
-**/*.keystore
-**/*.jks
-
-
-================================================
-📄 ARCHIVO: ios\.gitignore
-================================================
-
-**/dgph
-*.mode1v3
-*.mode2v3
-*.moved-aside
-*.pbxuser
-*.perspectivev3
-**/*sync/
-.sconsign.dblite
-.tags*
-**/.vagrant/
-**/DerivedData/
-Icon?
-**/Pods/
-**/.symlinks/
-profile
-xcuserdata
-**/.generated/
-Flutter/App.framework
-Flutter/Flutter.framework
-Flutter/Flutter.podspec
-Flutter/Generated.xcconfig
-Flutter/ephemeral/
-Flutter/app.flx
-Flutter/app.zip
-Flutter/flutter_assets/
-Flutter/flutter_export_environment.sh
-ServiceDefinitions.json
-Runner/GeneratedPluginRegistrant.*
-
-# Exceptions to above rules.
-!default.mode1v3
-!default.mode2v3
-!default.pbxuser
-!default.perspectivev3
-
-
-================================================
-📄 ARCHIVO: ios\Flutter\Debug.xcconfig
-================================================
-
-#include "Generated.xcconfig"
-
-
-================================================
-📄 ARCHIVO: ios\Flutter\Generated.xcconfig
-================================================
-
-// This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=C:\Universidad\2026\Moviles\flutter_windows_3.41.9-stable\flutter
-FLUTTER_APPLICATION_PATH=C:\Universidad\2026\Moviles\ProyectFlutter\sistema_electoral
-COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=lib\main.dart
-FLUTTER_BUILD_DIR=build
-FLUTTER_BUILD_NAME=1.0.0
-FLUTTER_BUILD_NUMBER=1
-EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386
-EXCLUDED_ARCHS[sdk=iphoneos*]=armv7
-DART_OBFUSCATION=false
-TRACK_WIDGET_CREATION=true
-TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=.dart_tool/package_config.json
-
-
-================================================
-📄 ARCHIVO: ios\Flutter\Release.xcconfig
-================================================
-
-#include "Generated.xcconfig"
-
-
-================================================
-📄 ARCHIVO: ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
-================================================
-
-{
-  "images" : [
-    {
-      "size" : "20x20",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-20x20@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-20x20@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-40x40@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-40x40@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "60x60",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-60x60@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "60x60",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-60x60@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-20x20@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-20x20@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-29x29@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-29x29@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-40x40@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-40x40@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "76x76",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-76x76@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "76x76",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-76x76@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "83.5x83.5",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-83.5x83.5@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "1024x1024",
-      "idiom" : "ios-marketing",
-      "filename" : "Icon-App-1024x1024@1x.png",
-      "scale" : "1x"
-    }
-  ],
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  }
-}
-
-
-================================================
-📄 ARCHIVO: ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json
-================================================
-
-{
-  "images" : [
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage.png",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage@3x.png",
-      "scale" : "3x"
-    }
-  ],
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  }
-}
-
-
-================================================
-📄 ARCHIVO: ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md
-================================================
-
-# Launch Screen Assets
-
-You can customize the launch screen with your own desired assets by replacing the image files in this directory.
-
-You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
 
 ================================================
 📄 ARCHIVO: lib\core\appwrite_client.dart
@@ -409,6 +152,40 @@ Client client = Client()
     .setProject("sistema-electoral");
 
 Databases get databases => Databases(client);
+
+Storage get storage => Storage(client);
+
+
+================================================
+📄 ARCHIVO: lib\core\image_service.dart
+================================================
+
+import 'dart:io';
+import 'package:appwrite/appwrite.dart';
+
+class ImageService {
+  final Storage storage;
+
+  ImageService(this.storage);
+
+  Future<String> uploadImage(File file) async {
+    final result = await storage.createFile(
+      bucketId: "6a3ca946002e1039870d",
+      fileId: ID.unique(),
+      file: InputFile.fromPath(path: file.path),
+    );
+
+    return result.$id;
+  }
+}
+
+
+================================================
+📄 ARCHIVO: lib\core\storage_service.dart
+================================================
+
+
+
 
 ================================================
 📄 ARCHIVO: lib\features\actas\data\datasources\acta_datasource.dart
@@ -424,8 +201,8 @@ class ActaDatasource {
 
   Future<void> crearActa(ActaModel acta) async {
     await db.createDocument(
-      databaseId: "db_electoral",
-      collectionId: "actas",
+      databaseId: "6a3ca5420008a6f70fe1", // Database ID
+      collectionId: "actas", // Table ID
       documentId: ID.unique(),
       data: acta.toJson(),
     );
@@ -433,7 +210,7 @@ class ActaDatasource {
 
   Future<List<Map<String, dynamic>>> obtenerActas() async {
     final result = await db.listDocuments(
-      databaseId: "db_electoral",
+      databaseId: "6a3ca5420008a6f70fe1",
       collectionId: "actas",
     );
 
@@ -441,10 +218,35 @@ class ActaDatasource {
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\data\datasources\appwrite_acta_datasource.dart
 ================================================
 
+
+
+
+================================================
+📄 ARCHIVO: lib\features\actas\data\datasources\storage_datasource.dart
+================================================
+
+import 'package:appwrite/appwrite.dart';
+
+class StorageDatasource {
+  final Storage storage;
+
+  StorageDatasource(this.storage);
+
+  Future<String> subirImagen(String path) async {
+    final file = await storage.createFile(
+      bucketId: "6a3ca946002e1039870d", // Bucket ID
+      fileId: ID.unique(),
+      file: InputFile.fromPath(path: path),
+    );
+
+    return file.$id;
+  }
+}
 
 
 ================================================
@@ -501,6 +303,7 @@ class ActaModel extends Acta {
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\data\repositories\acta_repository_impl.dart
 ================================================
@@ -540,6 +343,7 @@ class ActaRepositoryImpl implements ActaRepository {
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\domain\entities\acta.dart
 ================================================
@@ -572,16 +376,6 @@ class Acta {
   });
 }
 
-================================================
-📄 ARCHIVO: lib\features\actas\domain\repositories\acta_repository.dart
-================================================
-
-import '../entities/acta.dart';
-
-abstract class ActaRepository {
-  Future<void> crearActa(Acta acta);
-  Future<List<Acta>> obtenerActas();
-}
 
 ================================================
 📄 ARCHIVO: lib\features\actas\domain\usecases\create_acta.dart
@@ -600,6 +394,7 @@ class CrearActa {
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\domain\usecases\obtener_actas.dart
 ================================================
@@ -616,6 +411,7 @@ class ObtenerActas {
     return repository.obtenerActas();
   }
 }
+
 
 ================================================
 📄 ARCHIVO: lib\features\actas\presentation\bloc\acta_bloc.dart
@@ -635,6 +431,7 @@ class ActaBloc extends Bloc<ActaEvent, ActaState> {
     required this.crearActa,
     required this.obtenerActas,
   }) : super(ActaInitial()) {
+
     on<CrearActaEvent>((event, emit) async {
       emit(ActaLoading());
       try {
@@ -657,6 +454,7 @@ class ActaBloc extends Bloc<ActaEvent, ActaState> {
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\presentation\bloc\acta_event.dart
 ================================================
@@ -667,11 +465,11 @@ abstract class ActaEvent {}
 
 class CrearActaEvent extends ActaEvent {
   final Acta acta;
-
   CrearActaEvent(this.acta);
 }
 
 class CargarActasEvent extends ActaEvent {}
+
 
 ================================================
 📄 ARCHIVO: lib\features\actas\presentation\bloc\acta_state.dart
@@ -689,28 +487,44 @@ class ActaSuccess extends ActaState {}
 
 class ActasLoaded extends ActaState {
   final List<Acta> actas;
-
   ActasLoaded(this.actas);
 }
 
 class ActaError extends ActaState {
   final String message;
-
   ActaError(this.message);
 }
+
 
 ================================================
 📄 ARCHIVO: lib\features\actas\presentation\pages\form_acta_page.dart
 ================================================
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../core/image_service.dart';
+import '../../../core/storage_service.dart';
+import '../../../core/appwrite_client.dart';
+
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
 import '../../domain/entities/acta.dart';
 
-class FormActaPage extends StatelessWidget {
-  FormActaPage({super.key});
+class FormActaPage extends StatefulWidget {
+  const FormActaPage({super.key});
+
+  @override
+  State<FormActaPage> createState() => _FormActaPageState();
+}
+
+class _FormActaPageState extends State<FormActaPage> {
+  final picker = ImagePicker();
+  File? imageFile;
+
+  late StorageService storageService;
 
   final junta = TextEditingController();
   final provincia = TextEditingController();
@@ -722,55 +536,207 @@ class FormActaPage extends StatelessWidget {
   final nulos = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    storageService = StorageService(storage);
+  }
+
+  Future<void> takePhoto() async {
+    final picked = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 90,
+    );
+
+    if (picked == null) return;
+
+    setState(() {
+      imageFile = File(picked.path);
+    });
+  }
+
+  Future<void> saveActa(BuildContext context) async {
+    if (imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Debe tomar una foto")),
+      );
+      return;
+    }
+
+    /// 🔥 VALIDACIÓN BORROSIDAD
+    final isBlurry = ImageService.isImageBlurry(imageFile!);
+
+    if (isBlurry) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Imagen borrosa, no válida")),
+      );
+      return;
+    }
+
+    /// 📤 SUBIR A APPWRITE STORAGE
+    final fotoId = await storageService.uploadImage(imageFile!);
+
+    final acta = Acta(
+      junta: int.parse(junta.text),
+      provincia: provincia.text,
+      canton: canton.text,
+      parroquia: parroquia.text,
+      votosA: int.parse(votosA.text),
+      votosB: int.parse(votosB.text),
+      blancos: int.parse(blancos.text),
+      nulos: int.parse(nulos.text),
+      fotoId: fotoId,
+      fecha: DateTime.now(),
+      imagenValida: true,
+    );
+
+    context.read<ActaBloc>().add(CrearActaEvent(acta));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Acta guardada correctamente")),
+    );
+  }
+
+  Widget input(TextEditingController c, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        controller: c,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Actas")),
-      body: Padding(
+      appBar: AppBar(title: const Text("Registrar Acta")),
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(controller: junta, decoration: const InputDecoration(labelText: "Junta")),
-            TextField(controller: provincia),
-            TextField(controller: canton),
-            TextField(controller: parroquia),
-            TextField(controller: votosA),
-            TextField(controller: votosB),
-            TextField(controller: blancos),
-            TextField(controller: nulos),
+        children: [
+          input(junta, "Junta"),
+          input(provincia, "Provincia"),
+          input(canton, "Cantón"),
+          input(parroquia, "Parroquia"),
+          input(votosA, "Votos A"),
+          input(votosB, "Votos B"),
+          input(blancos, "Blancos"),
+          input(nulos, "Nulos"),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 10),
 
-            ElevatedButton(
-              onPressed: () {
-                final acta = Acta(
-                  junta: int.parse(junta.text),
-                  provincia: provincia.text,
-                  canton: canton.text,
-                  parroquia: parroquia.text,
-                  votosA: int.parse(votosA.text),
-                  votosB: int.parse(votosB.text),
-                  blancos: int.parse(blancos.text),
-                  nulos: int.parse(nulos.text),
-                  fotoId: "img123",
-                  fecha: DateTime.now(),
-                  imagenValida: true,
-                );
+          imageFile == null
+              ? const Text("⚠ Debe tomar foto", style: TextStyle(color: Colors.red))
+              : Image.file(imageFile!, height: 200),
 
-                context.read<ActaBloc>().add(CrearActaEvent(acta));
-              },
-              child: const Text("Guardar"),
-            )
-          ],
-        ),
+          const SizedBox(height: 10),
+
+          ElevatedButton.icon(
+            icon: const Icon(Icons.camera_alt),
+            label: const Text("Tomar foto"),
+            onPressed: takePhoto,
+          ),
+
+          const SizedBox(height: 20),
+
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () => saveActa(context),
+            child: const Text("Guardar Acta"),
+          )
+        ],
       ),
     );
   }
 }
 
+
 ================================================
 📄 ARCHIVO: lib\features\actas\presentation\pages\list_actas_page.dart
 ================================================
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/acta_bloc.dart';
+import '../bloc/acta_event.dart';
+import '../bloc/acta_state.dart';
+
+class ListActasPage extends StatelessWidget {
+  const ListActasPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Actas registradas"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              context.read<ActaBloc>().add(CargarActasEvent());
+            },
+          )
+        ],
+      ),
+      body: BlocBuilder<ActaBloc, ActaState>(
+        builder: (context, state) {
+          if (state is ActaLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is ActaError) {
+            return Center(child: Text("Error: ${state.message}"));
+          }
+
+          if (state is ActasLoaded) {
+            if (state.actas.isEmpty) {
+              return const Center(child: Text("No hay actas registradas"));
+            }
+
+            return ListView.builder(
+              itemCount: state.actas.length,
+              itemBuilder: (context, index) {
+                final acta = state.actas[index];
+
+                return Card(
+                  margin: const EdgeInsets.all(10),
+                  elevation: 3,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      child: Text(acta.junta.toString()),
+                    ),
+                    title: Text("${acta.provincia} - ${acta.canton}"),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Parroquia: ${acta.parroquia}"),
+                        Text("A: ${acta.votosA} | B: ${acta.votosB}"),
+                        Text(
+                          acta.imagenValida
+                              ? "Imagen válida"
+                              : "Imagen inválida",
+                          style: TextStyle(
+                            color: acta.imagenValida ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+
+          return const Center(
+            child: Text("Presiona refrescar para cargar datos"),
+          );
+        },
+      ),
+    );
+  }
+}
 
 
 ================================================
@@ -778,14 +744,18 @@ class FormActaPage extends StatelessWidget {
 ================================================
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'core/appwrite_client.dart';
 import 'features/actas/data/datasources/acta_datasource.dart';
 import 'features/actas/data/repositories/acta_repository_impl.dart';
 import 'features/actas/domain/usecases/crear_acta.dart';
 import 'features/actas/domain/usecases/obtener_actas.dart';
 import 'features/actas/presentation/bloc/acta_bloc.dart';
+import 'features/actas/presentation/bloc/acta_event.dart';
+
 import 'features/actas/presentation/pages/form_acta_page.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'features/actas/presentation/pages/list_actas_page.dart';
 
 void main() {
   final datasource = ActaDatasource(databases);
@@ -802,16 +772,88 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Sistema Electoral',
+
       home: BlocProvider(
         create: (_) => ActaBloc(
           crearActa: CrearActa(repository),
           obtenerActas: ObtenerActas(repository),
-        ),
-        child: const FormActaPage(),
+        )..add(CargarActasEvent()),
+
+        child: const HomePage(),
       ),
     );
   }
 }
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Sistema Electoral"),
+        centerTitle: true,
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.how_to_vote, size: 100),
+            const SizedBox(height: 20),
+
+            const Text(
+              "Sistema de Actas Electorales",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 40),
+
+            ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text("Registrar Acta"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const FormActaPage(),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 15),
+
+            ElevatedButton.icon(
+              icon: const Icon(Icons.list),
+              label: const Text("Ver Actas"),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ListActasPage(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 ================================================
 📄 ARCHIVO: pubspec.yaml
@@ -908,6 +950,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 
+
 ================================================
 📄 ARCHIVO: README.md
 ================================================
@@ -929,6 +972,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
 
 
 ================================================
@@ -965,3 +1009,4 @@ void main() {
     expect(find.text('1'), findsOneWidget);
   });
 }
+

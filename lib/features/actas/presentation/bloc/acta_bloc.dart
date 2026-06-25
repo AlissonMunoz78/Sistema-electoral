@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'acta_event.dart';
 import 'acta_state.dart';
-import '../../domain/usecases/crear_acta.dart';
+import '../../domain/usecases/create_acta.dart';
 import '../../domain/usecases/obtener_actas.dart';
 
 class ActaBloc extends Bloc<ActaEvent, ActaState> {

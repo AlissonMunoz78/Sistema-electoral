@@ -1,12 +1,28 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../../core/image_service.dart';
+import '../../../../core/storage_service.dart';
+import '../../../../core/appwrite_client.dart';
+
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
-import '../bloc/acta_state.dart';
 import '../../domain/entities/acta.dart';
 
-class FormActaPage extends StatelessWidget {
-  FormActaPage({super.key});
+class FormActaPage extends StatefulWidget {
+  const FormActaPage({super.key});
+
+  @override
+  State<FormActaPage> createState() => _FormActaPageState();
+}
+
+class _FormActaPageState extends State<FormActaPage> {
+  final picker = ImagePicker();
+  File? imageFile;
+
+  late StorageService storageService;
 
   final junta = TextEditingController();
   final provincia = TextEditingController();
@@ -18,78 +34,119 @@ class FormActaPage extends StatelessWidget {
   final nulos = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    return BlocListener<ActaBloc, ActaState>(
-      listener: (context, state) {
-        if (state is ActaSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Acta guardada correctamente")),
-          );
-        }
+  void initState() {
+    super.initState();
+    storageService = StorageService(storage);
+  }
 
-        if (state is ActaError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Registrar Acta")),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(controller: junta, decoration: const InputDecoration(labelText: "Junta")),
-                TextField(controller: provincia),
-                TextField(controller: canton),
-                TextField(controller: parroquia),
-                TextField(controller: votosA),
-                TextField(controller: votosB),
-                TextField(controller: blancos),
-                TextField(controller: nulos),
+  Future<void> takePhoto() async {
+    final picked = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 90,
+    );
 
-                const SizedBox(height: 20),
+    if (picked == null) return;
 
-                ElevatedButton(
-                  onPressed: () {
-                    if (junta.text.isEmpty || votosA.text.isEmpty) return;
+    setState(() {
+      imageFile = File(picked.path);
+    });
+  }
 
-                    final acta = Acta(
-                      junta: int.parse(junta.text),
-                      provincia: provincia.text,
-                      canton: canton.text,
-                      parroquia: parroquia.text,
-                      votosA: int.parse(votosA.text),
-                      votosB: int.parse(votosB.text),
-                      blancos: int.parse(blancos.text),
-                      nulos: int.parse(nulos.text),
-                      fotoId: "img123",
-                      fecha: DateTime.now(),
-                      imagenValida: true,
-                    );
+  Future<void> saveActa(BuildContext context) async {
+    if (imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Debe tomar una foto")),
+      );
+      return;
+    }
 
-                    context.read<ActaBloc>().add(CrearActaEvent(acta));
-                  },
-                  child: const Text("Guardar Acta"),
-                ),
+    /// 🔥 VALIDACIÓN BORROSIDAD
+    final isBlurry = ImageService.isImageBlurry(imageFile!);
 
-                const SizedBox(height: 20),
+    if (isBlurry) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Imagen borrosa, no válida")),
+      );
+      return;
+    }
 
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<ActaBloc>().add(CargarActasEvent());
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ListActasPage()),
-                    );
-                  },
-                  child: const Text("Ver Actas"),
-                )
-              ],
-            ),
-          ),
+    /// 📤 SUBIR A APPWRITE STORAGE
+    final fotoId = await storageService.uploadImage(imageFile!);
+
+    final acta = Acta(
+      junta: int.parse(junta.text),
+      provincia: provincia.text,
+      canton: canton.text,
+      parroquia: parroquia.text,
+      votosA: int.parse(votosA.text),
+      votosB: int.parse(votosB.text),
+      blancos: int.parse(blancos.text),
+      nulos: int.parse(nulos.text),
+      fotoId: fotoId,
+      fecha: DateTime.now(),
+      imagenValida: true,
+    );
+
+    if (!mounted) return;
+
+    context.read<ActaBloc>().add(CrearActaEvent(acta));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Acta guardada correctamente")),
+    );
+  }
+
+  Widget input(TextEditingController c, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: TextField(
+        controller: c,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
         ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Registrar Acta")),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          input(junta, "Junta"),
+          input(provincia, "Provincia"),
+          input(canton, "Cantón"),
+          input(parroquia, "Parroquia"),
+          input(votosA, "Votos A"),
+          input(votosB, "Votos B"),
+          input(blancos, "Blancos"),
+          input(nulos, "Nulos"),
+
+          const SizedBox(height: 10),
+
+          imageFile == null
+              ? const Text("⚠ Debe tomar foto", style: TextStyle(color: Colors.red))
+              : Image.file(imageFile!, height: 200),
+
+          const SizedBox(height: 10),
+
+          ElevatedButton.icon(
+            icon: const Icon(Icons.camera_alt),
+            label: const Text("Tomar foto"),
+            onPressed: takePhoto,
+          ),
+
+          const SizedBox(height: 20),
+
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () => saveActa(context),
+            child: const Text("Guardar Acta"),
+          )
+        ],
       ),
     );
   }

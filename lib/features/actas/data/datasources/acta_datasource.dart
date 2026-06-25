@@ -1,4 +1,5 @@
 import 'package:appwrite/appwrite.dart';
+import '../../../../core/appwrite_client.dart';
 import '../models/acta_model.dart';
 
 class ActaDatasource {
@@ -8,8 +9,8 @@ class ActaDatasource {
 
   Future<void> crearActa(ActaModel acta) async {
     await db.createDocument(
-      databaseId: "6a3ca5420008a6f70fe1", // Database ID
-      collectionId: "actas", // Table ID
+      databaseId: appwriteDatabaseId,
+      collectionId: appwriteActasCollectionId,
       documentId: ID.unique(),
       data: acta.toJson(),
     );
@@ -17,8 +18,8 @@ class ActaDatasource {
 
   Future<List<Map<String, dynamic>>> obtenerActas() async {
     final result = await db.listDocuments(
-      databaseId: "6a3ca5420008a6f70fe1",
-      collectionId: "actas",
+      databaseId: appwriteDatabaseId,
+      collectionId: appwriteActasCollectionId,
     );
 
     return result.documents.map((e) => e.data).toList();

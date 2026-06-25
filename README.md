@@ -1,17 +1,28 @@
-# sistema_electoral
+# Sistema Electoral
 
-A new Flutter project.
+Aplicación Flutter para registrar actas de escrutinio en una mesa receptora del voto.
 
-## Getting Started
+## Qué incluye
 
-This project is a starting point for a Flutter application.
+- Registro de actas con datos de junta, provincia, cantón y parroquia.
+- Captura de foto desde cámara.
+- Validación básica de imagen para rechazar fotos borrosas.
+- Integración preparada con Appwrite para almacenamiento y persistencia.
+- Vista de actas registradas para consulta rápida.
 
-A few resources to get you started if this is your first Flutter project:
+## Requisitos
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Flutter SDK 3.11+
+- Android/iOS/Windows/macOS con permisos de cámara
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Ejecutar
+
+```bash
+flutter pub get
+flutter test
+flutter run
+```
+
+## Nota técnica
+
+- La app está preparada para usar Appwrite, pero incluye un respaldo local para pruebas cuando la conexión no está disponible.
