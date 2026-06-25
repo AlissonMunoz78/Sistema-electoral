@@ -6,7 +6,7 @@ class ObtenerActas {
 
   ObtenerActas(this.repository);
 
-  Future<List<Acta>> call() {
-    return repository.obtenerActas();
+  Future<List<Acta>> call({String? userId}) {
+    return repository.obtenerActas(userId: userId);
   }
 }

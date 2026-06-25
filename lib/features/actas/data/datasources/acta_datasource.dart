@@ -16,12 +16,23 @@ class ActaDatasource {
     );
   }
 
-  Future<List<Map<String, dynamic>>> obtenerActas() async {
+  Future<List<Map<String, dynamic>>> obtenerActas({String? userId}) async {
+    final queries = <String>[];
+    if (userId != null) queries.add('userId=$userId');
     final result = await db.listDocuments(
       databaseId: appwriteDatabaseId,
       collectionId: appwriteActasCollectionId,
+      queries: queries,
     );
+    return result.documents.map((e) => {...e.data, '\$id': e.$id}).toList();
+  }
 
-    return result.documents.map((e) => e.data).toList();
+  Future<void> actualizarActa(String documentId, Map<String, dynamic> data) async {
+    await db.updateDocument(
+      databaseId: appwriteDatabaseId,
+      collectionId: appwriteActasCollectionId,
+      documentId: documentId,
+      data: data,
+    );
   }
 }

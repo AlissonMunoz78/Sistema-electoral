@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'package:image/image.dart' as img;
 
+// Limitación conocida: Laplacian variance es un heurístico simple que puede
+// clasificar incorrectamente imágenes con patrones repetitivos o texturas finas
+// como borrosas. Un enfoque más robusto usaría redes neuronales (p.ej. MobileNet),
+// pero incrementa el tamaño de la app y requiere permisos adicionales.
 class ImageService {
   static bool isImageBlurry(File file) {
     try {

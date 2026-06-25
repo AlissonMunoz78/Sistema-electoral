@@ -2,17 +2,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/image_service.dart';
 import '../../../../core/storage_service.dart';
 import '../../../../core/appwrite_client.dart';
-
+import '../../../../core/political_organizations.dart';
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
+import '../bloc/acta_state.dart';
 import '../../domain/entities/acta.dart';
 
 class FormActaPage extends StatefulWidget {
-  const FormActaPage({super.key});
+  final Acta? actaExistente;
+  const FormActaPage({super.key, this.actaExistente});
 
   @override
   State<FormActaPage> createState() => _FormActaPageState();
@@ -21,30 +24,103 @@ class FormActaPage extends StatefulWidget {
 class _FormActaPageState extends State<FormActaPage> {
   final picker = ImagePicker();
   File? imageFile;
-
   late StorageService storageService;
+  bool _isSubmitting = false;
 
   final junta = TextEditingController();
-  final provincia = TextEditingController();
   final canton = TextEditingController();
   final parroquia = TextEditingController();
-  final votosA = TextEditingController();
-  final votosB = TextEditingController();
+  String _dignidadSeleccionada = 'alcalde';
+  final List<TextEditingController> _votosOrg = List.generate(5, (_) => TextEditingController());
   final blancos = TextEditingController();
   final nulos = TextEditingController();
+  final totalSufragantes = TextEditingController();
+
+  String _provinciaSeleccionada = 'Pichincha';
+  double? _latitud;
+  double? _longitud;
+  final List<String> _provincias = ['Pichincha', 'Guayas', 'Azuay'];
+
+  bool _actaAlcaldeCompletada = false;
+  bool _actaPrefectoCompletada = false;
 
   @override
   void initState() {
     super.initState();
     storageService = StorageService(storage);
+
+    if (widget.actaExistente != null) {
+      final a = widget.actaExistente!;
+      junta.text = a.junta.toString();
+      canton.text = a.canton;
+      parroquia.text = a.parroquia;
+      _dignidadSeleccionada = a.dignidad;
+      _provinciaSeleccionada = a.provincia;
+      blancos.text = a.blancos.toString();
+      nulos.text = a.nulos.toString();
+      totalSufragantes.text = a.totalSufragantes.toString();
+      for (int i = 0; i < a.votosOrganizaciones.length && i < 5; i++) {
+        _votosOrg[i].text = a.votosOrganizaciones[i].toString();
+      }
+      _latitud = a.latitud;
+      _longitud = a.longitud;
+    }
+  }
+
+  @override
+  void dispose() {
+    junta.dispose();
+    canton.dispose();
+    parroquia.dispose();
+    for (final c in _votosOrg) {
+      c.dispose();
+    }
+    blancos.dispose();
+    nulos.dispose();
+    totalSufragantes.dispose();
+    super.dispose();
+  }
+
+  Future<void> _obtenerGPS() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (!mounted) return;
+      _mostrarError('El GPS está desactivado. Actívalo para continuar.');
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (!mounted) return;
+        _mostrarError('Permiso de ubicación denegado. Es necesario para registrar el acta.');
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
+      _mostrarError('Permiso de ubicación bloqueado permanentemente. Ve a configuración para habilitarlo.');
+      return;
+    }
+
+    final pos = await Geolocator.getCurrentPosition();
+    if (!mounted) return;
+    setState(() {
+      _latitud = pos.latitude;
+      _longitud = pos.longitude;
+    });
   }
 
   Future<void> takePhoto() async {
+    await _obtenerGPS();
+    if (_latitud == null) return;
+
     final picked = await picker.pickImage(
       source: ImageSource.camera,
       imageQuality: 90,
     );
-
     if (picked == null) return;
 
     setState(() {
@@ -52,58 +128,116 @@ class _FormActaPageState extends State<FormActaPage> {
     });
   }
 
-  Future<void> saveActa(BuildContext context) async {
-    if (imageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Debe tomar una foto")),
-      );
-      return;
-    }
-
-    /// 🔥 VALIDACIÓN BORROSIDAD
-    final isBlurry = ImageService.isImageBlurry(imageFile!);
-
-    if (isBlurry) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Imagen borrosa, no válida")),
-      );
-      return;
-    }
-
-    /// 📤 SUBIR A APPWRITE STORAGE
-    final fotoId = await storageService.uploadImage(imageFile!);
-
-    final acta = Acta(
-      junta: int.parse(junta.text),
-      provincia: provincia.text,
-      canton: canton.text,
-      parroquia: parroquia.text,
-      votosA: int.parse(votosA.text),
-      votosB: int.parse(votosB.text),
-      blancos: int.parse(blancos.text),
-      nulos: int.parse(nulos.text),
-      fotoId: fotoId,
-      fecha: DateTime.now(),
-      imagenValida: true,
-    );
-
-    if (!mounted) return;
-
-    context.read<ActaBloc>().add(CrearActaEvent(acta));
-
+  void _mostrarError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Acta guardada correctamente")),
+      SnackBar(content: Text(msg), backgroundColor: Colors.red),
     );
   }
 
-  Widget input(TextEditingController c, String label) {
+  void _mostrarExito(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: Colors.green),
+    );
+  }
+
+  bool _validarVotos() {
+    final total = int.tryParse(totalSufragantes.text) ?? 0;
+    if (total <= 0) {
+      _mostrarError('Debe ingresar el total de sufragantes.');
+      return false;
+    }
+    final votos = _votosOrg.map((c) => int.tryParse(c.text) ?? 0).toList();
+    final suma = votos.fold(0, (a, b) => a + b) + (int.tryParse(blancos.text) ?? 0) + (int.tryParse(nulos.text) ?? 0);
+    if (suma > total) {
+      _mostrarError('La suma de votos ($suma) supera el total de sufragantes ($total).');
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> guardarActaDignidad(String dignidad) async {
+    if (!_validarVotos()) return;
+
+    if (imageFile == null && widget.actaExistente == null) {
+      _mostrarError('Debe tomar una foto del acta.');
+      return;
+    }
+
+    if (imageFile != null) {
+      final isBlurry = ImageService.isImageBlurry(imageFile!);
+      if (isBlurry) {
+        _mostrarError('Imagen borrosa. Tome la foto nuevamente.');
+        return;
+      }
+    }
+
+    if (_latitud == null || _longitud == null) {
+      _mostrarError('No se pudo obtener las coordenadas GPS.');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      String fotoId = widget.actaExistente?.fotoId ?? '';
+      if (imageFile != null) {
+        fotoId = await storageService.uploadImage(imageFile!);
+      }
+
+      final acta = Acta(
+        junta: int.tryParse(junta.text) ?? 0,
+        provincia: _provinciaSeleccionada,
+        canton: canton.text,
+        parroquia: parroquia.text,
+        dignidad: dignidad,
+        votosOrganizaciones: _votosOrg.map((c) => int.tryParse(c.text) ?? 0).toList(),
+        blancos: int.tryParse(blancos.text) ?? 0,
+        nulos: int.tryParse(nulos.text) ?? 0,
+        totalSufragantes: int.tryParse(totalSufragantes.text) ?? 0,
+        fotoId: fotoId,
+        fecha: DateTime.now(),
+        imagenValida: true,
+        latitud: _latitud,
+        longitud: _longitud,
+      );
+
+      if (!mounted) return;
+
+      if (widget.actaExistente?.id != null && widget.actaExistente!.id!.isNotEmpty) {
+        context.read<ActaBloc>().add(ActualizarActaEvent(widget.actaExistente!.id!, acta));
+      } else {
+        context.read<ActaBloc>().add(CrearActaEvent(acta));
+      }
+
+      if (dignidad == 'alcalde') {
+        setState(() => _actaAlcaldeCompletada = true);
+      } else {
+        setState(() => _actaPrefectoCompletada = true);
+      }
+
+      _mostrarExito('Acta de $dignidad guardada correctamente.');
+
+      if (_actaAlcaldeCompletada && _actaPrefectoCompletada) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      _mostrarError('Error al guardar: $e');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Widget _input(TextEditingController c, String label, {TextInputType keyboardType = TextInputType.text}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
         controller: c,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: Colors.grey.shade50,
         ),
       ),
     );
@@ -111,41 +245,224 @@ class _FormActaPageState extends State<FormActaPage> {
 
   @override
   Widget build(BuildContext context) {
+    final orgs = getOrganizacionesPorDignidad();
+    final orgsActuales = orgs[_dignidadSeleccionada] ?? [];
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Registrar Acta")),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: Text(widget.actaExistente != null ? 'Corregir Acta' : 'Registrar Acta'),
+        backgroundColor: const Color(0xFF1A3A6B),
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: BlocListener<ActaBloc, ActaState>(
+        listener: (context, state) {
+          if (state is ActaError) {
+            _mostrarError(state.message);
+          }
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _sectionCard(
+              title: 'Datos del recinto',
+              icon: Icons.location_city,
+              children: [
+                DropdownButtonFormField<String>(
+                  initialValue: _provinciaSeleccionada,
+                  decoration: _inputDeco('Provincia'),
+                  items: _provincias.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                  onChanged: (v) => setState(() => _provinciaSeleccionada = v!),
+                ),
+                _input(canton, 'Cantón'),
+                _input(parroquia, 'Parroquia'),
+                _input(junta, 'Número de mesa (JRV)', keyboardType: TextInputType.number),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _sectionCard(
+              title: 'Dignidad',
+              icon: Icons.assignment,
+              children: [
+                SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'alcalde', label: Text('Alcalde')),
+                    ButtonSegment(value: 'prefecto', label: Text('Prefecto')),
+                  ],
+                  selected: {_dignidadSeleccionada},
+                  onSelectionChanged: (v) => setState(() => _dignidadSeleccionada = v.first),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _sectionCard(
+              title: 'Votos por organización — ${_dignidadSeleccionada == "alcalde" ? "ALCALDE" : "PREFECTO"}',
+              icon: Icons.how_to_vote,
+              children: [
+                ...List.generate(5, (i) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: TextField(
+                      controller: _votosOrg[i],
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: '${orgsActuales[i].name} (${orgsActuales[i].party})',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                    ),
+                  );
+                }),
+                const Divider(height: 20),
+                _input(blancos, 'Votos en blanco', keyboardType: TextInputType.number),
+                _input(nulos, 'Votos nulos', keyboardType: TextInputType.number),
+                _input(totalSufragantes, 'Total sufragantes', keyboardType: TextInputType.number),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _sectionCard(
+              title: 'Fotografía del acta',
+              icon: Icons.camera_alt,
+              children: [
+                if (_latitud != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on, color: Colors.green, size: 18),
+                        const SizedBox(width: 6),
+                        Text(
+                          'GPS: ${_latitud!.toStringAsFixed(5)}, ${_longitud!.toStringAsFixed(5)}',
+                          style: const TextStyle(fontSize: 12, color: Colors.green),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (imageFile == null && widget.actaExistente == null)
+                  Container(
+                    height: 160,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.image_outlined, size: 48, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text('Sin foto aún', style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (imageFile != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(imageFile!, height: 200, fit: BoxFit.cover, width: double.infinity),
+                  ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Tomar foto del acta'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      side: const BorderSide(color: Color(0xFF1A3A6B)),
+                      foregroundColor: const Color(0xFF1A3A6B),
+                    ),
+                    onPressed: takePhoto,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton.icon(
+                icon: _isSubmitting
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Icon(Icons.save),
+                label: Text(_isSubmitting
+                    ? 'Guardando...'
+                    : (widget.actaExistente != null
+                        ? 'Guardar corrección'
+                        : 'Guardar Acta de ${_dignidadSeleccionada == "alcalde" ? "Alcalde" : "Prefecto"}')),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: widget.actaExistente != null ? Colors.orange.shade700 : const Color(0xFF1A3A6B),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: _isSubmitting ? null : () => guardarActaDignidad(_dignidadSeleccionada),
+              ),
+            ),
+            if (widget.actaExistente == null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _actaAlcaldeCompletada
+                    ? '✓ Acta de Alcalde completada'
+                    : '⏳ Pendiente: Acta de Alcalde',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _actaAlcaldeCompletada ? Colors.green : Colors.grey,
+                ),
+              ),
+              Text(
+                _actaPrefectoCompletada
+                    ? '✓ Acta de Prefecto completada'
+                    : '⏳ Pendiente: Acta de Prefecto',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _actaPrefectoCompletada ? Colors.green : Colors.grey,
+                ),
+              ),
+            ],
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDeco(String label) => InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+      );
+
+  Widget _sectionCard({required String title, required IconData icon, required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          input(junta, "Junta"),
-          input(provincia, "Provincia"),
-          input(canton, "Cantón"),
-          input(parroquia, "Parroquia"),
-          input(votosA, "Votos A"),
-          input(votosB, "Votos B"),
-          input(blancos, "Blancos"),
-          input(nulos, "Nulos"),
-
-          const SizedBox(height: 10),
-
-          imageFile == null
-              ? const Text("⚠ Debe tomar foto", style: TextStyle(color: Colors.red))
-              : Image.file(imageFile!, height: 200),
-
-          const SizedBox(height: 10),
-
-          ElevatedButton.icon(
-            icon: const Icon(Icons.camera_alt),
-            label: const Text("Tomar foto"),
-            onPressed: takePhoto,
+          Row(
+            children: [
+              Icon(icon, color: const Color(0xFF1A3A6B), size: 20),
+              const SizedBox(width: 8),
+              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1A3A6B))),
+            ],
           ),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            onPressed: () => saveActa(context),
-            child: const Text("Guardar Acta"),
-          )
+          const Divider(height: 20),
+          ...children,
         ],
       ),
     );

@@ -7,4 +7,13 @@ class CrearActaEvent extends ActaEvent {
   CrearActaEvent(this.acta);
 }
 
-class CargarActasEvent extends ActaEvent {}
+class CargarActasEvent extends ActaEvent {
+  final String? userId;
+  CargarActasEvent({this.userId});
+}
+
+class ActualizarActaEvent extends ActaEvent {
+  final String id;
+  final Acta acta;
+  ActualizarActaEvent(this.id, this.acta);
+}
