@@ -1,12 +1,12 @@
 import '../entities/acta.dart';
 import '../repositories/acta_repository.dart';
 
-class CrearActa {
+class ObtenerActas {
   final ActaRepository repository;
 
-  CrearActa(this.repository);
+  ObtenerActas(this.repository);
 
-  Future<void> call(Acta acta) {
-    return repository.crearActa(acta);
+  Future<List<Acta>> call() {
+    return repository.obtenerActas();
   }
 }
