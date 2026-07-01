@@ -12,13 +12,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
+  final cedulaController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    emailController.dispose();
+    cedulaController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -33,7 +33,8 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pushReplacementNamed(context, '/home', arguments: state.user);
           }
           if (state is AuthRequirePasswordChange) {
-            Navigator.pushReplacementNamed(context, '/change-password');
+            Navigator.pushReplacementNamed(context, '/change-password',
+                arguments: state.user);
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +55,8 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 80, height: 80,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A3A6B),
                       borderRadius: BorderRadius.circular(20),
@@ -64,7 +66,10 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   const Text(
                     'Sistema Electoral',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1A3A6B)),
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A3A6B)),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -73,17 +78,19 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 40),
                   TextField(
-                    controller: emailController,
+                    controller: cedulaController,
                     decoration: InputDecoration(
-                      labelText: 'Correo electrónico',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      labelText: 'Cédula de identidad',
+                      prefixIcon: const Icon(Icons.badge_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: passwordController,
                     obscureText: _obscurePassword,
@@ -91,10 +98,14 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: 'Contraseña',
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        icon: Icon(_obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       filled: true,
                       fillColor: Colors.white,
                     ),
@@ -111,28 +122,33 @@ class _LoginPageState extends State<LoginPage> {
                               ? null
                               : () => context.read<AuthBloc>().add(
                                     AuthLoginRequested(
-                                      emailController.text.trim(),
+                                      cedulaController.text.trim(),
                                       passwordController.text,
                                     ),
                                   ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1A3A6B),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: loading
                               ? const SizedBox(
-                                  width: 22, height: 22,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
                                 )
-                              : const Text('Ingresar', style: TextStyle(fontSize: 16)),
+                              : const Text('Ingresar',
+                                  style: TextStyle(fontSize: 16)),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/forgot-password'),
                     child: const Text('¿Olvidaste tu contraseña?'),
                   ),
                 ],

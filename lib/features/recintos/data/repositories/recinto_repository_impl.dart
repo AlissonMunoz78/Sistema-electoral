@@ -1,3 +1,5 @@
+import 'package:appwrite/appwrite.dart';
+import '../../../../core/appwrite_client.dart';
 import '../../domain/entities/recinto.dart';
 import '../../domain/repositories/recinto_repository.dart';
 import '../datasources/recinto_datasource.dart';
@@ -34,7 +36,36 @@ class RecintoRepositoryImpl implements RecintoRepository {
   }
 
   @override
-  Future<void> asignarCoordinador(String recintoId, String userId) async {
-    await datasource.actualizarRecinto(recintoId, {'coordinadorId': userId});
+  Future<void> asignarCoordinador(String recintoId, String authUserId) async {
+    try {
+      // Buscar documento del usuario para obtener su recintoId actual
+      final userResult = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteUsersCollectionId,
+        queries: [Query.equal('authUserId', authUserId)],
+      );
+      if (userResult.documents.isNotEmpty) {
+        final userDoc = userResult.documents.first;
+        final oldRecintoId = userDoc.data['recintoId'] as String? ?? '';
+
+        // Si el coordinador estaba asignado a otro recinto, limpiar ese recinto
+        if (oldRecintoId.isNotEmpty && oldRecintoId != recintoId) {
+          await datasource.actualizarRecinto(oldRecintoId, {'coordinadorId': ''});
+        }
+
+        // Actualizar el recinto nuevo
+        await datasource.actualizarRecinto(recintoId, {'coordinadorId': authUserId});
+
+        // Actualizar el documento del usuario
+        await databases.updateDocument(
+          databaseId: appwriteDatabaseId,
+          collectionId: appwriteUsersCollectionId,
+          documentId: userDoc.$id,
+          data: {'recintoId': recintoId},
+        );
+      }
+    } catch (_) {
+      // Si falla la reasignación no bloqueamos
+    }
   }
 }

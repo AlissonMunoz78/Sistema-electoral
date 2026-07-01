@@ -1,12 +1,46 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../auth/domain/entities/app_user.dart';
+import '../../../../core/appwrite_client.dart';
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
 import '../bloc/acta_state.dart';
 import 'form_acta_page.dart';
 
 class ListActasPage extends StatelessWidget {
-  const ListActasPage({super.key});
+  void _verFoto(BuildContext context, String fotoId) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: FutureBuilder<Uint8List>(
+          future: storage.getFileDownload(bucketId: appwriteBucketId, fileId: fotoId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Padding(
+                padding: const EdgeInsets.all(40),
+                child: Center(
+                  child: Text(snapshot.hasError ? 'Error al cargar la imagen' : 'Sin datos',
+                      style: const TextStyle(color: Colors.grey)),
+                ),
+              );
+            }
+            return InteractiveViewer(
+              child: Image.memory(snapshot.data!, fit: BoxFit.contain),
+            );
+          },
+        ),
+      ),
+    );
+  }
+  final AppUser? currentUser;
+  const ListActasPage({super.key, this.currentUser});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +59,9 @@ class ListActasPage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<ActaBloc, ActaState>(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocBuilder<ActaBloc, ActaState>(
         builder: (context, state) {
           if (state is ActaLoading) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF1A3A6B)));
@@ -50,7 +86,11 @@ class ListActasPage extends StatelessWidget {
           }
 
           if (state is ActasLoaded) {
-            if (state.actas.isEmpty) {
+            var actas = state.actas;
+            if (currentUser?.role == UserRole.observer && currentUser?.id != null) {
+              actas = actas.where((a) => a.userId == currentUser!.id).toList();
+            }
+            if (actas.isEmpty) {
               return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -65,9 +105,9 @@ class ListActasPage extends StatelessWidget {
 
             return ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: state.actas.length,
+              itemCount: actas.length,
               itemBuilder: (context, index) {
-                final acta = state.actas[index];
+                final acta = actas[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
@@ -111,20 +151,52 @@ class ListActasPage extends StatelessWidget {
                             style: const TextStyle(fontSize: 11, color: Colors.green),
                           ),
                         const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: acta.imagenValida ? Colors.green.shade50 : Colors.red.shade50,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            acta.imagenValida ? 'Imagen válida' : 'Imagen inválida',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: acta.imagenValida ? Colors.green.shade700 : Colors.red.shade700,
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: acta.imagenValida ? Colors.green.shade50 : Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                acta.imagenValida ? 'Imagen válida' : 'Imagen inválida',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: acta.imagenValida ? Colors.green.shade700 : Colors.red.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (acta.fotoId.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              GestureDetector(
+                                onTap: () => _verFoto(context, acta.fotoId),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.image, size: 12, color: Colors.blue.shade700),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Ver foto',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.blue.shade700,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
@@ -160,6 +232,7 @@ class ListActasPage extends StatelessWidget {
             ),
           );
         },
+        ),
       ),
     );
   }

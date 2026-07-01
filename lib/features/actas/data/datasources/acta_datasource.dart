@@ -3,35 +3,41 @@ import '../../../../core/appwrite_client.dart';
 import '../models/acta_model.dart';
 
 class ActaDatasource {
-  final TablesDB db;
+  final Databases db;
 
   ActaDatasource(this.db);
 
   Future<void> crearActa(ActaModel acta) async {
-    await db.createRow(
+    await db.createDocument(
       databaseId: appwriteDatabaseId,
-      tableId: appwriteActasCollectionId,
-      rowId: ID.unique(),
+      collectionId: appwriteActasCollectionId,
+      documentId: ID.unique(),
       data: acta.toJson(),
+      permissions: [
+        Permission.read(Role.any()),
+        Permission.write(Role.any()),
+      ],
     );
   }
 
   Future<List<Map<String, dynamic>>> obtenerActas({String? userId}) async {
     final queries = <String>[];
-    if (userId != null) queries.add('userId=$userId');
-    final result = await db.listRows(
+    if (userId != null && userId.isNotEmpty) {
+      queries.add(Query.equal('userId', userId));
+    }
+    final result = await db.listDocuments(
       databaseId: appwriteDatabaseId,
-      tableId: appwriteActasCollectionId,
+      collectionId: appwriteActasCollectionId,
       queries: queries,
     );
-    return result.rows.map((e) => {...e.data, '\$id': e.$id}).toList();
+    return result.documents.map((e) => {...e.data, '\$id': e.$id}).toList();
   }
 
   Future<void> actualizarActa(String documentId, Map<String, dynamic> data) async {
-    await db.updateRow(
+    await db.updateDocument(
       databaseId: appwriteDatabaseId,
-      tableId: appwriteActasCollectionId,
-      rowId: documentId,
+      collectionId: appwriteActasCollectionId,
+      documentId: documentId,
       data: data,
     );
   }

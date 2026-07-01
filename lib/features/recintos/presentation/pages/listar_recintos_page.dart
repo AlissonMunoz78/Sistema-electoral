@@ -1,3 +1,4 @@
+import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/appwrite_client.dart';
@@ -44,7 +45,9 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           ),
         ],
       ),
-      body: BlocBuilder<RecintoBloc, RecintoState>(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocBuilder<RecintoBloc, RecintoState>(
         builder: (context, state) {
           if (state is RecintoLoading) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF1A3A6B)));
@@ -117,6 +120,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           }
           return const Center(child: Text('Presiona recargar para cargar'));
         },
+        ),
       ),
     );
   }
@@ -135,11 +139,8 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
             const Text('Funciones disponibles:', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             _opcion(ctx, 'Asignar coordinador de recinto', Icons.person_add, () async {
-              // En una implementación real, aquí se mostraría un selector de usuarios
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Función: Asignar coordinador - requiere selector de usuarios')),
-              );
+              await _asignarCoordinador(context, id);
             }),
             _opcion(ctx, 'Ver coordenadas GPS de actas', Icons.map, () async {
               Navigator.pop(ctx);
@@ -155,6 +156,78 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     );
   }
 
+  Future<void> _asignarCoordinador(BuildContext context, String? recintoId) async {
+    if (recintoId == null) return;
+    try {
+      final usersResult = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteUsersCollectionId,
+        queries: [Query.equal('rol', 'coordinatorRecinto')],
+      );
+      final recintosResult = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteRecintosCollectionId,
+      );
+      final recintoMap = {for (final r in recintosResult.documents) r.$id: r.data['nombre'] ?? ''};
+
+      final disponibles = usersResult.documents
+          .map((d) => ({'id': d.$id, ...d.data}))
+          .where((u) => u['authUserId'] != null && (u['authUserId'] as String).isNotEmpty)
+          .toList();
+
+      if (!context.mounted) return;
+      if (disponibles.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No hay coordinadores de recinto disponibles. Crea uno primero.'),
+          ),
+        );
+        return;
+      }
+
+      final seleccionado = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Seleccionar Coordinador'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: disponibles.length,
+              itemBuilder: (_, i) {
+                final u = disponibles[i];
+                final asignadoA = u['recintoId'] != null && (u['recintoId'] as String).isNotEmpty
+                    ? recintoMap[u['recintoId']] ?? 'Recinto desconocido'
+                    : null;
+                return ListTile(
+                  title: Text('${u['nombres'] ?? ''} ${u['apellidos'] ?? ''}'.trim()),
+                  subtitle: Text(asignadoA != null
+                      ? '${u['correo'] ?? u['email'] ?? ''} — Asignado: $asignadoA'
+                      : u['correo'] ?? u['email'] ?? ''),
+                  onTap: () => Navigator.pop(ctx, u),
+                );
+              },
+            ),
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancelar'))],
+        ),
+      );
+
+      if (seleccionado != null && context.mounted) {
+        context.read<RecintoBloc>().add(AsignarCoordinadorEvent(
+              recintoId,
+              seleccionado['authUserId'] as String,
+            ));
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar coordinadores: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   Widget _opcion(BuildContext ctx, String texto, IconData icon, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF1A3A6B)),
@@ -165,7 +238,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
   }
 
   Future<void> _mostrarGpsActas(BuildContext context, String? recintoId) async {
-    final datasource = ActaDatasource(tablesDB);
+    final datasource = ActaDatasource(databases);
     try {
       final actas = await datasource.obtenerActas();
       final actasConGps = actas.where((a) => a['latitud'] != null && a['longitud'] != null).toList();
@@ -205,7 +278,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
   }
 
   Future<void> _mostrarAvance(BuildContext context, String? recintoId, String nombre, int numeroJRV) async {
-    final datasource = ActaDatasource(tablesDB);
+    final datasource = ActaDatasource(databases);
     try {
       final actas = await datasource.obtenerActas();
       final actasAlcalde = actas.where((a) => a['dignidad'] == 'alcalde').length;

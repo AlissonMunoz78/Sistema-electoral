@@ -10,9 +10,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.login(event.email, event.password);
+        final user = await repository.loginConCedula(event.cedula, event.password);
         if (user.mustChangePassword) {
-          emit(AuthRequirePasswordChange());
+          emit(AuthRequirePasswordChange(user));
         } else {
           emit(AuthAuthenticated(user));
         }
@@ -34,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthChangePasswordRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.changePassword(event.password);
+        final user = await repository.changePassword(event.newPassword, event.oldPassword);
         emit(AuthAuthenticated(user));
       } catch (e) {
         emit(AuthFailure(e.toString()));
@@ -51,16 +51,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckStatus>((event, emit) async {
       emit(AuthLoading());
       try {
-        // Intenta recuperar sesión activa
-        emit(AuthInitial());
+        final user = await repository.getUsuarioActual();
+        if (user != null) {
+          if (user.mustChangePassword) {
+            emit(AuthRequirePasswordChange(user));
+          } else {
+            emit(AuthAuthenticated(user));
+          }
+        } else {
+          emit(AuthInitial());
+        }
       } catch (_) {
         emit(AuthInitial());
       }
     });
 
-    // Nota técnica: AuthRoleChanged no se usa actualmente porque los roles son fijos
-    // tras la creación del usuario. Si en el futuro se requiere cambio de rol en
-    // caliente, aquí se podría reemitir el estado con el nuevo AppUser.
+    on<AuthCrearUsuarioRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final result = await repository.crearUsuario(
+          cedula: event.cedula,
+          nombres: event.nombres,
+          apellidos: event.apellidos,
+          telefono: event.telefono,
+          email: event.email,
+          rol: event.rol,
+          recintoId: event.recintoId,
+          emailCoordinadorActual: event.emailCoordinadorActual,
+          passwordCoordinadorActual: event.passwordCoordinadorActual,
+        );
+        emit(AuthUsuarioCreado(
+          authUserId: result.authUserId,
+          sessionRestored: result.sessionRestored,
+        ));
+      } catch (e) {
+        emit(AuthFailure(e.toString()));
+      }
+    });
+
     on<AuthRoleChanged>((event, emit) {});
   }
 }

@@ -41,7 +41,7 @@ class ImageService {
       if (count == 0) return false;
 
       final average = laplacianVariance / count;
-      return average < 4.0;
+      return average < 8.0;
     } catch (_) {
       return false;
     }

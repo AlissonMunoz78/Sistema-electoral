@@ -27,7 +27,9 @@ class _CrearRecintoPageState extends State<CrearRecintoPage> {
         title: const Text('Crear Recinto'),
         backgroundColor: const Color(0xFF1A3A6B), foregroundColor: Colors.white,
       ),
-      body: BlocListener<RecintoBloc, RecintoState>(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocListener<RecintoBloc, RecintoState>(
         listener: (context, state) {
           if (state is RecintoSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -42,6 +44,7 @@ class _CrearRecintoPageState extends State<CrearRecintoPage> {
           }
         },
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16),
           children: [
             _input(nombreCtrl, 'Nombre del recinto'),
@@ -78,6 +81,7 @@ class _CrearRecintoPageState extends State<CrearRecintoPage> {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

@@ -13,6 +13,10 @@ class StorageService {
       bucketId: appwriteBucketId,
       fileId: ID.unique(),
       file: InputFile.fromPath(path: file.path),
+      permissions: [
+        Permission.read(Role.any()),
+        Permission.write(Role.any()),
+      ],
     );
 
     return result.$id;

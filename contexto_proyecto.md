@@ -3,13 +3,6 @@
 
 
 ================================================
-📄 ARCHIVO: .flutter-plugins-dependencies
-================================================
-
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_ios","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_ios-0.8.13+6\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_ios","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_ios-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_plugin_android_lifecycle","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_plugin_android_lifecycle-2.0.35\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_android","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_android-4.6.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_android","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_android-0.8.13+17\\\\","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni_flutter-1.0.1\\\\","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_android","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_android-2.3.1\\\\","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"url_launcher_android","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_android-6.3.30\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_selector_macos","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_macos-0.9.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_macos","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_macos-0.2.2+1\\\\","native_build":false,"dependencies":["file_selector_macos"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_macos","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_macos-3.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_linux","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_linux-0.9.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"image_picker_linux","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_linux-0.2.2\\\\","native_build":false,"dependencies":["file_selector_linux"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_linux-2.2.2\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_linux","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_linux-3.2.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"windows":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_windows","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_windows-0.9.3+5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_windows","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_windows-0.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_windows","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_windows-0.2.2\\\\","native_build":false,"dependencies":["file_selector_windows"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_windows-2.3.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_windows","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_windows-3.1.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"web":[{"name":"connectivity_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","dependencies":[],"dev_dependency":false},{"name":"geolocator_web","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_web-4.1.4\\\\","dependencies":[],"dev_dependency":false},{"name":"image_picker_for_web","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_for_web-3.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","dependencies":[],"dev_dependency":false},{"name":"url_launcher_web","path":"C:\\\\Users\\\\APP MOVILES\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_web-2.4.3\\\\","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"connectivity_plus","dependencies":[]},{"name":"desktop_webview_window","dependencies":[]},{"name":"device_info_plus","dependencies":[]},{"name":"file_selector_linux","dependencies":[]},{"name":"file_selector_macos","dependencies":[]},{"name":"file_selector_windows","dependencies":[]},{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"flutter_web_auth_2","dependencies":["desktop_webview_window","path_provider","url_launcher","window_to_front"]},{"name":"geolocator","dependencies":["geolocator_android","geolocator_apple","geolocator_web","geolocator_windows"]},{"name":"geolocator_android","dependencies":[]},{"name":"geolocator_apple","dependencies":[]},{"name":"geolocator_web","dependencies":[]},{"name":"geolocator_windows","dependencies":[]},{"name":"image_picker","dependencies":["image_picker_android","image_picker_for_web","image_picker_ios","image_picker_linux","image_picker_macos","image_picker_windows"]},{"name":"image_picker_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_for_web","dependencies":[]},{"name":"image_picker_ios","dependencies":[]},{"name":"image_picker_linux","dependencies":["file_selector_linux"]},{"name":"image_picker_macos","dependencies":["file_selector_macos"]},{"name":"image_picker_windows","dependencies":["file_selector_windows"]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"package_info_plus","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"url_launcher","dependencies":["url_launcher_android","url_launcher_ios","url_launcher_linux","url_launcher_macos","url_launcher_web","url_launcher_windows"]},{"name":"url_launcher_android","dependencies":[]},{"name":"url_launcher_ios","dependencies":[]},{"name":"url_launcher_linux","dependencies":[]},{"name":"url_launcher_macos","dependencies":[]},{"name":"url_launcher_web","dependencies":[]},{"name":"url_launcher_windows","dependencies":[]},{"name":"window_to_front","dependencies":[]}],"date_created":"2026-06-25 15:20:05.344530","version":"3.41.6","swift_package_manager_enabled":{"ios":false,"macos":false}}
-
-
-================================================
 📄 ARCHIVO: .gitignore
 ================================================
 
@@ -157,9 +150,16 @@ import 'package:appwrite/appwrite.dart';
 const String appwriteEndpoint = 'https://sfo.cloud.appwrite.io/v1';
 const String appwriteProjectId = 'sistema-electoral';
 const String appwriteDatabaseId = '6a3ca5420008a6f70fe1';
+
+// Colecciones (tablas) usadas por la app.
+// NOTA: se corrigió el typo "ususarios" -> "users" y se agregaron las
+// colecciones nuevas que el enunciado requiere (asignaciones de mesa y
+// organizaciones políticas precargadas desde el backend).
 const String appwriteActasCollectionId = 'actas';
-const String appwriteUsersCollectionId = 'app_users';
+const String appwriteUsersCollectionId = 'users';
 const String appwriteRecintosCollectionId = 'recintos';
+const String appwriteAsignacionesCollectionId = 'asignaciones_mesa';
+const String appwriteOrganizacionesCollectionId = 'organizaciones_politicas';
 const String appwriteBucketId = '6a3ca946002e1039870d';
 
 Client client = Client()
@@ -167,7 +167,80 @@ Client client = Client()
     .setProject(appwriteProjectId);
 
 Databases get databases => Databases(client);
+TablesDB get tablesDB => TablesDB(client);
 Storage get storage => Storage(client);
+Account get account => Account(client);
+
+
+================================================
+📄 ARCHIVO: lib\core\cedula_validator.dart
+================================================
+
+// Validador de cédula ecuatoriana.
+//
+// Algoritmo oficial (módulo 10) usado por el Registro Civil del Ecuador:
+// 1. Los dos primeros dígitos representan el código de provincia (01-24, o 30
+//    para extranjeros residentes con cédula ecuatoriana en algunos casos).
+// 2. El tercer dígito debe ser menor a 6 para personas naturales.
+// 3. Se aplica el algoritmo de Luhn modificado (módulo 10) sobre los primeros
+//    9 dígitos, y el resultado debe coincidir con el décimo dígito (verificador).
+//
+// Referencia pública del algoritmo: documentación técnica del Registro Civil
+// y validaciones replicadas en múltiples SDKs de validación ecuatoriana.
+class CedulaValidator {
+  /// Valida que [cedula] sea una cédula ecuatoriana válida.
+  /// Devuelve true si es válida, false en caso contrario.
+  static bool isValid(String cedula) {
+    final cleaned = cedula.trim();
+
+    // Debe tener exactamente 10 dígitos numéricos.
+    if (cleaned.length != 10) return false;
+    if (!RegExp(r'^[0-9]{10}$').hasMatch(cleaned)) return false;
+
+    final digits = cleaned.split('').map(int.parse).toList();
+
+    // Código de provincia: 01-24 (más 30 para casos especiales registrados).
+    final provincia = digits[0] * 10 + digits[1];
+    if (provincia < 1 || (provincia > 24 && provincia != 30)) return false;
+
+    // Tercer dígito debe ser menor a 6 para cédulas de personas naturales.
+    final tercerDigito = digits[2];
+    if (tercerDigito > 6) return false;
+
+    // Algoritmo módulo 10 (Luhn modificado):
+    // Posiciones impares (índice 0,2,4,6,8) se multiplican por 2;
+    // si el resultado es >= 10, se le resta 9.
+    const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    var suma = 0;
+    for (var i = 0; i < 9; i++) {
+      var valor = digits[i] * coeficientes[i];
+      if (valor >= 10) valor -= 9;
+      suma += valor;
+    }
+
+    final digitoVerificadorEsperado = (10 - (suma % 10)) % 10;
+    final digitoVerificadorReal = digits[9];
+
+    return digitoVerificadorEsperado == digitoVerificadorReal;
+  }
+
+  /// Devuelve un mensaje de error legible, o null si la cédula es válida.
+  /// Útil para mostrar feedback directo en formularios.
+  static String? validationMessage(String cedula) {
+    final cleaned = cedula.trim();
+    if (cleaned.isEmpty) return 'La cédula es obligatoria.';
+    if (!RegExp(r'^[0-9]+$').hasMatch(cleaned)) {
+      return 'La cédula debe contener solo números.';
+    }
+    if (cleaned.length != 10) {
+      return 'La cédula debe tener exactamente 10 dígitos.';
+    }
+    if (!isValid(cleaned)) {
+      return 'La cédula ingresada no es válida.';
+    }
+    return null;
+  }
+}
 
 
 ================================================
@@ -329,15 +402,15 @@ import '../../../../core/appwrite_client.dart';
 import '../models/acta_model.dart';
 
 class ActaDatasource {
-  final Databases db;
+  final TablesDB db;
 
   ActaDatasource(this.db);
 
   Future<void> crearActa(ActaModel acta) async {
-    await db.createDocument(
+    await db.createRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteActasCollectionId,
-      documentId: ID.unique(),
+      tableId: appwriteActasCollectionId,
+      rowId: ID.unique(),
       data: acta.toJson(),
     );
   }
@@ -345,19 +418,19 @@ class ActaDatasource {
   Future<List<Map<String, dynamic>>> obtenerActas({String? userId}) async {
     final queries = <String>[];
     if (userId != null) queries.add('userId=$userId');
-    final result = await db.listDocuments(
+    final result = await db.listRows(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteActasCollectionId,
+      tableId: appwriteActasCollectionId,
       queries: queries,
     );
-    return result.documents.map((e) => {...e.data, '\$id': e.$id}).toList();
+    return result.rows.map((e) => {...e.data, '\$id': e.$id}).toList();
   }
 
   Future<void> actualizarActa(String documentId, Map<String, dynamic> data) async {
-    await db.updateDocument(
+    await db.updateRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteActasCollectionId,
-      documentId: documentId,
+      tableId: appwriteActasCollectionId,
+      rowId: documentId,
       data: data,
     );
   }
@@ -394,40 +467,23 @@ import '../../domain/entities/acta.dart';
 
 class ActaModel extends Acta {
   ActaModel({
-    required int junta,
-    required String provincia,
-    required String canton,
-    required String parroquia,
-    required String dignidad,
-    required List<int> votosOrganizaciones,
-    required int blancos,
-    required int nulos,
-    required int totalSufragantes,
-    required String fotoId,
-    required DateTime fecha,
-    required bool imagenValida,
-    double? latitud,
-    double? longitud,
-    String? userId,
-    String? id,
-  }) : super(
-          junta: junta,
-          provincia: provincia,
-          canton: canton,
-          parroquia: parroquia,
-          dignidad: dignidad,
-          votosOrganizaciones: votosOrganizaciones,
-          blancos: blancos,
-          nulos: nulos,
-          totalSufragantes: totalSufragantes,
-          fotoId: fotoId,
-          fecha: fecha,
-          imagenValida: imagenValida,
-          latitud: latitud,
-          longitud: longitud,
-          userId: userId,
-          id: id,
-        );
+    required super.junta,
+    required super.provincia,
+    required super.canton,
+    required super.parroquia,
+    required super.dignidad,
+    required super.votosOrganizaciones,
+    required super.blancos,
+    required super.nulos,
+    required super.totalSufragantes,
+    required super.fotoId,
+    required super.fecha,
+    required super.imagenValida,
+    super.latitud,
+    super.longitud,
+    super.userId,
+    super.id,
+  });
 
   factory ActaModel.fromJson(Map<String, dynamic> json, {String? docId}) {
     return ActaModel(
@@ -879,6 +935,314 @@ class ActaError extends ActaState {
 
 
 ================================================
+📄 ARCHIVO: lib\features\actas\presentation\pages\dashboard_page.dart
+================================================
+
+import 'package:flutter/material.dart';
+import '../../data/datasources/acta_datasource.dart';
+import '../../../../core/appwrite_client.dart';
+import '../../../../core/political_organizations.dart';
+
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool _loading = true;
+  String? _error;
+
+  List<int> _votosAlcaldeTotal = List.filled(5, 0);
+  List<int> _votosPrefectoTotal = List.filled(5, 0);
+  Map<String, List<int>> _votosPorRecintoAlcalde = {};
+  Map<String, List<int>> _votosPorRecintoPrefecto = {};
+
+  final _orgsAlcalde = getOrganizacionesAlcalde();
+  final _orgsPrefecto = getOrganizacionesPrefecto();
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _cargarDatos();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _cargarDatos() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final datasource = ActaDatasource(tablesDB);
+      final actas = await datasource.obtenerActas();
+
+      final alcaldeTotal = List.filled(5, 0);
+      final prefectoTotal = List.filled(5, 0);
+      final porRecintoAlcalde = <String, List<int>>{};
+      final porRecintoPrefecto = <String, List<int>>{};
+
+      for (final a in actas) {
+        final votos = a['votosOrganizaciones'];
+        if (votos == null) continue;
+        final lista = (votos as List).map((e) => (e as num).toInt()).toList();
+        while (lista.length < 5) lista.add(0);
+
+        final canton = a['canton'] as String? ?? 'Desconocido';
+        final parroquia = a['parroquia'] as String? ?? '';
+        final recintoKey = '$canton / $parroquia';
+
+        if (a['dignidad'] == 'alcalde') {
+          for (int i = 0; i < 5; i++) alcaldeTotal[i] += lista[i];
+          porRecintoAlcalde[recintoKey] ??= List.filled(5, 0);
+          for (int i = 0; i < 5; i++) porRecintoAlcalde[recintoKey]![i] += lista[i];
+        } else if (a['dignidad'] == 'prefecto') {
+          for (int i = 0; i < 5; i++) prefectoTotal[i] += lista[i];
+          porRecintoPrefecto[recintoKey] ??= List.filled(5, 0);
+          for (int i = 0; i < 5; i++) porRecintoPrefecto[recintoKey]![i] += lista[i];
+        }
+      }
+
+      setState(() {
+        _votosAlcaldeTotal = alcaldeTotal;
+        _votosPrefectoTotal = prefectoTotal;
+        _votosPorRecintoAlcalde = porRecintoAlcalde;
+        _votosPorRecintoPrefecto = porRecintoPrefecto;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: const Text('Dashboard Electoral'),
+        backgroundColor: const Color(0xFF1A3A6B),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Actualizar',
+            onPressed: _cargarDatos,
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          tabs: const [
+            Tab(text: 'ALCALDE'),
+            Tab(text: 'PREFECTO'),
+          ],
+        ),
+      ),
+      body: _loading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1A3A6B)))
+          : _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      const SizedBox(height: 12),
+                      Text('Error: $_error', textAlign: TextAlign.center),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                          onPressed: _cargarDatos,
+                          child: const Text('Reintentar')),
+                    ],
+                  ),
+                )
+              : TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildTabContent(
+                      orgs: _orgsAlcalde,
+                      totalVotos: _votosAlcaldeTotal,
+                      porRecinto: _votosPorRecintoAlcalde,
+                    ),
+                    _buildTabContent(
+                      orgs: _orgsPrefecto,
+                      totalVotos: _votosPrefectoTotal,
+                      porRecinto: _votosPorRecintoPrefecto,
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildTabContent({
+    required List orgs,
+    required List<int> totalVotos,
+    required Map<String, List<int>> porRecinto,
+  }) {
+    final grandTotal = totalVotos.fold(0, (a, b) => a + b);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _sectionCard(
+          title: 'Consolidado General',
+          icon: Icons.bar_chart,
+          child: grandTotal == 0
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: Text('No hay votos registrados aún',
+                        style: TextStyle(color: Colors.grey)),
+                  ),
+                )
+              : Column(
+                  children: List.generate(orgs.length, (i) {
+                    final votos = totalVotos[i];
+                    final pct = grandTotal > 0 ? votos / grandTotal : 0.0;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  orgs[i].name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13),
+                                ),
+                              ),
+                              Text(
+                                '$votos votos (${(pct * 100).toStringAsFixed(1)}%)',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            orgs[i].party,
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.grey),
+                          ),
+                          const SizedBox(height: 6),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: pct.toDouble(),
+                              minHeight: 10,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  _colorForIndex(i)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+        ),
+        const SizedBox(height: 16),
+        if (porRecinto.isNotEmpty)
+          _sectionCard(
+            title: 'Por Recinto',
+            icon: Icons.location_city,
+            child: Column(
+              children: porRecinto.entries.map((entry) {
+                final recintoVotos = entry.value;
+                final recintoTotal = recintoVotos.fold(0, (a, b) => a + b);
+                return ExpansionTile(
+                  title: Text(entry.key,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600)),
+                  subtitle: Text('Total: $recintoTotal votos',
+                      style: const TextStyle(fontSize: 12)),
+                  children: List.generate(orgs.length, (i) {
+                    final v = recintoVotos[i];
+                    final p = recintoTotal > 0 ? v / recintoTotal : 0.0;
+                    return ListTile(
+                      dense: true,
+                      title: Text(orgs[i].name,
+                          style: const TextStyle(fontSize: 12)),
+                      trailing: Text(
+                          '$v (${(p * 100).toStringAsFixed(1)}%)',
+                          style: const TextStyle(fontSize: 12)),
+                    );
+                  }),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Color _colorForIndex(int i) {
+    const colors = [
+      Color(0xFF1A3A6B),
+      Color(0xFF2196F3),
+      Color(0xFF4CAF50),
+      Color(0xFFFF9800),
+      Color(0xFFE91E63),
+    ];
+    return colors[i % colors.length];
+  }
+
+  Widget _sectionCard(
+      {required String title,
+      required IconData icon,
+      required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, color: const Color(0xFF1A3A6B), size: 20),
+            const SizedBox(width: 8),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A3A6B))),
+          ]),
+          const Divider(height: 20),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+
+================================================
 📄 ARCHIVO: lib\features\actas\presentation\pages\form_acta_page.dart
 ================================================
 
@@ -998,8 +1362,8 @@ class _FormActaPageState extends State<FormActaPage> {
   }
 
   Future<void> takePhoto() async {
+    final messenger = ScaffoldMessenger.of(context);
     await _obtenerGPS();
-    if (_latitud == null) return;
 
     final picked = await picker.pickImage(
       source: ImageSource.camera,
@@ -1010,6 +1374,15 @@ class _FormActaPageState extends State<FormActaPage> {
     setState(() {
       imageFile = File(picked.path);
     });
+
+    if (_latitud == null) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Foto tomada. Advertencia: no se obtuvo GPS.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
   }
 
   void _mostrarError(String msg) {
@@ -1536,38 +1909,109 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import '../../../../core/appwrite_client.dart';
 
+// Limitación conocida: la creación de usuarios (coordinadores de recinto y
+// veedores) requiere normalmente la Appwrite Admin API (server-side, con
+// API Key), que no debería invocarse desde el cliente Flutter en producción
+// por motivos de seguridad. Para esta entrega académica se usa
+// `account.create()` que SÍ es válido desde el cliente, pero tiene una
+// limitación: la sesión activa del creador (coordinador) se pierde al crear
+// la cuenta del nuevo usuario, porque el SDK cliente de Appwrite cambia de
+// contexto de sesión. Por eso, inmediatamente después de crear el usuario
+// nuevo se debe restaurar la sesión original del coordinador (ver
+// AuthRepositoryImpl.crearUsuario). En un entorno productivo real esto se
+// resolvería con una Appwrite Function (server-side) que use la Admin API
+// con API Key, sin tocar la sesión del cliente.
 class AuthRemoteDataSource {
   AuthRemoteDataSource();
 
-  Account get account => Account(client);
+  Account get _account => Account(client);
+
+  /// Login por cédula: primero se busca el documento de usuario por cédula
+  /// para obtener el email real asociado, luego se autentica contra
+  /// Appwrite Auth con ese email + password.
+  Future<String> obtenerEmailPorCedula(String cedula) async {
+    final result = await tablesDB.listRows(
+      databaseId: appwriteDatabaseId,
+      tableId: appwriteUsersCollectionId,
+      queries: [Query.equal('cedula', cedula)],
+    );
+    if (result.rows.isEmpty) {
+      throw Exception('No existe una cuenta registrada con esa cédula.');
+    }
+    final email = result.rows.first.data['email'] as String?;
+    if (email == null || email.isEmpty) {
+      throw Exception('La cuenta no tiene un correo asociado. Contacte a su coordinador.');
+    }
+    return email;
+  }
 
   Future<User> login(String email, String password) async {
-    final session = await account.createEmailPasswordSession(email: email, password: password);
-    return await account.get();
+    try {
+      await _account.deleteSession(sessionId: 'current');
+    } catch (_) {
+      // No había sesión activa, continuar normalmente.
+    }
+    await _account.createEmailPasswordSession(email: email, password: password);
+    return await _account.get();
   }
 
   Future<void> sendPasswordReset(String email) async {
-    await account.createRecovery(email: email, url: 'sistema-electoral://recovery');
+    await _account.createRecovery(
+      email: email,
+      url: 'sistema-electoral://recovery',
+    );
   }
 
-  Future<User> changePassword(String password) async {
-    final user = await account.get();
-    return await account.updatePassword(password: password, oldPassword: '');
+  Future<User> changePassword(String newPassword, String oldPassword) async {
+    return await _account.updatePassword(
+      password: newPassword,
+      oldPassword: oldPassword,
+    );
   }
 
   Future<void> logout() async {
     try {
-      await account.deleteSession(sessionId: 'current');
+      await _account.deleteSession(sessionId: 'current');
     } catch (_) {
-      await account.deleteSessions();
+      await _account.deleteSessions();
     }
   }
 
   Future<User> getCurrentUser() async {
-    return await account.get();
+    return await _account.get();
+  }
+
+  /// Crea la cuenta real en Appwrite Auth (no solo el documento de la
+  /// colección `users`). Devuelve el $id del usuario creado en Auth.
+  ///
+  /// IMPORTANTE: esto cierra la sesión actual del coordinador porque el SDK
+  /// cliente de Appwrite no permite crear otro usuario sin afectar la
+  /// sesión activa. El llamador debe volver a iniciar sesión con las
+  /// credenciales del coordinador después de esta operación (ver
+  /// AuthRepositoryImpl.crearUsuario, que orquesta esto).
+  Future<String> crearCuentaAuth({
+    required String email,
+    required String password,
+    required String nombreCompleto,
+  }) async {
+    final nuevoUsuario = await _account.create(
+      userId: ID.unique(),
+      email: email,
+      password: password,
+      name: nombreCompleto,
+    );
+    return nuevoUsuario.$id;
+  }
+
+  /// Envía el correo de verificación de cuenta. Debe llamarse estando
+  /// autenticado como el usuario recién creado (por eso se invoca justo
+  /// después de crearCuentaAuth, antes de restaurar la sesión original).
+  Future<void> enviarVerificacionEmail() async {
+    await _account.createVerification(
+      url: 'sistema-electoral://verify',
+    );
   }
 }
-
 
 
 ================================================
@@ -1579,38 +2023,49 @@ import '../../domain/entities/app_user.dart';
 class UserModel extends AppUser {
   UserModel({
     required super.id,
+    required super.authUserId,
+    required super.cedula,
+    required super.nombres,
+    required super.apellidos,
+    required super.telefono,
     required super.email,
     required super.role,
     required super.mustChangePassword,
-    this.recintoId,
-    this.mesaId,
-    this.nombre,
+    super.recintoId,
   });
 
-  final String? recintoId;
-  final int? mesaId;
-  final String? nombre;
-
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJson(Map<String, dynamic> json, {String? docId}) {
     return UserModel(
-      id: json['\$id'] as String? ?? '',
+      id: docId ?? json['\$id'] as String? ?? '',
+      authUserId: json['authUserId'] as String? ?? '',
+      cedula: json['cedula'] as String? ?? '',
+      nombres: json['nombres'] as String? ?? '',
+      apellidos: json['apellidos'] as String? ?? '',
+      telefono: json['telefono'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      role: _parseRole(json['role'] as String? ?? 'observer'),
-      mustChangePassword: json['mustChangePassword'] as bool? ?? false,
+      role: _parseRole(json['rol'] as String? ?? 'observer'),
+      mustChangePassword: _parseBool(json['mustChangePassword']),
       recintoId: json['recintoId'] as String?,
-      mesaId: json['mesaId'] as int?,
-      nombre: json['nombre'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
+    'authUserId': authUserId,
+    'cedula': cedula,
+    'nombres': nombres,
+    'apellidos': apellidos,
+    'telefono': telefono,
     'email': email,
-    'role': role.name,
+    'rol': role.name,
     'mustChangePassword': mustChangePassword,
     'recintoId': recintoId,
-    'mesaId': mesaId,
-    'nombre': nombre,
   };
+
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is String) return value.toLowerCase() == 'true';
+    return true; // por defecto, todo usuario nuevo debe cambiar password
+  }
 
   static UserRole _parseRole(String role) {
     switch (role) {
@@ -1625,30 +2080,30 @@ class UserModel extends AppUser {
 }
 
 
-
 ================================================
 📄 ARCHIVO: lib\features\auth\data\repositories\auth_repository_impl.dart
 ================================================
 
-import 'package:appwrite/appwrite.dart' as appwrite;
-
+import 'package:appwrite/appwrite.dart';
 import '../../../../core/appwrite_client.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 import '../models/user_model.dart';
 
+const String _passwordInicial = 'Ecuador2026';
+
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
-  final appwrite.Databases db;
+  final TablesDB db;
 
   AuthRepositoryImpl(this.remoteDataSource, this.db);
 
   @override
-  Future<AppUser> login(String email, String password) async {
-    final user = await remoteDataSource.login(email, password);
-    final prefs = await _getUserPrefs(user.$id);
-    return prefs;
+  Future<AppUser> loginConCedula(String cedula, String password) async {
+    final email = await remoteDataSource.obtenerEmailPorCedula(cedula);
+    final authUser = await remoteDataSource.login(email, password);
+    return _obtenerPerfilPorAuthId(authUser.$id);
   }
 
   @override
@@ -1657,18 +2112,26 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AppUser> changePassword(String newPassword) async {
-    final user = await remoteDataSource.changePassword(newPassword);
-    final prefs = await _getUserPrefs(user.$id);
-    await _updateUserPrefs(user.$id, {'mustChangePassword': false});
+  Future<AppUser> changePassword(String newPassword, String oldPassword) async {
+    final authUser = await remoteDataSource.changePassword(newPassword, oldPassword);
+    final perfilActual = await _obtenerPerfilPorAuthId(authUser.$id);
+    await db.updateRow(
+      databaseId: appwriteDatabaseId,
+      tableId: appwriteUsersCollectionId,
+      rowId: perfilActual.id,
+      data: {'mustChangePassword': false},
+    );
     return UserModel(
-      id: user.$id,
-      email: user.email,
-      role: prefs.role,
+      id: perfilActual.id,
+      authUserId: perfilActual.authUserId,
+      cedula: perfilActual.cedula,
+      nombres: perfilActual.nombres,
+      apellidos: perfilActual.apellidos,
+      telefono: perfilActual.telefono,
+      email: perfilActual.email,
+      role: perfilActual.role,
       mustChangePassword: false,
-      recintoId: prefs.recintoId,
-      mesaId: prefs.mesaId,
-      nombre: prefs.nombre,
+      recintoId: perfilActual.recintoId,
     );
   }
 
@@ -1677,31 +2140,81 @@ class AuthRepositoryImpl implements AuthRepository {
     await remoteDataSource.logout();
   }
 
-  Future<UserModel> _getUserPrefs(String userId) async {
+  @override
+  Future<AppUser?> getUsuarioActual() async {
     try {
-      final doc = await db.getDocument(
-        databaseId: appwriteDatabaseId,
-        collectionId: appwriteUsersCollectionId,
-        documentId: userId,
-      );
-      return UserModel.fromJson(doc.data);
+      final authUser = await remoteDataSource.getCurrentUser();
+      return await _obtenerPerfilPorAuthId(authUser.$id);
     } catch (_) {
-      return UserModel(id: userId, email: '', role: UserRole.observer, mustChangePassword: true);
+      return null;
     }
   }
 
-  Future<void> _updateUserPrefs(String userId, Map<String, dynamic> data) async {
+  @override
+  Future<void> crearUsuario({
+    required String cedula,
+    required String nombres,
+    required String apellidos,
+    required String telefono,
+    required String email,
+    required UserRole rol,
+    String? recintoId,
+    required String emailCoordinadorActual,
+    required String passwordCoordinadorActual,
+  }) async {
+    // 1) Crear la cuenta real en Appwrite Auth con password inicial fija.
+    final authUserId = await remoteDataSource.crearCuentaAuth(
+      email: email,
+      password: _passwordInicial,
+      nombreCompleto: '$nombres $apellidos'.trim(),
+    );
+
+    // 2) Mientras la sesión activa es la del usuario recién creado, se envía
+    //    el correo de verificación de cuenta.
     try {
-      await db.updateDocument(
-        databaseId: appwriteDatabaseId,
-        collectionId: appwriteUsersCollectionId,
-        documentId: userId,
-        data: data,
-      );
-    } catch (_) {}
+      await remoteDataSource.enviarVerificacionEmail();
+    } catch (_) {
+      // Si falla el envío de verificación no se bloquea la creación del
+      // usuario; se podría reintentar manualmente desde el panel.
+    }
+
+    // 3) Crear el documento de perfil en la colección `users`.
+    await db.createRow(
+      databaseId: appwriteDatabaseId,
+      tableId: appwriteUsersCollectionId,
+      rowId: ID.unique(),
+      data: UserModel(
+        id: '',
+        authUserId: authUserId,
+        cedula: cedula,
+        nombres: nombres,
+        apellidos: apellidos,
+        telefono: telefono,
+        email: email,
+        role: rol,
+        mustChangePassword: true,
+        recintoId: recintoId,
+      ).toJson(),
+    );
+
+    // 4) Restaurar la sesión del coordinador que estaba autenticado antes de
+    //    crear este usuario nuevo (ver nota en AuthRemoteDataSource).
+    await remoteDataSource.login(emailCoordinadorActual, passwordCoordinadorActual);
+  }
+
+  Future<UserModel> _obtenerPerfilPorAuthId(String authUserId) async {
+    final result = await db.listRows(
+      databaseId: appwriteDatabaseId,
+      tableId: appwriteUsersCollectionId,
+      queries: [Query.equal('authUserId', authUserId)],
+    );
+    if (result.rows.isEmpty) {
+      throw Exception('No se encontró un perfil asociado a esta cuenta.');
+    }
+    final row = result.rows.first;
+    return UserModel.fromJson(row.data, docId: row.$id);
   }
 }
-
 
 
 ================================================
@@ -1711,19 +2224,32 @@ class AuthRepositoryImpl implements AuthRepository {
 enum UserRole { coordinatorProvincial, coordinatorRecinto, observer }
 
 class AppUser {
-  final String id;
+  final String id; // $id del documento en la colección users
+  final String authUserId; // $id del usuario real en Appwrite Auth
+  final String cedula; // usada como nombre de usuario para login
+  final String nombres;
+  final String apellidos;
+  final String telefono;
   final String email;
   final UserRole role;
   final bool mustChangePassword;
+  final String? recintoId; // coordinador de recinto
 
   AppUser({
     required this.id,
+    required this.authUserId,
+    required this.cedula,
+    required this.nombres,
+    required this.apellidos,
+    required this.telefono,
     required this.email,
     required this.role,
     required this.mustChangePassword,
+    this.recintoId,
   });
-}
 
+  String get nombreCompleto => '$nombres $apellidos'.trim();
+}
 
 
 ================================================
@@ -1733,12 +2259,26 @@ class AppUser {
 import '../entities/app_user.dart';
 
 abstract class AuthRepository {
-  Future<AppUser> login(String email, String password);
+  Future<AppUser> loginConCedula(String cedula, String password);
   Future<void> sendPasswordReset(String email);
-  Future<AppUser> changePassword(String newPassword);
+  Future<AppUser> changePassword(String newPassword, String oldPassword);
   Future<void> logout();
-}
+  Future<AppUser?> getUsuarioActual();
 
+  /// Crea un nuevo usuario (coordinador de recinto o veedor) y restaura la
+  /// sesión del coordinador que lo está creando.
+  Future<void> crearUsuario({
+    required String cedula,
+    required String nombres,
+    required String apellidos,
+    required String telefono,
+    required String email,
+    required UserRole rol,
+    String? recintoId,
+    required String emailCoordinadorActual,
+    required String passwordCoordinadorActual,
+  });
+}
 
 
 ================================================
@@ -1757,9 +2297,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.login(event.email, event.password);
+        final user = await repository.loginConCedula(event.cedula, event.password);
         if (user.mustChangePassword) {
-          emit(AuthRequirePasswordChange());
+          emit(AuthRequirePasswordChange(user));
         } else {
           emit(AuthAuthenticated(user));
         }
@@ -1781,7 +2321,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthChangePasswordRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.changePassword(event.password);
+        final user = await repository.changePassword(event.newPassword, event.oldPassword);
         emit(AuthAuthenticated(user));
       } catch (e) {
         emit(AuthFailure(e.toString()));
@@ -1798,20 +2338,44 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckStatus>((event, emit) async {
       emit(AuthLoading());
       try {
-        // Intenta recuperar sesión activa
-        emit(AuthInitial());
+        final user = await repository.getUsuarioActual();
+        if (user != null) {
+          if (user.mustChangePassword) {
+            emit(AuthRequirePasswordChange(user));
+          } else {
+            emit(AuthAuthenticated(user));
+          }
+        } else {
+          emit(AuthInitial());
+        }
       } catch (_) {
         emit(AuthInitial());
       }
     });
 
-    // Nota técnica: AuthRoleChanged no se usa actualmente porque los roles son fijos
-    // tras la creación del usuario. Si en el futuro se requiere cambio de rol en
-    // caliente, aquí se podría reemitir el estado con el nuevo AppUser.
+    on<AuthCrearUsuarioRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        await repository.crearUsuario(
+          cedula: event.cedula,
+          nombres: event.nombres,
+          apellidos: event.apellidos,
+          telefono: event.telefono,
+          email: event.email,
+          rol: event.rol,
+          recintoId: event.recintoId,
+          emailCoordinadorActual: event.emailCoordinadorActual,
+          passwordCoordinadorActual: event.passwordCoordinadorActual,
+        );
+        emit(AuthUsuarioCreado());
+      } catch (e) {
+        emit(AuthFailure(e.toString()));
+      }
+    });
+
     on<AuthRoleChanged>((event, emit) {});
   }
 }
-
 
 
 ================================================
@@ -1823,10 +2387,9 @@ import '../../domain/entities/app_user.dart';
 abstract class AuthEvent {}
 
 class AuthLoginRequested extends AuthEvent {
-  final String email;
+  final String cedula;
   final String password;
-
-  AuthLoginRequested(this.email, this.password);
+  AuthLoginRequested(this.cedula, this.password);
 }
 
 class AuthForgotPasswordRequested extends AuthEvent {
@@ -1835,8 +2398,9 @@ class AuthForgotPasswordRequested extends AuthEvent {
 }
 
 class AuthChangePasswordRequested extends AuthEvent {
-  final String password;
-  AuthChangePasswordRequested(this.password);
+  final String oldPassword;
+  final String newPassword;
+  AuthChangePasswordRequested(this.oldPassword, this.newPassword);
 }
 
 class AuthLogoutRequested extends AuthEvent {}
@@ -1844,10 +2408,33 @@ class AuthLogoutRequested extends AuthEvent {}
 class AuthCheckStatus extends AuthEvent {}
 
 class AuthRoleChanged extends AuthEvent {
-  final UserRole role;
-  AuthRoleChanged(this.role);
+  final AppUser user;
+  AuthRoleChanged(this.user);
 }
 
+class AuthCrearUsuarioRequested extends AuthEvent {
+  final String cedula;
+  final String nombres;
+  final String apellidos;
+  final String telefono;
+  final String email;
+  final UserRole rol;
+  final String? recintoId;
+  final String emailCoordinadorActual;
+  final String passwordCoordinadorActual;
+
+  AuthCrearUsuarioRequested({
+    required this.cedula,
+    required this.nombres,
+    required this.apellidos,
+    required this.telefono,
+    required this.email,
+    required this.rol,
+    this.recintoId,
+    required this.emailCoordinadorActual,
+    required this.passwordCoordinadorActual,
+  });
+}
 
 
 ================================================
@@ -1867,7 +2454,10 @@ class AuthAuthenticated extends AuthState {
   AuthAuthenticated(this.user);
 }
 
-class AuthRequirePasswordChange extends AuthState {}
+class AuthRequirePasswordChange extends AuthState {
+  final AppUser user;
+  AuthRequirePasswordChange(this.user);
+}
 
 class AuthFailure extends AuthState {
   final String message;
@@ -1879,6 +2469,7 @@ class AuthMessage extends AuthState {
   AuthMessage(this.message);
 }
 
+class AuthUsuarioCreado extends AuthState {}
 
 
 ================================================
@@ -1887,6 +2478,7 @@ class AuthMessage extends AuthState {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/entities/app_user.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -1899,12 +2491,15 @@ class ChangePasswordPage extends StatefulWidget {
 }
 
 class _ChangePasswordPageState extends State<ChangePasswordPage> {
+  final oldPasswordController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
-  bool _obscurePassword = true;
+  bool _obscureOld = true;
+  bool _obscureNew = true;
 
   @override
   void dispose() {
+    oldPasswordController.dispose();
     passwordController.dispose();
     confirmController.dispose();
     super.dispose();
@@ -1912,21 +2507,27 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Recibe el usuario para mostrar info contextual
+    final user = ModalRoute.of(context)?.settings.arguments as AppUser?;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Cambiar contraseña'),
         backgroundColor: const Color(0xFF1A3A6B),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home', arguments: state.user);
+            Navigator.pushReplacementNamed(context, '/home',
+                arguments: state.user);
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                  content: Text(state.message), backgroundColor: Colors.red),
             );
           }
         },
@@ -1935,6 +2536,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (user != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text('Hola, ${user.nombreCompleto}',
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600)),
+                ),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -1944,11 +2552,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                    Icon(Icons.info_outline,
+                        color: Colors.blue.shade700, size: 20),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
-                        'Es necesario cambiar tu contraseña por ser el primer inicio de sesión.',
+                        'Debes cambiar tu contraseña antes de continuar. La contraseña inicial es Ecuador2026.',
                         style: TextStyle(fontSize: 13),
                       ),
                     ),
@@ -1957,16 +2566,38 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
               const SizedBox(height: 24),
               TextField(
+                controller: oldPasswordController,
+                obscureText: _obscureOld,
+                decoration: InputDecoration(
+                  labelText: 'Contraseña actual',
+                  prefixIcon: const Icon(Icons.lock_outlined),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        _obscureOld ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () =>
+                        setState(() => _obscureOld = !_obscureOld),
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
                 controller: passwordController,
-                obscureText: _obscurePassword,
+                obscureText: _obscureNew,
                 decoration: InputDecoration(
                   labelText: 'Nueva contraseña',
                   prefixIcon: const Icon(Icons.lock_outlined),
                   suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    icon: Icon(
+                        _obscureNew ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () =>
+                        setState(() => _obscureNew = !_obscureNew),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: Colors.white,
                 ),
@@ -1976,9 +2607,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 controller: confirmController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Confirmar contraseña',
+                  labelText: 'Confirmar nueva contraseña',
                   prefixIcon: const Icon(Icons.lock_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: Colors.white,
                 ),
@@ -1995,11 +2627,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A3A6B),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       child: loading
-                          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Cambiar contraseña', style: TextStyle(fontSize: 16)),
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
+                          : const Text('Cambiar contraseña',
+                              style: TextStyle(fontSize: 16)),
                     );
                   },
                 ),
@@ -2012,22 +2650,36 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   void _cambiarPassword() {
-    if (passwordController.text.length < 6) {
+    if (oldPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La contraseña debe tener al menos 6 caracteres'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Ingresa tu contraseña actual'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (passwordController.text.length < 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('La nueva contraseña debe tener al menos 8 caracteres'),
+            backgroundColor: Colors.red),
       );
       return;
     }
     if (passwordController.text != confirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Las contraseñas no coinciden'),
+            backgroundColor: Colors.red),
       );
       return;
     }
-    context.read<AuthBloc>().add(AuthChangePasswordRequested(passwordController.text));
+    context.read<AuthBloc>().add(AuthChangePasswordRequested(
+          oldPasswordController.text,
+          passwordController.text,
+        ));
   }
 }
-
 
 
 ================================================
@@ -2152,13 +2804,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
+  final cedulaController = TextEditingController();
   final passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    emailController.dispose();
+    cedulaController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -2173,7 +2825,8 @@ class _LoginPageState extends State<LoginPage> {
             Navigator.pushReplacementNamed(context, '/home', arguments: state.user);
           }
           if (state is AuthRequirePasswordChange) {
-            Navigator.pushReplacementNamed(context, '/change-password');
+            Navigator.pushReplacementNamed(context, '/change-password',
+                arguments: state.user);
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -2194,7 +2847,8 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 80, height: 80,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
                       color: const Color(0xFF1A3A6B),
                       borderRadius: BorderRadius.circular(20),
@@ -2204,7 +2858,10 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   const Text(
                     'Sistema Electoral',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1A3A6B)),
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A3A6B)),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -2213,17 +2870,19 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 40),
                   TextField(
-                    controller: emailController,
+                    controller: cedulaController,
                     decoration: InputDecoration(
-                      labelText: 'Correo electrónico',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      labelText: 'Cédula de identidad',
+                      prefixIcon: const Icon(Icons.badge_outlined),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       filled: true,
                       fillColor: Colors.white,
                     ),
-                    keyboardType: TextInputType.emailAddress,
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: passwordController,
                     obscureText: _obscurePassword,
@@ -2231,10 +2890,14 @@ class _LoginPageState extends State<LoginPage> {
                       labelText: 'Contraseña',
                       prefixIcon: const Icon(Icons.lock_outlined),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        icon: Icon(_obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                        onPressed: () =>
+                            setState(() => _obscurePassword = !_obscurePassword),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       filled: true,
                       fillColor: Colors.white,
                     ),
@@ -2251,28 +2914,33 @@ class _LoginPageState extends State<LoginPage> {
                               ? null
                               : () => context.read<AuthBloc>().add(
                                     AuthLoginRequested(
-                                      emailController.text.trim(),
+                                      cedulaController.text.trim(),
                                       passwordController.text,
                                     ),
                                   ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF1A3A6B),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: loading
                               ? const SizedBox(
-                                  width: 22, height: 22,
-                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
                                 )
-                              : const Text('Ingresar', style: TextStyle(fontSize: 16)),
+                              : const Text('Ingresar',
+                                  style: TextStyle(fontSize: 16)),
                         );
                       },
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/forgot-password'),
                     child: const Text('¿Olvidaste tu contraseña?'),
                   ),
                 ],
@@ -2286,7 +2954,6 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 
-
 ================================================
 📄 ARCHIVO: lib\features\recintos\data\datasources\recinto_datasource.dart
 ================================================
@@ -2296,33 +2963,33 @@ import '../../../../core/appwrite_client.dart';
 import '../models/recinto_model.dart';
 
 class RecintoDatasource {
-  final Databases db;
+  final TablesDB db;
 
   RecintoDatasource(this.db);
 
   Future<void> crearRecinto(RecintoModel recinto) async {
-    await db.createDocument(
+    await db.createRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
-      documentId: ID.unique(),
+      tableId: appwriteRecintosCollectionId,
+      rowId: ID.unique(),
       data: recinto.toJson(),
     );
   }
 
   Future<List<Map<String, dynamic>>> obtenerRecintos() async {
-    final result = await db.listDocuments(
+    final result = await db.listRows(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
+      tableId: appwriteRecintosCollectionId,
     );
-    return result.documents.map((e) => e.data).toList();
+    return result.rows.map((e) => e.data).toList();
   }
 
   Future<Map<String, dynamic>?> obtenerRecinto(String id) async {
     try {
-      final doc = await db.getDocument(
+      final doc = await db.getRow(
         databaseId: appwriteDatabaseId,
-        collectionId: appwriteRecintosCollectionId,
-        documentId: id,
+        tableId: appwriteRecintosCollectionId,
+        rowId: id,
       );
       return doc.data;
     } catch (_) {
@@ -2331,10 +2998,10 @@ class RecintoDatasource {
   }
 
   Future<void> actualizarRecinto(String id, Map<String, dynamic> data) async {
-    await db.updateDocument(
+    await db.updateRow(
       databaseId: appwriteDatabaseId,
-      collectionId: appwriteRecintosCollectionId,
-      documentId: id,
+      tableId: appwriteRecintosCollectionId,
+      rowId: id,
       data: data,
     );
   }
@@ -2350,22 +3017,14 @@ import '../../domain/entities/recinto.dart';
 
 class RecintoModel extends Recinto {
   RecintoModel({
-    String? id,
-    required String nombre,
-    required String provincia,
-    required String canton,
-    required String parroquia,
-    required int numeroJRV,
-    String? coordinadorId,
-  }) : super(
-          id: id,
-          nombre: nombre,
-          provincia: provincia,
-          canton: canton,
-          parroquia: parroquia,
-          numeroJRV: numeroJRV,
-          coordinadorId: coordinadorId,
-        );
+    super.id,
+    required super.nombre,
+    required super.provincia,
+    required super.canton,
+    required super.parroquia,
+    required super.numeroJRV,
+    super.coordinadorId,
+  });
 
   factory RecintoModel.fromJson(Map<String, dynamic> json) {
     return RecintoModel(
@@ -2637,35 +3296,81 @@ class RecintoError extends RecintoState {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../actas/domain/entities/acta.dart';
+import '../../../../core/cedula_validator.dart';
+import '../../../../core/appwrite_client.dart';
 import '../../../actas/presentation/bloc/acta_bloc.dart';
 import '../../../actas/presentation/bloc/acta_event.dart';
 import '../../../actas/presentation/bloc/acta_state.dart';
+import '../../../actas/presentation/pages/form_acta_page.dart';
+import '../../../actas/domain/entities/acta.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../auth/domain/entities/app_user.dart';
 
 class CoordinadorRecintoPage extends StatefulWidget {
   final String recintoId;
   final String userId;
+  final AppUser? currentUser;
 
-  const CoordinadorRecintoPage({super.key, required this.recintoId, required this.userId});
+  const CoordinadorRecintoPage({
+    super.key,
+    required this.recintoId,
+    required this.userId,
+    this.currentUser,
+  });
 
   @override
   State<CoordinadorRecintoPage> createState() => _CoordinadorRecintoPageState();
 }
 
 class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
+  final _cedulaCtrl = TextEditingController();
+  final _nombresCtrl = TextEditingController();
+  final _apellidosCtrl = TextEditingController();
+  final _telefonoCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _mesaCtrl = TextEditingController();
-  final _nombreCtrl = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<ActaBloc>().add(CargarActasEvent());
+  }
+
+  @override
+  void dispose() {
+    _cedulaCtrl.dispose();
+    _nombresCtrl.dispose();
+    _apellidosCtrl.dispose();
+    _telefonoCtrl.dispose();
+    _emailCtrl.dispose();
+    _mesaCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        title: const Text('Panel Coordinador de Recinto'),
-        backgroundColor: const Color(0xFF1A3A6B), foregroundColor: Colors.white,
-      ),
-      body: ListView(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthUsuarioCreado) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Veedor creado. Contraseña inicial: Ecuador2026'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          _limpiarFormulario();
+        }
+        if (state is AuthFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Error: ${state.message}'),
+                backgroundColor: Colors.red),
+          );
+        }
+      },
+      child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _card(
@@ -2673,20 +3378,32 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
             title: 'Mesas del Recinto',
             child: BlocBuilder<ActaBloc, ActaState>(
               builder: (context, state) {
-                if (state is ActaLoading) return const CircularProgressIndicator();
+                if (state is ActaLoading) {
+                  return const Center(
+                      child: CircularProgressIndicator(
+                          color: Color(0xFF1A3A6B)));
+                }
                 if (state is ActasLoaded) {
-                  final mesas = state.actas.map((a) => a.junta).toSet().toList()..sort();
-                  if (mesas.isEmpty) return const Text('No hay mesas registradas aún.');
+                  final mesas =
+                      state.actas.map((a) => a.junta).toSet().toList()..sort();
+                  if (mesas.isEmpty) {
+                    return const Text('No hay mesas con actas registradas aún.');
+                  }
                   return Wrap(
-                    spacing: 8, runSpacing: 8,
-                    children: mesas.map((m) => Chip(
-                      label: Text('Mesa $m'),
-                      avatar: const Icon(Icons.check_circle, size: 18, color: Colors.green),
-                    )).toList(),
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: mesas
+                        .map((m) => Chip(
+                              label: Text('Mesa $m'),
+                              avatar: const Icon(Icons.check_circle,
+                                  size: 18, color: Colors.green),
+                            ))
+                        .toList(),
                   );
                 }
                 return ElevatedButton(
-                  onPressed: () => context.read<ActaBloc>().add(CargarActasEvent()),
+                  onPressed: () =>
+                      context.read<ActaBloc>().add(CargarActasEvent()),
                   child: const Text('Cargar mesas'),
                 );
               },
@@ -2698,22 +3415,40 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
             title: 'Crear cuenta de Veedor',
             child: Column(
               children: [
-                TextField(controller: _nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre', border: OutlineInputBorder())),
-                const SizedBox(height: 8),
-                TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Correo electrónico', border: OutlineInputBorder()), keyboardType: TextInputType.emailAddress),
-                const SizedBox(height: 8),
-                TextField(controller: _mesaCtrl, decoration: const InputDecoration(labelText: 'Mesa asignada (#)', border: OutlineInputBorder()), keyboardType: TextInputType.number),
+                _input(_cedulaCtrl, 'Cédula de identidad',
+                    keyboard: TextInputType.number, maxLen: 10),
+                _input(_nombresCtrl, 'Nombres completos'),
+                _input(_apellidosCtrl, 'Apellidos completos'),
+                _input(_telefonoCtrl, 'Teléfono de contacto',
+                    keyboard: TextInputType.phone),
+                _input(_emailCtrl, 'Correo electrónico',
+                    keyboard: TextInputType.emailAddress),
+                _input(_mesaCtrl, 'Mesa asignada (número JRV)',
+                    keyboard: TextInputType.number),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity, height: 44,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.person_add, size: 18),
-                    label: const Text('Crear Veedor'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1A3A6B), foregroundColor: Colors.white,
-                    ),
-                    onPressed: _crearVeedor,
-                  ),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final loading = state is AuthLoading;
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 44,
+                      child: ElevatedButton.icon(
+                        icon: loading
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2))
+                            : const Icon(Icons.person_add, size: 18),
+                        label: Text(loading ? 'Creando...' : 'Crear Veedor'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1A3A6B),
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: loading ? null : _crearVeedor,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -2727,7 +3462,8 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
               icon: const Icon(Icons.edit, size: 18),
               label: const Text('Ir a corrección de actas'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange.shade700, foregroundColor: Colors.white,
+                backgroundColor: Colors.orange.shade700,
+                foregroundColor: Colors.white,
               ),
               onPressed: () {
                 context.read<ActaBloc>().add(CargarActasEvent());
@@ -2735,38 +3471,130 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
               },
             ),
           ),
+          const SizedBox(height: 16),
+          _card(
+            icon: Icons.add_circle_outline,
+            title: 'Registrar nueva acta',
+            subtitle: 'Registrar acta de una mesa del recinto',
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Nueva acta'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A3A6B),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FormActaPage()),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  void _crearVeedor() {
-    if (_nombreCtrl.text.isEmpty || _emailCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nombre y email son obligatorios'), backgroundColor: Colors.red),
-      );
-      return;
-    }
-    // En Appwrite real, se usaría el Admin API para crear usuarios.
-    // Como no tenemos acceso, guardamos en la colección app_users como plan B
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Veedor ${_nombreCtrl.text} creado (simulado - requiere Appwrite Admin API para creación real)'),
-        backgroundColor: Colors.green,
+  Widget _input(TextEditingController c, String label,
+      {TextInputType keyboard = TextInputType.text, int? maxLen}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: TextField(
+        controller: c,
+        keyboardType: keyboard,
+        maxLength: maxLen,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          counterText: maxLen != null ? null : '',
+          isDense: true,
+        ),
       ),
     );
-    _nombreCtrl.clear();
+  }
+
+  void _limpiarFormulario() {
+    _cedulaCtrl.clear();
+    _nombresCtrl.clear();
+    _apellidosCtrl.clear();
+    _telefonoCtrl.clear();
     _emailCtrl.clear();
     _mesaCtrl.clear();
   }
 
-  Widget _card({required IconData icon, required String title, String? subtitle, required Widget child}) {
+  void _crearVeedor() {
+    final cedula = _cedulaCtrl.text.trim();
+    final nombres = _nombresCtrl.text.trim();
+    final apellidos = _apellidosCtrl.text.trim();
+    final telefono = _telefonoCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
+    final mesa = _mesaCtrl.text.trim();
+
+    if (cedula.isEmpty || nombres.isEmpty || apellidos.isEmpty ||
+        telefono.isEmpty || email.isEmpty || mesa.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Todos los campos son obligatorios'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final cedulaError = CedulaValidator.validationMessage(cedula);
+    if (cedulaError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(cedulaError), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Correo electrónico inválido'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final currentUser = widget.currentUser;
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Sesión inválida. Vuelve a iniciar sesión.'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    context.read<AuthBloc>().add(AuthCrearUsuarioRequested(
+          cedula: cedula,
+          nombres: nombres,
+          apellidos: apellidos,
+          telefono: telefono,
+          email: email,
+          rol: UserRole.observer,
+          recintoId: widget.recintoId,
+          emailCoordinadorActual: currentUser.email,
+          passwordCoordinadorActual: '',
+        ));
+  }
+
+  Widget _card(
+      {required IconData icon,
+      required String title,
+      String? subtitle,
+      required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2774,9 +3602,17 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
           Row(children: [
             Icon(icon, color: const Color(0xFF1A3A6B), size: 20),
             const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF1A3A6B))),
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1A3A6B))),
           ]),
-          if (subtitle != null) ...[const SizedBox(height: 4), Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey))],
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.grey))
+          ],
           const Divider(height: 20),
           child,
         ],
@@ -2794,6 +3630,9 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
           builder: (context, state) {
             if (state is ActasLoaded) {
               final actas = state.actas;
+              if (actas.isEmpty) {
+                return const Center(child: Text('No hay actas registradas.'));
+              }
               return ListView.builder(
                 controller: scrollCtrl,
                 padding: const EdgeInsets.all(16),
@@ -2802,18 +3641,26 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
                   if (i == 0) {
                     return const Padding(
                       padding: EdgeInsets.only(bottom: 12),
-                      child: Text('Selecciona un acta para corregir', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      child: Text('Selecciona un acta para corregir',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
                     );
                   }
                   final a = actas[i - 1];
                   return Card(
                     child: ListTile(
-                      title: Text('Mesa ${a.junta} - ${a.dignidad}'),
-                      subtitle: Text('Votos: ${a.votosOrganizaciones}'),
+                      title: Text(
+                          'Mesa ${a.junta} — ${a.dignidad == "alcalde" ? "ALCALDE" : "PREFECTO"}'),
+                      subtitle: Text('${a.canton} / ${a.parroquia}'),
                       trailing: const Icon(Icons.edit),
                       onTap: () {
                         Navigator.pop(ctx);
-                        _navegarACorreccion(context, a);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FormActaPage(actaExistente: a),
+                          ),
+                        );
                       },
                     ),
                   );
@@ -2826,163 +3673,12 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
       ),
     );
   }
-
-  void _navegarACorreccion(BuildContext context, acta) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => _CorregirActaPage(acta: acta),
-      ),
-    );
-  }
 }
 
-class _CorregirActaPage extends StatefulWidget {
-  final dynamic acta;
-  const _CorregirActaPage({required this.acta});
 
-  @override
-  State<_CorregirActaPage> createState() => _CorregirActaPageState();
-}
-
-class _CorregirActaPageState extends State<_CorregirActaPage> {
-  late List<TextEditingController> _votosCtrls;
-  late TextEditingController _blancosCtrl;
-  late TextEditingController _nulosCtrl;
-  late TextEditingController _totalCtrl;
-
-  @override
-  void initState() {
-    super.initState();
-    final a = widget.acta;
-    final votos = a.votosOrganizaciones is List ? List<int>.from(a.votosOrganizaciones) : List.filled(5, 0);
-    _votosCtrls = votos.map((v) => TextEditingController(text: v.toString())).toList();
-    _blancosCtrl = TextEditingController(text: a.blancos.toString());
-    _nulosCtrl = TextEditingController(text: a.nulos.toString());
-    _totalCtrl = TextEditingController(text: a.totalSufragantes.toString());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final a = widget.acta;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        title: Text('Corregir Acta - Mesa ${a.junta}'),
-        backgroundColor: const Color(0xFF1A3A6B), foregroundColor: Colors.white,
-      ),
-      body: BlocListener<ActaBloc, ActaState>(
-        listener: (context, state) {
-          if (state is ActaSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Acta actualizada correctamente'), backgroundColor: Colors.green),
-            );
-            Navigator.pop(context);
-          }
-          if (state is ActaError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
-            );
-          }
-        },
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text('${a.dignidad} — ${a.provincia} / ${a.canton}',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
-            const SizedBox(height: 16),
-            ...List.generate(5, (i) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TextField(
-                  controller: _votosCtrls[i],
-                  decoration: InputDecoration(
-                    labelText: 'Votos organización ${i + 1}',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    filled: true, fillColor: Colors.grey.shade50,
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-              );
-            }),
-            _input(_blancosCtrl, 'Votos en blanco'),
-            _input(_nulosCtrl, 'Votos nulos'),
-            _input(_totalCtrl, 'Total sufragantes'),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity, height: 52,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text('Guardar corrección'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange.shade700, foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: _guardarCorreccion,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _input(TextEditingController c, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: TextField(
-        controller: c,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          filled: true, fillColor: Colors.grey.shade50,
-        ),
-        keyboardType: TextInputType.number,
-      ),
-    );
-  }
-
-  void _guardarCorreccion() {
-    final votos = _votosCtrls.map((c) => int.tryParse(c.text) ?? 0).toList();
-    final blancos = int.tryParse(_blancosCtrl.text) ?? 0;
-    final nulos = int.tryParse(_nulosCtrl.text) ?? 0;
-    final total = int.tryParse(_totalCtrl.text) ?? 0;
-
-    if (votos.fold(0, (a, b) => a + b) + blancos + nulos > total) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error: La suma de votos supera el total de sufragantes'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final a = widget.acta;
-    context.read<ActaBloc>().add(ActualizarActaEvent(
-      a.id ?? '',
-      Acta(
-        junta: a.junta,
-        provincia: a.provincia,
-        canton: a.canton,
-        parroquia: a.parroquia,
-        dignidad: a.dignidad,
-        votosOrganizaciones: votos,
-        blancos: blancos,
-        nulos: nulos,
-        totalSufragantes: total,
-        fotoId: a.fotoId,
-        fecha: a.fecha,
-        imagenValida: a.imagenValida,
-        latitud: a.latitud,
-        longitud: a.longitud,
-        userId: a.userId,
-      ),
-    ));
-  }
-}
-
+================================================
+📄 ARCHIVO: lib\features\recintos\presentation\pages\crear_coordinador_page.dart
+================================================
 
 
 
@@ -3132,8 +3828,11 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Crear recinto',
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CrearRecintoPage()))
-                .then((_) => context.read<RecintoBloc>().add(CargarRecintosEvent())),
+            onPressed: () async {
+              await Navigator.push(context, MaterialPageRoute(builder: (_) => const CrearRecintoPage()));
+              if (!context.mounted) return;
+              context.read<RecintoBloc>().add(CargarRecintosEvent());
+            },
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -3206,7 +3905,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
                       ],
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _mostrarDetalle(context, r.id, r.nombre),
+                    onTap: () => _mostrarDetalle(context, r.id, r.nombre, r.numeroJRV),
                   ),
                 );
               },
@@ -3218,7 +3917,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     );
   }
 
-  void _mostrarDetalle(BuildContext context, String? id, String nombre) {
+  void _mostrarDetalle(BuildContext context, String? id, String nombre, int numeroJRV) {
     showModalBottomSheet(
       context: context,
       builder: (ctx) => Padding(
@@ -3242,9 +3941,9 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
               Navigator.pop(ctx);
               await _mostrarGpsActas(context, id);
             }),
-            _opcion(ctx, 'Ver avance (actas registradas vs pendientes)', Icons.bar_chart, () {
+            _opcion(ctx, 'Ver avance (actas registradas vs pendientes)', Icons.bar_chart, () async {
               Navigator.pop(ctx);
-              _mostrarAvance(context, id, nombre);
+              await _mostrarAvance(context, id, nombre, numeroJRV);
             }),
           ],
         ),
@@ -3262,7 +3961,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
   }
 
   Future<void> _mostrarGpsActas(BuildContext context, String? recintoId) async {
-    final datasource = ActaDatasource(databases);
+    final datasource = ActaDatasource(tablesDB);
     try {
       final actas = await datasource.obtenerActas();
       final actasConGps = actas.where((a) => a['latitud'] != null && a['longitud'] != null).toList();
@@ -3289,7 +3988,7 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
                     },
                   ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrir'))],
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar'))],
         ),
       );
     } catch (_) {
@@ -3301,24 +4000,43 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     }
   }
 
-  void _mostrarAvance(BuildContext context, String? recintoId, String nombre) {
-    // Placeholder para avance
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Avance - $nombre'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('Actas registradas: (pendiente de implementar consulta)'),
-            SizedBox(height: 8),
-            Text('Actas pendientes: (pendiente de implementar consulta)'),
-          ],
+  Future<void> _mostrarAvance(BuildContext context, String? recintoId, String nombre, int numeroJRV) async {
+    final datasource = ActaDatasource(tablesDB);
+    try {
+      final actas = await datasource.obtenerActas();
+      final actasAlcalde = actas.where((a) => a['dignidad'] == 'alcalde').length;
+      final actasPrefecto = actas.where((a) => a['dignidad'] == 'prefecto').length;
+      final totalRegistradas = actasAlcalde + actasPrefecto;
+      final totalEsperado = numeroJRV * 2;
+      final pendientes = totalEsperado - totalRegistradas;
+
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Avance — $nombre'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Actas de Alcalde registradas: $actasAlcalde / $numeroJRV'),
+              const SizedBox(height: 4),
+              Text('Actas de Prefecto registradas: $actasPrefecto / $numeroJRV'),
+              const SizedBox(height: 4),
+              Text('Total registradas: $totalRegistradas / $totalEsperado'),
+              const SizedBox(height: 4),
+              Text('Pendientes: $pendientes'),
+            ],
+          ),
+          actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrar'))],
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cerrir'))],
-      ),
-    );
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al consultar avance: $e'), backgroundColor: Colors.red),
+      );
+    }
   }
 }
 
@@ -3335,6 +4053,7 @@ import 'core/appwrite_client.dart';
 import 'core/connectivity_service.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/entities/app_user.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
@@ -3345,6 +4064,7 @@ import 'features/auth/presentation/pages/change_password_page.dart';
 
 import 'features/actas/data/datasources/acta_datasource.dart';
 import 'features/actas/data/repositories/acta_repository_impl.dart';
+import 'features/actas/domain/repositories/acta_repository.dart';
 import 'features/actas/domain/usecases/create_acta.dart';
 import 'features/actas/domain/usecases/obtener_actas.dart';
 import 'features/actas/domain/usecases/actualizar_acta.dart';
@@ -3352,9 +4072,11 @@ import 'features/actas/presentation/bloc/acta_bloc.dart';
 import 'features/actas/presentation/bloc/acta_event.dart';
 import 'features/actas/presentation/pages/form_acta_page.dart';
 import 'features/actas/presentation/pages/list_actas_page.dart';
+import 'features/actas/presentation/pages/dashboard_page.dart';
 
 import 'features/recintos/data/datasources/recinto_datasource.dart';
 import 'features/recintos/data/repositories/recinto_repository_impl.dart';
+import 'features/recintos/domain/repositories/recinto_repository.dart';
 import 'features/recintos/domain/usecases/crear_recinto.dart';
 import 'features/recintos/domain/usecases/obtener_recintos.dart';
 import 'features/recintos/domain/usecases/asignar_coordinador.dart';
@@ -3373,8 +4095,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   hiveService = await HiveService.init();
 
-  final actaDatasource = ActaDatasource(databases);
-  final actaRepository = ActaRepositoryImpl(actaDatasource, hiveService: hiveService);
+  final actaDatasource = ActaDatasource(tablesDB);
+  final actaRepository =
+      ActaRepositoryImpl(actaDatasource, hiveService: hiveService);
   syncService = SyncService(hiveService, actaDatasource);
 
   connectivityService.onConnectivityChanged = (_) async {
@@ -3383,8 +4106,8 @@ void main() async {
   connectivityService.startMonitoring();
 
   final authRemoteDS = AuthRemoteDataSource();
-  final authRepository = AuthRepositoryImpl(authRemoteDS, databases);
-  final recintoDatasource = RecintoDatasource(databases);
+  final authRepository = AuthRepositoryImpl(authRemoteDS, tablesDB);
+  final recintoDatasource = RecintoDatasource(tablesDB);
   final recintoRepository = RecintoRepositoryImpl(recintoDatasource);
 
   runApp(MyApp(
@@ -3395,9 +4118,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final AuthRepositoryImpl authRepository;
-  final ActaRepositoryImpl actaRepository;
-  final RecintoRepositoryImpl recintoRepository;
+  final AuthRepository authRepository;
+  final ActaRepository actaRepository;
+  final RecintoRepository recintoRepository;
 
   const MyApp({
     super.key,
@@ -3411,7 +4134,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => AuthBloc(authRepository),
+          create: (_) => AuthBloc(authRepository)..add(AuthCheckStatus()),
         ),
         BlocProvider(
           create: (_) => ActaBloc(
@@ -3441,9 +4164,13 @@ class MyApp extends StatelessWidget {
             case '/login':
               return MaterialPageRoute(builder: (_) => const LoginPage());
             case '/forgot-password':
-              return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+              return MaterialPageRoute(
+                  builder: (_) => const ForgotPasswordPage());
             case '/change-password':
-              return MaterialPageRoute(builder: (_) => const ChangePasswordPage());
+              return MaterialPageRoute(
+                builder: (_) => const ChangePasswordPage(),
+                settings: settings,
+              );
             case '/home':
               final args = settings.arguments as AppUser?;
               return MaterialPageRoute(builder: (_) => HomePage(user: args));
@@ -3463,13 +4190,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = user?.role;
-    final userId = user?.id ?? '';
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text(state.message), backgroundColor: Colors.red),
           );
         }
         if (state is AuthInitial) {
@@ -3479,23 +4206,37 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
-          title: Text('Sistema Electoral - ${_roleName(role)}'),
+          title: Text('Sistema Electoral — ${_roleName(role)}'),
           backgroundColor: const Color(0xFF1A3A6B),
           foregroundColor: Colors.white,
           elevation: 0,
           automaticallyImplyLeading: false,
           actions: [
+            if (user != null)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                child: Text(
+                  user!.nombreCompleto,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Cerrar sesión',
-              onPressed: () => context.read<AuthBloc>().add(AuthLogoutRequested()),
+              onPressed: () =>
+                  context.read<AuthBloc>().add(AuthLogoutRequested()),
             ),
           ],
         ),
         body: role == UserRole.coordinatorProvincial
             ? _buildProvincialPanel(context)
             : role == UserRole.coordinatorRecinto
-                ? CoordinadorRecintoPage(recintoId: user?.id ?? '', userId: userId)
+                ? CoordinadorRecintoPage(
+                    recintoId: user?.recintoId ?? user?.id ?? '',
+                    userId: user?.id ?? '',
+                    currentUser: user,
+                  )
                 : _buildVeedorPanel(context),
       ),
     );
@@ -3519,15 +4260,27 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _card(
+          icon: Icons.bar_chart,
+          title: 'Dashboard de Votos',
+          subtitle: 'Votos consolidados por candidato y recinto',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _card(
           icon: Icons.location_city,
           title: 'Gestión de Recintos',
           subtitle: 'Crear y administrar recintos electorales',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => BlocProvider.value(
-              value: context.read<RecintoBloc>(),
-              child: const ListarRecintosPage(),
-            )),
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<RecintoBloc>(),
+                child: const ListarRecintosPage(),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -3537,10 +4290,12 @@ class HomePage extends StatelessWidget {
           subtitle: 'Actas registradas con coordenadas GPS y estado',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => BlocProvider.value(
-              value: context.read<ActaBloc>(),
-              child: const ListActasPage(),
-            )),
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<ActaBloc>(),
+                child: const ListActasPage(),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -3552,7 +4307,9 @@ class HomePage extends StatelessWidget {
             await syncService.syncPendingActas();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sincronización completada'), backgroundColor: Colors.green),
+                const SnackBar(
+                    content: Text('Sincronización completada'),
+                    backgroundColor: Colors.green),
               );
             }
           },
@@ -3588,29 +4345,41 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _card({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _card({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: CircleAvatar(
           backgroundColor: const Color(0xFF1A3A6B),
           foregroundColor: Colors.white,
           child: Icon(icon, size: 22),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        title:
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
     );
   }
 }
-
 
 
 ================================================
@@ -3987,12 +4756,96 @@ void main() {
 ================================================
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistema_electoral/main.dart';
+import 'package:sistema_electoral/features/auth/domain/entities/app_user.dart';
+import 'package:sistema_electoral/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sistema_electoral/features/actas/domain/entities/acta.dart';
+import 'package:sistema_electoral/features/actas/domain/repositories/acta_repository.dart';
+import 'package:sistema_electoral/features/recintos/domain/entities/recinto.dart';
+import 'package:sistema_electoral/features/recintos/domain/repositories/recinto_repository.dart';
 
-void main() {
-  testWidgets('App renders login page', (WidgetTester tester) async {
-    // Placeholder: integration testing requires Appwrite service mocking
-    // which is beyond the scope of this project.
-    expect(true, isTrue);
-  });
+// Usuario de prueba que cumple todos los campos requeridos por AppUser
+AppUser _fakeUser() => AppUser(
+      id: 'test-id',
+      authUserId: 'auth-test-id',
+      cedula: '1713175071',
+      nombres: 'Test',
+      apellidos: 'Usuario',
+      telefono: '0991234567',
+      email: 'test@test.com',
+      role: UserRole.observer,
+      mustChangePassword: false,
+    );
+
+class FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AppUser> loginConCedula(String cedula, String password) async =>
+      _fakeUser();
+
+  @override
+  Future<void> sendPasswordReset(String email) async {}
+
+  @override
+  Future<AppUser> changePassword(
+          String newPassword, String oldPassword) async =>
+      _fakeUser();
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<AppUser?> getUsuarioActual() async => null;
+
+  @override
+  Future<void> crearUsuario({
+    required String cedula,
+    required String nombres,
+    required String apellidos,
+    required String telefono,
+    required String email,
+    required UserRole rol,
+    String? recintoId,
+    required String emailCoordinadorActual,
+    required String passwordCoordinadorActual,
+  }) async {}
 }
 
+class FakeActaRepository implements ActaRepository {
+  @override
+  Future<void> crearActa(Acta acta) async {}
+
+  @override
+  Future<List<Acta>> obtenerActas({String? userId}) async => [];
+
+  @override
+  Future<void> actualizarActa(String id, Acta acta) async {}
+}
+
+class FakeRecintoRepository implements RecintoRepository {
+  @override
+  Future<void> crearRecinto(Recinto recinto) async {}
+
+  @override
+  Future<List<Recinto>> obtenerRecintos() async => [];
+
+  @override
+  Future<Recinto?> obtenerRecinto(String id) async => null;
+
+  @override
+  Future<void> asignarCoordinador(String recintoId, String userId) async {}
+}
+
+void main() {
+  testWidgets('Login page muestra campos de inicio de sesión',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(MyApp(
+      authRepository: FakeAuthRepository(),
+      actaRepository: FakeActaRepository(),
+      recintoRepository: FakeRecintoRepository(),
+    ));
+
+    expect(find.text('Sistema Electoral'), findsOneWidget);
+    expect(find.text('Inicia sesión para continuar'), findsOneWidget);
+    expect(find.text('Cédula de identidad'), findsOneWidget);
+  });
+}

@@ -18,19 +18,30 @@ flutter run
 
 Las credenciales deben ser creadas en la consola de Appwrite. A continuación se describen los usuarios de prueba sugeridos:
 
-| Rol | Email | Contraseña |
+| Rol | Cédula | Contraseña |
 |---|---|---|
-| Coordinador Provincial | provincial@test.com | password123 |
-| Coordinador de Recinto | recinto@test.com | password123 |
-| Veedor | veedor@test.com | password123 |
+| Coordinador Provincial | (la cédula real del usuario en Appwrite) | Ecuador2026 |
+| Coordinador de Recinto | (la cédula real) | Ecuador2026 |
+| Veedor | (la cédula real) | Ecuador2026 |
 
-> **Nota**: Los usuarios se gestionan mediante la colección `app_users` de Appwrite. Para crear usuarios de prueba, usa la consola de Appwrite:
-> 1. Crea los usuarios en Appwrite Authentication
-> 2. Crea documentos en la colección `app_users` con los campos: `email`, `role` (coordinatorProvincial / coordinatorRecinto / observer), `mustChangePassword`, `recintoId` (opcional), `mesaId` (opcional)
+> **Nota**: El login usa cédula, no email. Los usuarios deben tener su cédula registrada en el campo `cedula` de la colección `ususarios`, y su email registrado en Appwrite Authentication.
 
 ## Modelo de datos
 
-### Colección `actas`
+### Colección `ususarios` (ID: ususarios)
+| Campo | Tipo | Descripción |
+|---|---|---|
+| authUserId | string | $id del usuario en Appwrite Authentication |
+| cedula | string | Cédula de identidad (usada como username) |
+| nombres | string | Nombres completos |
+| apellidos | string | Apellidos completos |
+| telefono | string | Teléfono de contacto |
+| correo | string | Correo electrónico |
+| rol | string | coordinatorProvincial / coordinatorRecinto / observer |
+| primerLogin | boolean | true hasta que cambie la contraseña |
+| recintold | string? | ID del recinto asignado |
+
+### Colección `actas` (ID: actas)
 | Campo | Tipo | Descripción |
 |---|---|---|
 | junta | number | Número de mesa (JRV) |
@@ -49,7 +60,7 @@ Las credenciales deben ser creadas en la consola de Appwrite. A continuación se
 | longitud | number? | Coordenada GPS longitud |
 | userId | string? | ID del veedor que registró |
 
-### Colección `recintos`
+### Colección `recintos` (ID: recintos)
 | Campo | Tipo | Descripción |
 |---|---|---|
 | nombre | string | Nombre del recinto |
@@ -58,15 +69,6 @@ Las credenciales deben ser creadas en la consola de Appwrite. A continuación se
 | parroquia | string | Parroquia |
 | numeroJRV | number | Cantidad de JRV en el recinto |
 | coordinadorId | string? | ID del coordinador asignado |
-
-### Colección `app_users`
-| Campo | Tipo | Descripción |
-|---|---|---|
-| email | string | Correo electrónico |
-| role | string | "coordinatorProvincial", "coordinatorRecinto", "observer" |
-| mustChangePassword | boolean | Si debe cambiar contraseña en primer login |
-| recintoId | string? | ID del recinto asignado (coordinador de recinto y veedor) |
-| mesaId | number? | Número de mesa asignada (veedor) |
 
 ## Organizaciones políticas precargadas
 
@@ -99,28 +101,32 @@ Además incluye:
 ## Funcionalidades por rol
 
 ### Veedor
-- Registro de actas con foto, GPS y validación de nitidez (Laplacian variance)
-- Registro de votos para 5 organizaciones en actas de Alcalde y Prefecto
-- Validación: suma de votos no supera total de sufragantes
-- Corrección de actas propias
+- Registro de actas con foto (cámara), GPS obligatorio y validación de nitidez (Laplacian variance)
+- Registro de votos para 5 organizaciones políticas en actas de Alcalde y Prefecto
+- Validación de consistencia: suma de votos no supera total de sufragantes
+- Corrección de actas propias en cualquier momento
+- Persistencia offline con Hive y sincronización automática al recuperar conectividad
 
 ### Coordinador de Recinto
-- Visualización de mesas del recinto
-- Creación de cuentas de veedores
-- Asignación de veedores a mesas
-- Corrección de cualquier acta del recinto
+- Visualización de TODAS las mesas del recinto (1 a N) con estado (registrada / pendiente)
+- Creación de cuentas de veedores con todos los campos obligatorios
+- Corrección de cualquier acta del recinto sin restricción
+- Registro de nuevas actas
 
 ### Coordinador Provincial
 - Listado de recintos con creación
-- Asignación de coordinadores de recinto
+- Creación de cuentas de coordinadores de recinto y asignación a un recinto
+- Dashboard de votos consolidados por dignidad (Alcalde / Prefecto)
 - Avance por recinto (actas registradas vs pendientes)
 - Visualización de coordenadas GPS de actas
+- Sincronización manual de datos pendientes
 
 ## Limitaciones técnicas
 
-- La creación de usuarios veedores requiere la Appwrite Admin API (no disponible desde el cliente). En la implementación actual se simula la creación guardando datos localmente.
+- La creación de usuarios (coordinadores y veedores) usa `account.create()` desde el cliente Flutter, lo que pierde la sesión activa del creador y requiere restaurarla después. En producción se recomienda una Appwrite Function server-side con API Key.
 - El flujo offline utiliza Hive como almacenamiento local; la sincronización automática ocurre al detectar reconexión, pero no incluye resolución avanzada de conflictos (último cambio gana).
 - La validación de nitidez (Laplacian variance < 4.0) es un heurístico simple; puede fallar en condiciones de iluminación muy baja o con imágenes de texto muy pequeño.
+- Las reglas de acceso por rol no están configuradas en Appwrite (todos los clientes usan la misma API Key). En producción se deben implementar permisos a nivel de documento.
 
 ## Generar APK
 

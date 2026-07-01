@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/appwrite_client.dart';
@@ -24,6 +25,7 @@ import 'features/actas/presentation/bloc/acta_bloc.dart';
 import 'features/actas/presentation/bloc/acta_event.dart';
 import 'features/actas/presentation/pages/form_acta_page.dart';
 import 'features/actas/presentation/pages/list_actas_page.dart';
+import 'features/actas/presentation/pages/dashboard_page.dart';
 
 import 'features/recintos/data/datasources/recinto_datasource.dart';
 import 'features/recintos/data/repositories/recinto_repository_impl.dart';
@@ -33,7 +35,9 @@ import 'features/recintos/domain/usecases/obtener_recintos.dart';
 import 'features/recintos/domain/usecases/asignar_coordinador.dart';
 import 'features/recintos/presentation/bloc/recinto_bloc.dart';
 import 'features/recintos/presentation/pages/listar_recintos_page.dart';
+import 'features/recintos/presentation/pages/crear_coordinador_page.dart';
 import 'features/recintos/presentation/pages/coordinador_recinto_page.dart';
+import 'features/asignaciones/data/datasources/asignacion_datasource.dart';
 
 import 'offline/hive_service.dart';
 import 'offline/sync_service.dart';
@@ -44,10 +48,18 @@ final ConnectivityService connectivityService = ConnectivityService();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Color(0xFFF5F7FA),
+    systemNavigationBarDividerColor: Colors.transparent,
+    systemNavigationBarIconBrightness: Brightness.dark,
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
   hiveService = await HiveService.init();
 
-  final actaDatasource = ActaDatasource(tablesDB);
-  final actaRepository = ActaRepositoryImpl(actaDatasource, hiveService: hiveService);
+  final actaDatasource = ActaDatasource(databases);
+  final actaRepository =
+      ActaRepositoryImpl(actaDatasource, hiveService: hiveService);
   syncService = SyncService(hiveService, actaDatasource);
 
   connectivityService.onConnectivityChanged = (_) async {
@@ -56,8 +68,8 @@ void main() async {
   connectivityService.startMonitoring();
 
   final authRemoteDS = AuthRemoteDataSource();
-  final authRepository = AuthRepositoryImpl(authRemoteDS, tablesDB);
-  final recintoDatasource = RecintoDatasource(tablesDB);
+  final authRepository = AuthRepositoryImpl(authRemoteDS, databases);
+  final recintoDatasource = RecintoDatasource(databases);
   final recintoRepository = RecintoRepositoryImpl(recintoDatasource);
 
   runApp(MyApp(
@@ -84,7 +96,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => AuthBloc(authRepository),
+          create: (_) => AuthBloc(authRepository)..add(AuthCheckStatus()),
         ),
         BlocProvider(
           create: (_) => ActaBloc(
@@ -114,9 +126,13 @@ class MyApp extends StatelessWidget {
             case '/login':
               return MaterialPageRoute(builder: (_) => const LoginPage());
             case '/forgot-password':
-              return MaterialPageRoute(builder: (_) => const ForgotPasswordPage());
+              return MaterialPageRoute(
+                  builder: (_) => const ForgotPasswordPage());
             case '/change-password':
-              return MaterialPageRoute(builder: (_) => const ChangePasswordPage());
+              return MaterialPageRoute(
+                builder: (_) => const ChangePasswordPage(),
+                settings: settings,
+              );
             case '/home':
               final args = settings.arguments as AppUser?;
               return MaterialPageRoute(builder: (_) => HomePage(user: args));
@@ -136,13 +152,13 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final role = user?.role;
-    final userId = user?.id ?? '';
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text(state.message), backgroundColor: Colors.red),
           );
         }
         if (state is AuthInitial) {
@@ -152,23 +168,37 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFFF5F7FA),
         appBar: AppBar(
-          title: Text('Sistema Electoral - ${_roleName(role)}'),
+          title: Text('Sistema Electoral — ${_roleName(role)}'),
           backgroundColor: const Color(0xFF1A3A6B),
           foregroundColor: Colors.white,
           elevation: 0,
           automaticallyImplyLeading: false,
           actions: [
+            if (user != null)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                child: Text(
+                  user!.nombreCompleto,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70),
+                ),
+              ),
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: 'Cerrar sesión',
-              onPressed: () => context.read<AuthBloc>().add(AuthLogoutRequested()),
+              onPressed: () =>
+                  context.read<AuthBloc>().add(AuthLogoutRequested()),
             ),
           ],
         ),
         body: role == UserRole.coordinatorProvincial
             ? _buildProvincialPanel(context)
             : role == UserRole.coordinatorRecinto
-                ? CoordinadorRecintoPage(recintoId: user?.id ?? '', userId: userId)
+                ? CoordinadorRecintoPage(
+                    recintoId: user?.recintoId ?? user?.id ?? '',
+                    userId: user?.id ?? '',
+                    currentUser: user,
+                  )
                 : _buildVeedorPanel(context),
       ),
     );
@@ -192,15 +222,42 @@ class HomePage extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         _card(
+          icon: Icons.bar_chart,
+          title: 'Dashboard de Votos',
+          subtitle: 'Votos consolidados por candidato y recinto',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _card(
           icon: Icons.location_city,
           title: 'Gestión de Recintos',
           subtitle: 'Crear y administrar recintos electorales',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => BlocProvider.value(
-              value: context.read<RecintoBloc>(),
-              child: const ListarRecintosPage(),
-            )),
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<RecintoBloc>(),
+                child: const ListarRecintosPage(),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _card(
+          icon: Icons.person_add,
+          title: 'Crear Coordinador de Recinto',
+          subtitle: 'Crear cuenta y asignar a un recinto',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<RecintoBloc>(),
+                child: CrearCoordinadorPage(currentUser: user!),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -210,10 +267,12 @@ class HomePage extends StatelessWidget {
           subtitle: 'Actas registradas con coordenadas GPS y estado',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => BlocProvider.value(
-              value: context.read<ActaBloc>(),
-              child: const ListActasPage(),
-            )),
+            MaterialPageRoute(
+              builder: (_) => BlocProvider.value(
+                value: context.read<ActaBloc>(),
+                child: const ListActasPage(),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -225,7 +284,9 @@ class HomePage extends StatelessWidget {
             await syncService.syncPendingActas();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sincronización completada'), backgroundColor: Colors.green),
+                const SnackBar(
+                    content: Text('Sincronización completada'),
+                    backgroundColor: Colors.green),
               );
             }
           },
@@ -238,13 +299,72 @@ class HomePage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (user?.recintoId != null && user?.authUserId != null)
+          FutureBuilder<List<dynamic>>(
+            future: Future.wait([
+              RecintoDatasource(databases).obtenerRecinto(user!.recintoId!),
+              AsignacionDatasource(databases).obtenerPorVeedor(user!.authUserId),
+            ]),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                final r = snapshot.data![0] as Map<String, dynamic>?;
+                final asignaciones = snapshot.data![1] as List<Map<String, dynamic>>;
+                final mesas = asignaciones.map((e) => e['mesa'] as int).toList()..sort();
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Color(0xFF1A3A6B)),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(r?['nombre'] as String? ?? 'Recinto',
+                                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                                Text('${r?['canton'] ?? ''} / ${r?['parroquia'] ?? ''}',
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (mesas.isNotEmpty) ...[
+                        const Divider(height: 20),
+                        Row(
+                          children: [
+                            const Icon(Icons.table_chart, size: 18, color: Color(0xFF1A3A6B)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Mesa(s) asignada(s): ${mesas.join(", ")}',
+                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         _card(
           icon: Icons.add,
           title: 'Registrar Acta',
           subtitle: 'Tomar foto y registrar votos (Alcalde y Prefecto)',
           onTap: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const FormActaPage()),
+            MaterialPageRoute(builder: (_) => FormActaPage(currentUser: user)),
           ),
         ),
         const SizedBox(height: 12),
@@ -252,31 +372,47 @@ class HomePage extends StatelessWidget {
           icon: Icons.list_alt,
           title: 'Ver mis actas',
           subtitle: 'Actas registradas y su estado',
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ListActasPage()),
-          ),
+          onTap: () {
+            context.read<ActaBloc>().add(CargarActasEvent());
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ListActasPage(currentUser: user)),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _card({required IconData icon, required String title, required String subtitle, required VoidCallback onTap}) {
+  Widget _card({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: const Color.fromRGBO(0, 0, 0, 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: const Color.fromRGBO(0, 0, 0, 0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2))
+        ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         leading: CircleAvatar(
           backgroundColor: const Color(0xFF1A3A6B),
           foregroundColor: Colors.white,
           child: Icon(icon, size: 22),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        title:
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),

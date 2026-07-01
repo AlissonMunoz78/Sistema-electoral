@@ -3,10 +3,9 @@ import '../../domain/entities/app_user.dart';
 abstract class AuthEvent {}
 
 class AuthLoginRequested extends AuthEvent {
-  final String email;
+  final String cedula;
   final String password;
-
-  AuthLoginRequested(this.email, this.password);
+  AuthLoginRequested(this.cedula, this.password);
 }
 
 class AuthForgotPasswordRequested extends AuthEvent {
@@ -15,8 +14,9 @@ class AuthForgotPasswordRequested extends AuthEvent {
 }
 
 class AuthChangePasswordRequested extends AuthEvent {
-  final String password;
-  AuthChangePasswordRequested(this.password);
+  final String oldPassword;
+  final String newPassword;
+  AuthChangePasswordRequested(this.oldPassword, this.newPassword);
 }
 
 class AuthLogoutRequested extends AuthEvent {}
@@ -24,6 +24,30 @@ class AuthLogoutRequested extends AuthEvent {}
 class AuthCheckStatus extends AuthEvent {}
 
 class AuthRoleChanged extends AuthEvent {
-  final UserRole role;
-  AuthRoleChanged(this.role);
+  final AppUser user;
+  AuthRoleChanged(this.user);
+}
+
+class AuthCrearUsuarioRequested extends AuthEvent {
+  final String cedula;
+  final String nombres;
+  final String apellidos;
+  final String telefono;
+  final String email;
+  final UserRole rol;
+  final String? recintoId;
+  final String emailCoordinadorActual;
+  final String passwordCoordinadorActual;
+
+  AuthCrearUsuarioRequested({
+    required this.cedula,
+    required this.nombres,
+    required this.apellidos,
+    required this.telefono,
+    required this.email,
+    required this.rol,
+    this.recintoId,
+    required this.emailCoordinadorActual,
+    required this.passwordCoordinadorActual,
+  });
 }

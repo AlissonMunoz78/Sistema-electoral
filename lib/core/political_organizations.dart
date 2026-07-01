@@ -5,19 +5,19 @@ class PoliticalOrganization {
 }
 
 List<PoliticalOrganization> getOrganizacionesAlcalde() => [
-  PoliticalOrganization('Pabel Muñoz', 'Movimiento Pueblo Igual'),
-  PoliticalOrganization('Jorge Yunda', 'Avanza'),
-  PoliticalOrganization('John Reimberg', 'ADN'),
-  PoliticalOrganization('Marlene Cevallos', 'Movimiento Social'),
-  PoliticalOrganization('Mario Jaramillo', 'Partido Liberal'),
+  PoliticalOrganization('María Fernanda Salazar', 'Acción Democrática Nacional (ADN)'),
+  PoliticalOrganization('Pabel Muñoz', 'Revolución Ciudadana (RC5)'),
+  PoliticalOrganization('Esteban Cárdenas', 'Partido Social Cristiano (PSC)'),
+  PoliticalOrganization('Luis Herrera', 'Avanza'),
+  PoliticalOrganization('Andrés Quishpe', 'Pachakutik'),
 ];
 
 List<PoliticalOrganization> getOrganizacionesPrefecto() => [
-  PoliticalOrganization('Rosa Cárdenas', 'Movimiento Pueblo Igual'),
-  PoliticalOrganization('Luis Torres', 'Avanza'),
-  PoliticalOrganization('Ana Belén', 'ADN'),
-  PoliticalOrganization('Fernando Vega', 'Movimiento Social'),
-  PoliticalOrganization('Carlos Rivas', 'Partido Liberal'),
+  PoliticalOrganization('Diego Almeida', 'Acción Democrática Nacional (ADN)'),
+  PoliticalOrganization('Paola Pabón', 'Revolución Ciudadana (RC5)'),
+  PoliticalOrganization('Roberto Freire', 'Partido Social Cristiano (PSC)'),
+  PoliticalOrganization('Cristina Vallejo', 'Avanza'),
+  PoliticalOrganization('José Guamán', 'Pachakutik'),
 ];
 
 Map<String, List<PoliticalOrganization>> getOrganizacionesPorDignidad() => {

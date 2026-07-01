@@ -11,7 +11,10 @@ class AuthAuthenticated extends AuthState {
   AuthAuthenticated(this.user);
 }
 
-class AuthRequirePasswordChange extends AuthState {}
+class AuthRequirePasswordChange extends AuthState {
+  final AppUser user;
+  AuthRequirePasswordChange(this.user);
+}
 
 class AuthFailure extends AuthState {
   final String message;
@@ -21,4 +24,10 @@ class AuthFailure extends AuthState {
 class AuthMessage extends AuthState {
   final String message;
   AuthMessage(this.message);
+}
+
+class AuthUsuarioCreado extends AuthState {
+  final String? authUserId;
+  final bool sessionRestored;
+  AuthUsuarioCreado({this.authUserId, this.sessionRestored = true});
 }

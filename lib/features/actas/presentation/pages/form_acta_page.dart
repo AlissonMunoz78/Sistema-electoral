@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,6 +9,9 @@ import '../../../../core/image_service.dart';
 import '../../../../core/storage_service.dart';
 import '../../../../core/appwrite_client.dart';
 import '../../../../core/political_organizations.dart';
+import '../../../asignaciones/data/datasources/asignacion_datasource.dart';
+import '../../../recintos/data/datasources/recinto_datasource.dart';
+import '../../../auth/domain/entities/app_user.dart';
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
 import '../bloc/acta_state.dart';
@@ -15,7 +19,8 @@ import '../../domain/entities/acta.dart';
 
 class FormActaPage extends StatefulWidget {
   final Acta? actaExistente;
-  const FormActaPage({super.key, this.actaExistente});
+  final AppUser? currentUser;
+  const FormActaPage({super.key, this.actaExistente, this.currentUser});
 
   @override
   State<FormActaPage> createState() => _FormActaPageState();
@@ -43,11 +48,23 @@ class _FormActaPageState extends State<FormActaPage> {
 
   bool _actaAlcaldeCompletada = false;
   bool _actaPrefectoCompletada = false;
+  List<int> _mesasAsignadas = [];
+  bool _esVeedor = false;
+  bool _lockedRecinto = false;
+  String? _recintoNombre;
+  String? _dignidadGuardando;
+  bool _actasCheckeadas = false;
 
   @override
   void initState() {
     super.initState();
     storageService = StorageService(storage);
+
+    final user = widget.currentUser;
+    if (user != null && user.role == UserRole.observer) {
+      _esVeedor = true;
+      _cargarMesasAsignadas(user.authUserId);
+    }
 
     if (widget.actaExistente != null) {
       final a = widget.actaExistente!;
@@ -65,6 +82,93 @@ class _FormActaPageState extends State<FormActaPage> {
       _latitud = a.latitud;
       _longitud = a.longitud;
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_actasCheckeadas) {
+      _actasCheckeadas = true;
+      final st = context.read<ActaBloc>().state;
+      if (st is ActasLoaded) {
+        _checkExistingActas(st.actas);
+      }
+    }
+  }
+
+  void _checkExistingActas(List<Acta> actas) {
+    if (widget.actaExistente != null) return;
+    if (widget.currentUser?.id == null) return;
+    final mesa = int.tryParse(junta.text) ?? 0;
+    final userId = widget.currentUser!.id;
+    for (final a in actas) {
+      if (a.userId == userId && a.junta == mesa) {
+        if (a.dignidad == 'alcalde') _actaAlcaldeCompletada = true;
+        if (a.dignidad == 'prefecto') _actaPrefectoCompletada = true;
+      }
+    }
+  }
+
+  Future<void> _cargarMesasAsignadas(String authUserId) async {
+    try {
+      final ds = AsignacionDatasource(databases);
+      final data = await ds.obtenerPorVeedor(authUserId);
+      if (mounted) {
+        setState(() {
+          _mesasAsignadas = data.map((e) => e['mesa'] as int).toList();
+        });
+        if (data.isNotEmpty) {
+          final recintoId = data.first['recintoId'] as String?;
+          if (recintoId != null) {
+            await _cargarRecintoInfo(recintoId);
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _cargarRecintoInfo(String recintoId) async {
+    try {
+      final recintoDs = RecintoDatasource(databases);
+      final data = await recintoDs.obtenerRecinto(recintoId);
+      if (data != null && mounted) {
+        setState(() {
+          _recintoNombre = data['nombre'] as String?;
+          _provinciaSeleccionada = data['provincia'] as String? ?? _provinciaSeleccionada;
+          canton.text = data['canton'] as String? ?? canton.text;
+          parroquia.text = data['parroquia'] as String? ?? parroquia.text;
+          _lockedRecinto = true;
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _verFoto(String fotoId) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: FutureBuilder<Uint8List>(
+          future: storage.getFileDownload(bucketId: appwriteBucketId, fileId: fotoId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (snapshot.hasError || !snapshot.hasData) {
+              return const Padding(
+                padding: EdgeInsets.all(40),
+                child: Center(child: Text('Error al cargar la imagen', style: TextStyle(color: Colors.grey))),
+              );
+            }
+            return InteractiveViewer(
+              child: Image.memory(snapshot.data!, fit: BoxFit.contain),
+            );
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -114,8 +218,8 @@ class _FormActaPageState extends State<FormActaPage> {
   }
 
   Future<void> takePhoto() async {
-    final messenger = ScaffoldMessenger.of(context);
     await _obtenerGPS();
+    if (_latitud == null || _longitud == null) return;
 
     final picked = await picker.pickImage(
       source: ImageSource.camera,
@@ -126,15 +230,6 @@ class _FormActaPageState extends State<FormActaPage> {
     setState(() {
       imageFile = File(picked.path);
     });
-
-    if (_latitud == null) {
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Foto tomada. Advertencia: no se obtuvo GPS.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
   }
 
   void _mostrarError(String msg) {
@@ -166,6 +261,14 @@ class _FormActaPageState extends State<FormActaPage> {
 
   Future<void> guardarActaDignidad(String dignidad) async {
     if (!_validarVotos()) return;
+
+    if (_esVeedor && _lockedRecinto) {
+      final mesa = int.tryParse(junta.text) ?? 0;
+      if (!_mesasAsignadas.contains(mesa)) {
+        _mostrarError('La mesa $mesa no está asignada a usted. Seleccione una mesa asignada.');
+        return;
+      }
+    }
 
     if (imageFile == null && widget.actaExistente == null) {
       _mostrarError('Debe tomar una foto del acta.');
@@ -208,30 +311,20 @@ class _FormActaPageState extends State<FormActaPage> {
         imagenValida: true,
         latitud: _latitud,
         longitud: _longitud,
+        userId: widget.currentUser?.id,
       );
 
       if (!mounted) return;
+
+      setState(() => _dignidadGuardando = dignidad);
 
       if (widget.actaExistente?.id != null && widget.actaExistente!.id!.isNotEmpty) {
         context.read<ActaBloc>().add(ActualizarActaEvent(widget.actaExistente!.id!, acta));
       } else {
         context.read<ActaBloc>().add(CrearActaEvent(acta));
       }
-
-      if (dignidad == 'alcalde') {
-        setState(() => _actaAlcaldeCompletada = true);
-      } else {
-        setState(() => _actaPrefectoCompletada = true);
-      }
-
-      _mostrarExito('Acta de $dignidad guardada correctamente.');
-
-      if (_actaAlcaldeCompletada && _actaPrefectoCompletada) {
-        Navigator.pop(context);
-      }
     } catch (e) {
       _mostrarError('Error al guardar: $e');
-    } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
@@ -265,29 +358,88 @@ class _FormActaPageState extends State<FormActaPage> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: BlocListener<ActaBloc, ActaState>(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocListener<ActaBloc, ActaState>(
         listener: (context, state) {
+          if (state is ActaSuccess) {
+            if (_dignidadGuardando == null) return;
+            final d = _dignidadGuardando!;
+            setState(() {
+              if (d == 'alcalde') _actaAlcaldeCompletada = true;
+              else _actaPrefectoCompletada = true;
+              _isSubmitting = false;
+              _dignidadGuardando = null;
+            });
+            _mostrarExito('Acta de $d guardada correctamente.');
+            if (_actaAlcaldeCompletada && _actaPrefectoCompletada) {
+              Navigator.pop(context);
+            }
+          }
+          if (state is ActasLoaded) {
+            _checkExistingActas(state.actas);
+          }
           if (state is ActaError) {
             _mostrarError(state.message);
+            setState(() {
+              _isSubmitting = false;
+              _dignidadGuardando = null;
+            });
           }
         },
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16),
           children: [
             _sectionCard(
-              title: 'Datos del recinto',
+              title: _lockedRecinto ? 'Recinto asignado: $_recintoNombre' : 'Datos del recinto',
               icon: Icons.location_city,
-              children: [
-                DropdownButtonFormField<String>(
-                  initialValue: _provinciaSeleccionada,
-                  decoration: _inputDeco('Provincia'),
-                  items: _provincias.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                  onChanged: (v) => setState(() => _provinciaSeleccionada = v!),
-                ),
-                _input(canton, 'Cantón'),
-                _input(parroquia, 'Parroquia'),
-                _input(junta, 'Número de mesa (JRV)', keyboardType: TextInputType.number),
-              ],
+              children: _lockedRecinto
+                  ? [
+                      _readOnlyField('Provincia', _provinciaSeleccionada),
+                      _readOnlyField('Cantón', canton.text),
+                      _readOnlyField('Parroquia', parroquia.text),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: DropdownButtonFormField<int>(
+                          value: int.tryParse(junta.text),
+                          decoration: _inputDeco('Mesa (JRV) asignada'),
+                          items: _mesasAsignadas.map((m) => DropdownMenuItem(
+                            value: m,
+                            child: Text('Mesa $m'),
+                          )).toList(),
+                          onChanged: (v) {
+                            if (v != null) junta.text = v.toString();
+                          },
+                        ),
+                      ),
+                    ]
+                  : [
+                      DropdownButtonFormField<String>(
+                        initialValue: _provinciaSeleccionada,
+                        decoration: _inputDeco('Provincia'),
+                        items: _provincias.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                        onChanged: (v) => setState(() => _provinciaSeleccionada = v!),
+                      ),
+                      _input(canton, 'Cantón'),
+                      _input(parroquia, 'Parroquia'),
+                      _esVeedor && _mesasAsignadas.isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: DropdownButtonFormField<int>(
+                                value: int.tryParse(junta.text),
+                                decoration: _inputDeco('Mesa (JRV) asignada'),
+                                items: _mesasAsignadas.map((m) => DropdownMenuItem(
+                                  value: m,
+                                  child: Text('Mesa $m'),
+                                )).toList(),
+                                onChanged: (v) {
+                                  if (v != null) junta.text = v.toString();
+                                },
+                              ),
+                            )
+                          : _input(junta, 'Número de mesa (JRV)', keyboardType: TextInputType.number),
+                    ],
             ),
             const SizedBox(height: 12),
             _sectionCard(
@@ -348,14 +500,72 @@ class _FormActaPageState extends State<FormActaPage> {
                       children: [
                         const Icon(Icons.location_on, color: Colors.green, size: 18),
                         const SizedBox(width: 6),
-                        Text(
-                          'GPS: ${_latitud!.toStringAsFixed(5)}, ${_longitud!.toStringAsFixed(5)}',
-                          style: const TextStyle(fontSize: 12, color: Colors.green),
+                        Expanded(
+                          child: Text(
+                            'GPS: ${_latitud!.toStringAsFixed(5)}, ${_longitud!.toStringAsFixed(5)}',
+                            style: const TextStyle(fontSize: 12, color: Colors.green),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, size: 18, color: Colors.green),
+                          onPressed: _obtenerGPS,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_off, color: Colors.orange, size: 18),
+                        const SizedBox(width: 6),
+                        const Expanded(
+                          child: Text('GPS requerido para guardar',
+                              style: TextStyle(fontSize: 12, color: Colors.orange)),
+                        ),
+                        TextButton.icon(
+                          icon: const Icon(Icons.refresh, size: 16),
+                          label: const Text('Reintentar', style: TextStyle(fontSize: 12)),
+                          onPressed: _obtenerGPS,
+                          style: TextButton.styleFrom(foregroundColor: Colors.orange, padding: EdgeInsets.zero),
                         ),
                       ],
                     ),
                   ),
-                if (imageFile == null && widget.actaExistente == null)
+                if (imageFile != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(imageFile!, height: 200, fit: BoxFit.cover, width: double.infinity),
+                  )
+                else if (widget.actaExistente?.fotoId != null)
+                  GestureDetector(
+                    onTap: () => _verFoto(widget.actaExistente!.fotoId),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        '$appwriteEndpoint/storage/buckets/$appwriteBucketId/files/${widget.actaExistente!.fotoId}/view?project=$appwriteProjectId',
+                        height: 200, fit: BoxFit.cover, width: double.infinity,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Center(child: Text('Error al cargar imagen', style: TextStyle(color: Colors.grey))),
+                        ),
+                      ),
+                    ),
+                  )
+                else
                   Container(
                     height: 160,
                     decoration: BoxDecoration(
@@ -373,11 +583,6 @@ class _FormActaPageState extends State<FormActaPage> {
                         ],
                       ),
                     ),
-                  )
-                else if (imageFile != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.file(imageFile!, height: 200, fit: BoxFit.cover, width: double.infinity),
                   ),
                 const SizedBox(height: 12),
                 SizedBox(
@@ -441,6 +646,7 @@ class _FormActaPageState extends State<FormActaPage> {
             const SizedBox(height: 32),
           ],
         ),
+        ),
       ),
     );
   }
@@ -451,6 +657,21 @@ class _FormActaPageState extends State<FormActaPage> {
         filled: true,
         fillColor: Colors.grey.shade50,
       );
+
+  Widget _readOnlyField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          filled: true,
+          fillColor: Colors.grey.shade200,
+        ),
+        child: Text(value, style: const TextStyle(fontSize: 14)),
+      ),
+    );
+  }
 
   Widget _sectionCard({required String title, required IconData icon, required List<Widget> children}) {
     return Container(

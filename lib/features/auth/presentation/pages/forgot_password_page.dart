@@ -29,7 +29,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         backgroundColor: const Color(0xFF1A3A6B),
         foregroundColor: Colors.white,
       ),
-      body: BlocListener<AuthBloc, AuthState>(
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthMessage) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -42,7 +44,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             );
           }
         },
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +92,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
