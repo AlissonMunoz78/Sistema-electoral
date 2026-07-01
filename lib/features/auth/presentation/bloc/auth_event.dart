@@ -51,3 +51,25 @@ class AuthCrearUsuarioRequested extends AuthEvent {
     required this.passwordCoordinadorActual,
   });
 }
+
+class AuthCompleteRecoveryRequested extends AuthEvent {
+  final String userId;
+  final String secret;
+  final String password;
+  final String passwordAgain;
+  AuthCompleteRecoveryRequested({
+    required this.userId,
+    required this.secret,
+    required this.password,
+    required this.passwordAgain,
+  });
+}
+
+class AuthCompleteVerificationRequested extends AuthEvent {
+  final String userId;
+  final String secret;
+  AuthCompleteVerificationRequested({
+    required this.userId,
+    required this.secret,
+  });
+}

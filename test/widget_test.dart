@@ -40,6 +40,19 @@ class FakeAuthRepository implements AuthRepository {
   Future<AppUser?> getUsuarioActual() async => null;
 
   @override
+  Future<void> completePasswordReset({
+    required String userId,
+    required String secret,
+    required String password,
+  }) async {}
+
+  @override
+  Future<void> completeEmailVerification({
+    required String userId,
+    required String secret,
+  }) async {}
+
+  @override
   Future<({String authUserId, bool sessionRestored})> crearUsuario({
     required String cedula,
     required String nombres,
@@ -55,7 +68,7 @@ class FakeAuthRepository implements AuthRepository {
 
 class FakeActaRepository implements ActaRepository {
   @override
-  Future<void> crearActa(Acta acta) async {}
+  Future<void> crearActa(Acta acta, {String? fotoLocalPath}) async {}
 
   @override
   Future<List<Acta>> obtenerActas({String? userId}) async => [];

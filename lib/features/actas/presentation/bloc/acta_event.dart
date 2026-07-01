@@ -4,7 +4,8 @@ abstract class ActaEvent {}
 
 class CrearActaEvent extends ActaEvent {
   final Acta acta;
-  CrearActaEvent(this.acta);
+  final String? fotoLocalPath;
+  CrearActaEvent(this.acta, {this.fotoLocalPath});
 }
 
 class CargarActasEvent extends ActaEvent {

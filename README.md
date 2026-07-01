@@ -1,132 +1,273 @@
 # Sistema Electoral
 
-Aplicación Flutter para la gestión de actas electorales con tres roles de usuario, persistencia offline y sincronización automática.
+Aplicación Flutter para la gestión de actas electorales con tres roles de usuario,
+persistencia offline y sincronización automática mediante Appwrite.
 
 ## Requisitos
 
 - Flutter SDK 3.11+
 - Dispositivo con Android 5.0+ o iOS 12+ (cámara y GPS requeridos)
+- Cuenta en Appwrite Cloud (o instancia propia)
 
-## Instalación y ejecución
+## Configuración de Appwrite Console
 
-```bash
-flutter pub get
-flutter run
-```
+### 1. Crear el proyecto
+- Ve a [Appwrite Console](https://cloud.appwrite.io)
+- Crea un proyecto con ID: `sistema-electoral`
 
-## Credenciales de prueba
+### 2. Crear las colecciones en Database
 
-Las credenciales deben ser creadas en la consola de Appwrite. A continuación se describen los usuarios de prueba sugeridos:
-
-| Rol | Cédula | Contraseña |
-|---|---|---|
-| Coordinador Provincial | (la cédula real del usuario en Appwrite) | Ecuador2026 |
-| Coordinador de Recinto | (la cédula real) | Ecuador2026 |
-| Veedor | (la cédula real) | Ecuador2026 |
-
-> **Nota**: El login usa cédula, no email. Los usuarios deben tener su cédula registrada en el campo `cedula` de la colección `ususarios`, y su email registrado en Appwrite Authentication.
-
-## Modelo de datos
-
-### Colección `ususarios` (ID: ususarios)
+#### Colección `ususarios`
 | Campo | Tipo | Descripción |
-|---|---|---|
-| authUserId | string | $id del usuario en Appwrite Authentication |
-| cedula | string | Cédula de identidad (usada como username) |
+|-------|------|-------------|
+| authUserId | string | $id del usuario en Appwrite Auth |
+| cedula | string | Cédula de identidad (10 dígitos) |
 | nombres | string | Nombres completos |
 | apellidos | string | Apellidos completos |
 | telefono | string | Teléfono de contacto |
 | correo | string | Correo electrónico |
-| rol | string | coordinatorProvincial / coordinatorRecinto / observer |
-| primerLogin | boolean | true hasta que cambie la contraseña |
-| recintold | string? | ID del recinto asignado |
+| rol | string | `coordinatorProvincial` / `coordinatorRecinto` / `observer` |
+| primerLogin | boolean | `true` hasta que cambie la contraseña |
+| recintoId | string? | ID del recinto asignado (solo coordinadores de recinto) |
 
-### Colección `actas` (ID: actas)
+#### Colección `actas`
 | Campo | Tipo | Descripción |
-|---|---|---|
+|-------|------|-------------|
 | junta | number | Número de mesa (JRV) |
-| provincia | string | Provincia electoral |
+| provincia | string | Provincia |
 | canton | string | Cantón |
 | parroquia | string | Parroquia |
-| dignidad | string | "alcalde" o "prefecto" |
-| votosOrganizaciones | number[] | Array de 5 enteros (votos por organización política) |
+| dignidad | string | `alcalde` o `prefecto` |
+| votosOrganizaciones | number[] | Array de 5 enteros |
 | blancos | number | Votos en blanco |
 | nulos | number | Votos nulos |
-| totalSufragantes | number | Total de sufragantes registrados en la mesa |
-| fotoId | string | ID del archivo en Appwrite Storage |
-| fecha | datetime | Fecha y hora del registro |
-| imagenValida | boolean | Resultado de validación de nitidez |
-| latitud | number? | Coordenada GPS latitud |
-| longitud | number? | Coordenada GPS longitud |
+| totalSufragantes | number | Total de sufragantes |
+| fotoId | string | ID del archivo en Storage |
+| fecha | datetime | Fecha del registro |
+| imagenValida | boolean | Nitidez validada |
+| latitud | number? | GPS latitud |
+| longitud | number? | GPS longitud |
 | userId | string? | ID del veedor que registró |
 
-### Colección `recintos` (ID: recintos)
+#### Colección `recintos`
 | Campo | Tipo | Descripción |
-|---|---|---|
+|-------|------|-------------|
 | nombre | string | Nombre del recinto |
 | provincia | string | Provincia |
 | canton | string | Cantón |
 | parroquia | string | Parroquia |
-| numeroJRV | number | Cantidad de JRV en el recinto |
+| numeroJRV | number | Cantidad de JRV |
 | coordinadorId | string? | ID del coordinador asignado |
 
-## Organizaciones políticas precargadas
+#### Colección `asignaciones_mesa`
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| veedorId | string | `authUserId` del veedor |
+| mesa | number | Número de mesa (JRV) |
+| recintoId | string | ID del recinto |
+
+### 3. Configurar Autenticación
+
+- En **Auth > Settings**, habilita el método **Email/Password**.
+- Ve a **Auth > Teams** y crea los equipos si lo deseas (no obligatorio).
+
+### 4. Registrar plataformas para recovery y verification
+
+Para que funcione la recuperación de contraseña y la verificación de correo:
+
+1. Ve a **Project Settings > Platforms**
+2. Haz clic en **Add Platform**
+3. Selecciona **Web**
+4. Name: `Sistema Electoral Recovery`
+5. URL: `sistema-electoral://recovery`
+6. Repite para:
+   - Name: `Sistema Electoral Verify`
+   - URL: `sistema-electoral://verify`
+
+> **Nota:** Los correos de recuperación y verificación usan estas URLs como
+> redirect. Si usas un hosting web, puedes registrar URLs HTTP/HTTPS en su lugar.
+
+### 5. Configurar Storage
+
+- Crea un bucket con ID `6a3ca946002e1039870d` (o actualiza `appwriteBucketId` en `lib/core/appwrite_client.dart`)
+- Permisos: `read("any")`, `write("any")`
+
+### 6. Configurar reglas de acceso (opcional pero recomendado)
+
+En cada colección, ve a **Settings > Permissions** y añade:
+- `read: users` (para que solo usuarios autenticados puedan leer)
+- `write: users` (para escritura)
+
+## Instalación
+
+```bash
+git clone <repo-url>
+cd sistema-electoral
+flutter pub get
+flutter run
+```
+
+## Credenciales
+
+| Rol | Cédula | Contraseña |
+|-----|--------|------------|
+| Coordinador Provincial | (creada manualmente en Auth) | Ecuador2026 |
+| Coordinador de Recinto | (asignada al crear) | Ecuador2026 |
+| Veedor | (asignada al crear) | Ecuador2026 |
+
+> El login usa **cédula** (10 dígitos numéricos), no email.
+> La contraseña inicial para todos los usuarios nuevos es **Ecuador2026**.
+
+## Flujo de registro
+
+### Coordinador Provincial (creado manualmente en Appwrite Console)
+1. Crear usuario en **Auth > Users** con email y contraseña `Ecuador2026`
+2. Crear documento en `ususarios` con rol `coordinatorProvincial`
+
+### Coordinador de Recinto (creado desde la app)
+1. Coordinador Provincial accede a **Crear Coordinador de Recinto**
+2. Ingresa cédula, nombres, email, selecciona recinto
+3. El sistema crea la cuenta, envía correo de verificación
+4. El coordinador de recinto verifica su email
+5. Inicia sesión y cambia contraseña obligatoriamente
+
+### Veedor (creado desde la app)
+1. Coordinador de Recinto accede a **Crear cuenta de Veedor**
+2. Ingresa datos y número de mesa
+3. El sistema crea la cuenta, envía correo de verificación
+4. El veedor verifica su email
+5. Inicia sesión y cambia contraseña obligatoriamente
+
+## Roles y funcionalidades
+
+### Veedor
+- Registro de actas con foto (cámara), GPS obligatorio
+- Validación de nitidez de imagen (Laplacian variance)
+- 5 organizaciones políticas por dignidad (Alcalde / Prefecto)
+- Validación: suma de votos ≤ total de sufragantes
+- Corrección de actas propias
+
+### Coordinador de Recinto
+- Visualización de mesas del recinto con estado
+- Creación de cuentas de veedores
+- Asignación de veedores existentes a mesas
+- Corrección de cualquier acta del recinto
+
+### Coordinador Provincial
+- Dashboard de votos consolidados
+- Gestión de recintos (crear, asignar coordinador)
+- Creación de coordinadores de recinto
+- Ver todas las actas con GPS
+- Sincronización manual/automática
+
+## Organizaciones políticas
 
 ### Alcalde
-1. Pabel Muñoz — Movimiento Pueblo Igual
-2. Jorge Yunda — Avanza
-3. John Reimberg — ADN
-4. Marlene Cevallos — Movimiento Social
-5. Mario Jaramillo — Partido Liberal
+1. María Fernanda Salazar — Acción Democrática Nacional (ADN)
+2. Pabel Muñoz — Revolución Ciudadana (RC5)
+3. Esteban Cárdenas — Partido Social Cristiano (PSC)
+4. Luis Herrera — Avanza
+5. Andrés Quishpe — Pachakutik
 
 ### Prefecto
-1. Rosa Cárdenas — Movimiento Pueblo Igual
-2. Luis Torres — Avanza
-3. Ana Belén — ADN
-4. Fernando Vega — Movimiento Social
-5. Carlos Rivas — Partido Liberal
+1. Diego Almeida — Acción Democrática Nacional (ADN)
+2. Paola Pabón — Revolución Ciudadana (RC5)
+3. Roberto Freire — Partido Social Cristiano (PSC)
+4. Cristina Vallejo — Avanza
+5. José Guamán — Pachakutik
+
+## Validación de nitidez
+
+La app usa **Laplacian Variance** sobre la imagen redimensionada a 300×300 px
+con interpolación `nearest`. El umbral de varianza es 30.0 — si la varianza
+del Laplaciano es menor, la imagen se clasifica como borrosa y se rechaza.
+
+Justificación del algoritmo:
+- La varianza del Laplaciano mide la dispersión de la intensidad de bordes
+- Imágenes nítidas tienen bordes muy definidos → alta varianza
+- Imágenes borrosas tienen bordes suaves → baja varianza
+- La media del Laplaciano (usada anteriormente) es un mal discriminante porque
+  los píxeles de fondo plano dominan el promedio
+
+## Sincronización offline
+
+### Estrategia
+- **Almacenamiento local**: Hive con dos boxes (`offline_actas`, `pending_sync`)
+- **Foto offline**: Cuando no hay internet, la foto se copia al directorio de
+  documentos de la app y su ruta se guarda junto al acta en Hive
+- **Sincronización**: Al recuperar conectividad, el `SyncService` recorre las
+  actas pendientes, sube la foto local a Appwrite Storage, crea el documento
+  y marca como sincronizado
+- **Resolución de conflictos**: Estrategia "último en escribir gana" (LWW)
+
+### Flujo
+```
+Usuario guarda acta offline
+  → Foto copiada a documentos/
+  → Acta + ruta de foto guardados en Hive
+  → Mostrar: "Guardado localmente. Se sincronizará automáticamente."
+
+Al reconectar WiFi/datos
+  → connectivity_plus detecta cambio
+  → SyncService.syncPendingActas()
+  → Por cada acta pendiente:
+      1. Leer foto del path local
+      2. Subir a Appwrite Storage
+      3. Crear documento en colección actas
+      4. Marcar como sincronizado
+      5. Eliminar foto local
+```
 
 ## Arquitectura
 
-El proyecto sigue una arquitectura limpia con separación en capas:
-- **Presentación**: Flutter widgets + BLoC (flutter_bloc)
-- **Dominio**: Entidades, casos de uso, repositorios abstractos
-- **Datos**: DataSources (Appwrite), modelos, implementaciones de repositorios
+El proyecto sigue Clean Architecture con BLoC:
 
-Además incluye:
-- **Offline**: Persistencia local con Hive para actas sin conexión
-- **Sync**: Sincronización automática al recuperar conectividad mediante connectivity_plus
-- **Backend**: Appwrite (Auth, Database, Storage)
+```
+lib/
+├── core/              # Utilidades compartidas
+│   ├── appwrite_client.dart
+│   ├── cedula_validator.dart
+│   ├── connectivity_service.dart
+│   ├── image_service.dart
+│   ├── political_organizations.dart
+│   ├── provincias.dart
+│   └── storage_service.dart
+├── offline/           # Persistencia offline
+│   ├── hive_service.dart
+│   └── sync_service.dart
+├── features/
+│   ├── actas/         # Módulo de actas
+│   │   ├── data/      # Datasources, modelos, repositorios
+│   │   ├── domain/    # Entidades, use cases, repositorios abstractos
+│   │   └── presentation/  # BLoC, páginas
+│   ├── asignaciones/  # Asignaciones veedor-mesa
+│   ├── auth/          # Autenticación y usuarios
+│   └── recintos/      # Gestión de recintos
+└── main.dart
+```
 
-## Funcionalidades por rol
+## Verificación de correo electrónico
 
-### Veedor
-- Registro de actas con foto (cámara), GPS obligatorio y validación de nitidez (Laplacian variance)
-- Registro de votos para 5 organizaciones políticas en actas de Alcalde y Prefecto
-- Validación de consistencia: suma de votos no supera total de sufragantes
-- Corrección de actas propias en cualquier momento
-- Persistencia offline con Hive y sincronización automática al recuperar conectividad
+Todo usuario nuevo recibe un correo de verificación automático.
+Si intenta iniciar sesión sin verificar, la app muestra:
+*"Debes verificar tu correo electrónico antes de iniciar sesión."*
 
-### Coordinador de Recinto
-- Visualización de TODAS las mesas del recinto (1 a N) con estado (registrada / pendiente)
-- Creación de cuentas de veedores con todos los campos obligatorios
-- Corrección de cualquier acta del recinto sin restricción
-- Registro de nuevas actas
+El flujo completo:
+1. Se crea el usuario en Appwrite Auth
+2. Se envía el correo de verificación mediante `account.createVerification()`
+3. El usuario hace clic en el enlace del correo
+4. Appwrite marca la cuenta como verificada
+5. El usuario puede iniciar sesión
+6. En el primer login se le obliga a cambiar la contraseña
 
-### Coordinador Provincial
-- Listado de recintos con creación
-- Creación de cuentas de coordinadores de recinto y asignación a un recinto
-- Dashboard de votos consolidados por dignidad (Alcalde / Prefecto)
-- Avance por recinto (actas registradas vs pendientes)
-- Visualización de coordenadas GPS de actas
-- Sincronización manual de datos pendientes
+## Recuperación de contraseña
 
-## Limitaciones técnicas
+En la pantalla de login, "¿Olvidaste tu contraseña?" abre el formulario
+de recuperación. El usuario ingresa su email y recibe un enlace para
+restablecer la contraseña.
 
-- La creación de usuarios (coordinadores y veedores) usa `account.create()` desde el cliente Flutter, lo que pierde la sesión activa del creador y requiere restaurarla después. En producción se recomienda una Appwrite Function server-side con API Key.
-- El flujo offline utiliza Hive como almacenamiento local; la sincronización automática ocurre al detectar reconexión, pero no incluye resolución avanzada de conflictos (último cambio gana).
-- La validación de nitidez (Laplacian variance < 4.0) es un heurístico simple; puede fallar en condiciones de iluminación muy baja o con imágenes de texto muy pequeño.
-- Las reglas de acceso por rol no están configuradas en Appwrite (todos los clientes usan la misma API Key). En producción se deben implementar permisos a nivel de documento.
+**Importante:** La URL `sistema-electoral://recovery` debe estar registrada
+como plataforma en Appwrite Console (ver sección de configuración arriba).
 
 ## Generar APK
 
@@ -134,4 +275,16 @@ Además incluye:
 flutter build apk --release
 ```
 
-La APK se generará en `build/app/outputs/flutter-apk/app-release.apk`.
+La APK se genera en `build/app/outputs/flutter-apk/app-release.apk`.
+
+## Limitaciones técnicas
+
+- La creación de usuarios desde el cliente Flutter pierde la sesión activa
+  del creador. Se restaura automáticamente con reintentos, pero en producción
+  se recomienda una Appwrite Function server-side con API Key.
+- La sincronización offline usa estrategia "último en escribir gana" (LWW).
+  Múltiples veedores offline en la misma mesa podrían sobrescribirse.
+- La validación de nitidez es un heurístico que puede fallar en condiciones
+  extremas de iluminación o con texto muy pequeño.
+- Las reglas de acceso a nivel de documento no están configuradas en Appwrite.
+  Todos los documentos usan `read("any")` y `write("any")`.

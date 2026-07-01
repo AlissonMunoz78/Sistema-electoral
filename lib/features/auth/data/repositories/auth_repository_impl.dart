@@ -140,6 +140,30 @@ class AuthRepositoryImpl implements AuthRepository {
     return (authUserId: authUserId, sessionRestored: restored);
   }
 
+  @override
+  Future<void> completePasswordReset({
+    required String userId,
+    required String secret,
+    required String password,
+  }) async {
+    await remoteDataSource.completePasswordReset(
+      userId: userId,
+      secret: secret,
+      password: password,
+    );
+  }
+
+  @override
+  Future<void> completeEmailVerification({
+    required String userId,
+    required String secret,
+  }) async {
+    await remoteDataSource.completeEmailVerification(
+      userId: userId,
+      secret: secret,
+    );
+  }
+
   Future<UserModel> _obtenerPerfilPorAuthId(String authUserId) async {
     final result = await db.listDocuments(
       databaseId: appwriteDatabaseId,

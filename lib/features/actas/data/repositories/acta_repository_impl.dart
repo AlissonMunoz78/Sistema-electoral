@@ -1,13 +1,9 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import '../../../../offline/hive_service.dart';
 import '../../domain/entities/acta.dart';
 import '../../domain/repositories/acta_repository.dart';
 import '../datasources/acta_datasource.dart';
 import '../models/acta_model.dart';
 
-// Limitación conocida: La sincronización offline usa estrategia "último en escribir gana".
-// En escenarios con múltiples veedores offline en la misma mesa, podría haber pérdida de datos.
-// Una solución más robusta requeriría MVCC o un servidor de reconciliación.
 class ActaRepositoryImpl implements ActaRepository {
   final ActaDatasource datasource;
   final HiveService? hiveService;
@@ -15,15 +11,7 @@ class ActaRepositoryImpl implements ActaRepository {
   ActaRepositoryImpl(this.datasource, {this.hiveService});
 
   @override
-  Future<void> crearActa(Acta acta) async {
-    final connectivity = await Connectivity().checkConnectivity();
-    final online = connectivity.any((r) => r != ConnectivityResult.none);
-
-    if (!online && hiveService != null) {
-      await hiveService!.saveActaLocal(acta);
-      return;
-    }
-
+  Future<void> crearActa(Acta acta, {String? fotoLocalPath}) async {
     try {
       await datasource.crearActa(ActaModel(
         junta: acta.junta,
@@ -44,7 +32,7 @@ class ActaRepositoryImpl implements ActaRepository {
       ));
     } catch (_) {
       if (hiveService != null) {
-        await hiveService!.saveActaLocal(acta);
+        await hiveService!.saveActaLocal(acta, fotoLocalPath: fotoLocalPath);
       } else {
         rethrow;
       }

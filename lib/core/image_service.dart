@@ -1,49 +1,48 @@
 import 'dart:io';
 import 'package:image/image.dart' as img;
 
-// Limitación conocida: Laplacian variance es un heurístico simple que puede
-// clasificar incorrectamente imágenes con patrones repetitivos o texturas finas
-// como borrosas. Un enfoque más robusto usaría redes neuronales (p.ej. MobileNet),
-// pero incrementa el tamaño de la app y requiere permisos adicionales.
 class ImageService {
   static bool isImageBlurry(File file) {
     try {
       final bytes = file.readAsBytesSync();
-      final decoded = img.decodeImage(bytes);
-      if (decoded == null) return false;
+      final original = img.decodeImage(bytes);
+      if (original == null) return true;
 
-      if (decoded.width < 32 || decoded.height < 32) return false;
+      if (original.width < 64 || original.height < 64) return true;
 
       final resized = img.copyResize(
-        decoded,
-        width: 100,
-        height: 100,
-        interpolation: img.Interpolation.average,
+        original,
+        width: 300,
+        interpolation: img.Interpolation.nearest,
       );
+
       final gray = img.grayscale(resized);
 
-      var laplacianVariance = 0.0;
-      var count = 0;
+      double sum = 0;
+      double sumSq = 0;
+      int count = 0;
 
       for (var y = 1; y < gray.height - 1; y++) {
         for (var x = 1; x < gray.width - 1; x++) {
-          final center = gray.getPixel(x, y).r.toDouble();
-          final up = gray.getPixel(x, y - 1).r.toDouble();
-          final down = gray.getPixel(x, y + 1).r.toDouble();
-          final left = gray.getPixel(x - 1, y).r.toDouble();
-          final right = gray.getPixel(x + 1, y).r.toDouble();
-          final laplacian = (up + down + left + right - (4 * center)).abs();
-          laplacianVariance += laplacian;
+          final c = gray.getPixel(x, y).r.toDouble();
+          final u = gray.getPixel(x, y - 1).r.toDouble();
+          final d = gray.getPixel(x, y + 1).r.toDouble();
+          final l = gray.getPixel(x - 1, y).r.toDouble();
+          final r = gray.getPixel(x + 1, y).r.toDouble();
+          final lap = (u + d + l + r - 4 * c).abs();
+          sum += lap;
+          sumSq += lap * lap;
           count++;
         }
       }
 
-      if (count == 0) return false;
+      if (count == 0) return true;
 
-      final average = laplacianVariance / count;
-      return average < 8.0;
+      final mean = sum / count;
+      final variance = sumSq / count - mean * mean;
+      return variance < 30.0;
     } catch (_) {
-      return false;
+      return true;
     }
   }
 }

@@ -21,4 +21,15 @@ abstract class AuthRepository {
     required String emailCoordinadorActual,
     required String passwordCoordinadorActual,
   });
+
+  Future<void> completePasswordReset({
+    required String userId,
+    required String secret,
+    required String password,
+  });
+
+  Future<void> completeEmailVerification({
+    required String userId,
+    required String secret,
+  });
 }

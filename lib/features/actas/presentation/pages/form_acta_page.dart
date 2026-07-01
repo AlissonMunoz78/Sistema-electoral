@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/image_service.dart';
 import '../../../../core/storage_service.dart';
 import '../../../../core/appwrite_client.dart';
+import '../../../../core/provincias.dart';
 import '../../../../core/political_organizations.dart';
 import '../../../asignaciones/data/datasources/asignacion_datasource.dart';
 import '../../../recintos/data/datasources/recinto_datasource.dart';
@@ -44,7 +47,6 @@ class _FormActaPageState extends State<FormActaPage> {
   String _provinciaSeleccionada = 'Pichincha';
   double? _latitud;
   double? _longitud;
-  final List<String> _provincias = ['Pichincha', 'Guayas', 'Azuay'];
 
   bool _actaAlcaldeCompletada = false;
   bool _actaPrefectoCompletada = false;
@@ -288,12 +290,50 @@ class _FormActaPageState extends State<FormActaPage> {
       return;
     }
 
+    final connectivity = await Connectivity().checkConnectivity();
+    final online = connectivity.any((r) => r != ConnectivityResult.none);
+
     setState(() => _isSubmitting = true);
 
     try {
       String fotoId = widget.actaExistente?.fotoId ?? '';
+      String? fotoLocalPath;
+
       if (imageFile != null) {
-        fotoId = await storageService.uploadImage(imageFile!);
+        if (online) {
+          fotoId = await storageService.uploadImage(imageFile!);
+        } else {
+          final dir = await getApplicationDocumentsDirectory();
+          final fileName = 'acta_${DateTime.now().millisecondsSinceEpoch}.jpg';
+          final localPath = '${dir.path}/$fileName';
+          await imageFile!.copy(localPath);
+          fotoLocalPath = localPath;
+        }
+      }
+
+      if (widget.actaExistente?.id != null && widget.actaExistente!.id!.isNotEmpty && online) {
+        final acta = Acta(
+          junta: int.tryParse(junta.text) ?? 0,
+          provincia: _provinciaSeleccionada,
+          canton: canton.text,
+          parroquia: parroquia.text,
+          dignidad: dignidad,
+          votosOrganizaciones: _votosOrg.map((c) => int.tryParse(c.text) ?? 0).toList(),
+          blancos: int.tryParse(blancos.text) ?? 0,
+          nulos: int.tryParse(nulos.text) ?? 0,
+          totalSufragantes: int.tryParse(totalSufragantes.text) ?? 0,
+          fotoId: fotoId,
+          fecha: DateTime.now(),
+          imagenValida: true,
+          latitud: _latitud,
+          longitud: _longitud,
+          userId: widget.currentUser?.id,
+        );
+
+        if (!mounted) return;
+        setState(() => _dignidadGuardando = dignidad);
+        context.read<ActaBloc>().add(ActualizarActaEvent(widget.actaExistente!.id!, acta));
+        return;
       }
 
       final acta = Acta(
@@ -314,8 +354,14 @@ class _FormActaPageState extends State<FormActaPage> {
         userId: widget.currentUser?.id,
       );
 
-      if (!mounted) return;
+      if (!online) {
+        if (!mounted) return;
+        setState(() => _dignidadGuardando = dignidad);
+        context.read<ActaBloc>().add(CrearActaEvent(acta, fotoLocalPath: fotoLocalPath));
+        return;
+      }
 
+      if (!mounted) return;
       setState(() => _dignidadGuardando = dignidad);
 
       if (widget.actaExistente?.id != null && widget.actaExistente!.id!.isNotEmpty) {
@@ -418,7 +464,7 @@ class _FormActaPageState extends State<FormActaPage> {
                       DropdownButtonFormField<String>(
                         initialValue: _provinciaSeleccionada,
                         decoration: _inputDeco('Provincia'),
-                        items: _provincias.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                        items: provinciasEcuador.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
                         onChanged: (v) => setState(() => _provinciaSeleccionada = v!),
                       ),
                       _input(canton, 'Cantón'),
@@ -551,17 +597,31 @@ class _FormActaPageState extends State<FormActaPage> {
                     onTap: () => _verFoto(widget.actaExistente!.fotoId),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        '$appwriteEndpoint/storage/buckets/$appwriteBucketId/files/${widget.actaExistente!.fotoId}/view?project=$appwriteProjectId',
-                        height: 200, fit: BoxFit.cover, width: double.infinity,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 200,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(child: Text('Error al cargar imagen', style: TextStyle(color: Colors.grey))),
-                        ),
+                      child: FutureBuilder<Uint8List>(
+                        future: storage.getFileDownload(bucketId: appwriteBucketId, fileId: widget.actaExistente!.fotoId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Container(
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                            );
+                          }
+                          if (snapshot.hasError || !snapshot.hasData) {
+                            return Container(
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Center(child: Text('Error al cargar imagen', style: TextStyle(color: Colors.grey))),
+                            );
+                          }
+                          return Image.memory(snapshot.data!, height: 200, fit: BoxFit.cover, width: double.infinity);
+                        },
                       ),
                     ),
                   )

@@ -6,7 +6,7 @@ class CrearActa {
 
   CrearActa(this.repository);
 
-  Future<void> call(Acta acta) {
-    return repository.crearActa(acta);
+  Future<void> call(Acta acta, {String? fotoLocalPath}) {
+    return repository.crearActa(acta, fotoLocalPath: fotoLocalPath);
   }
 }

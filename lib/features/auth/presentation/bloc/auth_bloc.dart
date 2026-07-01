@@ -1,16 +1,40 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/forgot_password_usecase.dart';
+import '../../domain/usecases/change_password_usecase.dart';
+import '../../domain/usecases/crear_usuario_usecase.dart';
+import '../../domain/usecases/check_auth_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
+import '../../domain/usecases/complete_recovery_usecase.dart';
+import '../../domain/usecases/complete_verification_usecase.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthRepository repository;
+  final LoginUseCase loginUseCase;
+  final ForgotPasswordUseCase forgotPasswordUseCase;
+  final ChangePasswordUseCase changePasswordUseCase;
+  final CrearUsuarioUseCase crearUsuarioUseCase;
+  final CheckAuthUseCase checkAuthUseCase;
+  final LogoutUseCase logoutUseCase;
+  final CompleteRecoveryUseCase completeRecoveryUseCase;
+  final CompleteVerificationUseCase completeVerificationUseCase;
 
-  AuthBloc(this.repository) : super(AuthInitial()) {
+  AuthBloc({
+    required this.loginUseCase,
+    required this.forgotPasswordUseCase,
+    required this.changePasswordUseCase,
+    required this.crearUsuarioUseCase,
+    required this.checkAuthUseCase,
+    required this.logoutUseCase,
+    required this.completeRecoveryUseCase,
+    required this.completeVerificationUseCase,
+  }) : super(AuthInitial()) {
+
     on<AuthLoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.loginConCedula(event.cedula, event.password);
+        final user = await loginUseCase(event.cedula, event.password);
         if (user.mustChangePassword) {
           emit(AuthRequirePasswordChange(user));
         } else {
@@ -24,8 +48,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthForgotPasswordRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        await repository.sendPasswordReset(event.email);
-        emit(AuthMessage('Se envió el correo de recuperación. Revisa tu bandeja de entrada.'));
+        await forgotPasswordUseCase(event.email);
+        emit(AuthMessage('Se envio el correo de recuperacion. Revisa tu bandeja de entrada.'));
       } catch (e) {
         emit(AuthFailure(e.toString()));
       }
@@ -34,7 +58,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthChangePasswordRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.changePassword(event.newPassword, event.oldPassword);
+        final user = await changePasswordUseCase(event.newPassword, event.oldPassword);
         emit(AuthAuthenticated(user));
       } catch (e) {
         emit(AuthFailure(e.toString()));
@@ -43,7 +67,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthLogoutRequested>((event, emit) async {
       try {
-        await repository.logout();
+        await logoutUseCase();
       } catch (_) {}
       emit(AuthInitial());
     });
@@ -51,7 +75,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckStatus>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await repository.getUsuarioActual();
+        final user = await checkAuthUseCase();
         if (user != null) {
           if (user.mustChangePassword) {
             emit(AuthRequirePasswordChange(user));
@@ -69,7 +93,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCrearUsuarioRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final result = await repository.crearUsuario(
+        final result = await crearUsuarioUseCase(
           cedula: event.cedula,
           nombres: event.nombres,
           apellidos: event.apellidos,
@@ -90,5 +114,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AuthRoleChanged>((event, emit) {});
+
+    on<AuthCompleteRecoveryRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        await completeRecoveryUseCase(
+          userId: event.userId,
+          secret: event.secret,
+          password: event.password,
+          passwordAgain: event.passwordAgain,
+        );
+        emit(AuthMessage('Contraseña restablecida correctamente. Ahora puedes iniciar sesión.'));
+      } catch (e) {
+        emit(AuthFailure(e.toString()));
+      }
+    });
+
+    on<AuthCompleteVerificationRequested>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        await completeVerificationUseCase(
+          userId: event.userId,
+          secret: event.secret,
+        );
+        emit(AuthMessage('Correo electrónico verificado correctamente.'));
+      } catch (e) {
+        emit(AuthFailure(e.toString()));
+      }
+    });
   }
 }

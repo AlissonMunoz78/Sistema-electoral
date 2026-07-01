@@ -20,6 +20,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     super.dispose();
   }
 
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email.trim());
+  }
+
+  void _enviarRecuperacion() {
+    final email = emailController.text.trim();
+    if (!_isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa un correo electrónico válido'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    context.read<AuthBloc>().add(AuthForgotPasswordRequested(email));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,11 +91,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   builder: (context, state) {
                     final loading = state is AuthLoading;
                     return ElevatedButton(
-                      onPressed: loading
-                          ? null
-                          : () => context.read<AuthBloc>().add(
-                                AuthForgotPasswordRequested(emailController.text.trim()),
-                              ),
+                      onPressed: loading ? null : _enviarRecuperacion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1A3A6B),
                         foregroundColor: Colors.white,

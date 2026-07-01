@@ -16,8 +16,9 @@ class HiveService {
     return service;
   }
 
-  Future<void> saveActaLocal(Acta acta) async {
+  Future<void> saveActaLocal(Acta acta, {String? fotoLocalPath}) async {
     final key = '${acta.junta}_${acta.dignidad}_${DateTime.now().millisecondsSinceEpoch}';
+    final now = DateTime.now().toIso8601String();
     await _box.put(key, jsonEncode({
       'junta': acta.junta,
       'provincia': acta.provincia,
@@ -29,14 +30,17 @@ class HiveService {
       'nulos': acta.nulos,
       'totalSufragantes': acta.totalSufragantes,
       'fotoId': acta.fotoId,
+      'fotoLocalPath': fotoLocalPath,
       'fecha': acta.fecha.toIso8601String(),
       'imagenValida': acta.imagenValida,
       'latitud': acta.latitud,
       'longitud': acta.longitud,
       'userId': acta.userId,
       'synced': false,
+      'retryCount': 0,
+      'lastModified': now,
     }));
-    await _pendingBox.put(key, 'pending');
+    await _pendingBox.put(key, jsonEncode({'status': 'pending', 'retryCount': 0}));
   }
 
   Future<List<Map<String, dynamic>>> getPendingActas() async {
@@ -45,7 +49,11 @@ class HiveService {
     for (final key in keys) {
       final data = _box.get(key);
       if (data != null) {
-        result.add({...jsonDecode(data) as Map<String, dynamic>, '_key': key});
+        final parsed = jsonDecode(data) as Map<String, dynamic>;
+        final pendingData = jsonDecode(_pendingBox.get(key) ?? '{}') as Map<String, dynamic>;
+        parsed['_key'] = key;
+        parsed['retryCount'] = pendingData['retryCount'] ?? 0;
+        result.add(parsed);
       }
     }
     return result;
@@ -57,6 +65,33 @@ class HiveService {
     if (data != null) {
       final map = jsonDecode(data) as Map<String, dynamic>;
       map['synced'] = true;
+      map['lastModified'] = DateTime.now().toIso8601String();
+      await _box.put(key, jsonEncode(map));
+    }
+  }
+
+  Future<void> markFailed(String key) async {
+    await _pendingBox.delete(key);
+    final data = _box.get(key);
+    if (data != null) {
+      final map = jsonDecode(data) as Map<String, dynamic>;
+      map['synced'] = false;
+      map['syncFailed'] = true;
+      await _box.put(key, jsonEncode(map));
+    }
+  }
+
+  Future<void> incrementRetry(String key) async {
+    final pendingData = _pendingBox.get(key);
+    if (pendingData != null) {
+      final map = jsonDecode(pendingData) as Map<String, dynamic>;
+      map['retryCount'] = (map['retryCount'] as int? ?? 0) + 1;
+      await _pendingBox.put(key, jsonEncode(map));
+    }
+    final data = _box.get(key);
+    if (data != null) {
+      final map = jsonDecode(data) as Map<String, dynamic>;
+      map['retryCount'] = (map['retryCount'] as int? ?? 0) + 1;
       await _box.put(key, jsonEncode(map));
     }
   }

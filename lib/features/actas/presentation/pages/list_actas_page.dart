@@ -40,7 +40,71 @@ class ListActasPage extends StatelessWidget {
     );
   }
   final AppUser? currentUser;
-  const ListActasPage({super.key, this.currentUser});
+  final bool readOnly;
+  const ListActasPage({super.key, this.currentUser, this.readOnly = false});
+
+  void _mostrarDetalleActa(BuildContext context, acta) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.description, color: Color(0xFF0D2137)),
+                    const SizedBox(width: 8),
+                    Text('Acta Mesa ${acta.junta}',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0D2137))),
+                  ],
+                ),
+                const Divider(height: 24),
+                _detalleFila('Dignidad', acta.dignidad == 'alcalde' ? 'ALCALDE' : 'PREFECTO'),
+                _detalleFila('Provincia', acta.provincia),
+                _detalleFila('Cantón', acta.canton),
+                _detalleFila('Parroquia', acta.parroquia),
+                _detalleFila('Votos', '${acta.votosOrganizaciones}'),
+                _detalleFila('Blancos', '${acta.blancos}'),
+                _detalleFila('Nulos', '${acta.nulos}'),
+                _detalleFila('Total sufragantes', '${acta.totalSufragantes}'),
+                _detalleFila('Total votos', '${acta.totalVotos}'),
+                if (acta.latitud != null) _detalleFila('GPS', '${acta.latitud!.toStringAsFixed(4)}, ${acta.longitud!.toStringAsFixed(4)}'),
+                _detalleFila('Imagen', acta.imagenValida ? 'Válida' : 'Inválida'),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cerrar'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detalleFila(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 130,
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.grey)),
+          ),
+          Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w500))),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -200,14 +264,18 @@ class ListActasPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    trailing: const Icon(Icons.chevron_right),
+                    trailing: Icon(readOnly ? Icons.visibility : Icons.chevron_right),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FormActaPage(actaExistente: acta),
-                        ),
-                      );
+                      if (readOnly) {
+                        _mostrarDetalleActa(context, acta);
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => FormActaPage(actaExistente: acta),
+                          ),
+                        );
+                      }
                     },
                   ),
                 );

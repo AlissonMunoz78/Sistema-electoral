@@ -19,7 +19,7 @@ class ActaBloc extends Bloc<ActaEvent, ActaState> {
     on<CrearActaEvent>((event, emit) async {
       emit(ActaLoading());
       try {
-        await crearActa(event.acta);
+        await crearActa(event.acta, fotoLocalPath: event.fotoLocalPath);
         emit(ActaSuccess());
       } catch (e) {
         emit(ActaError(e.toString()));

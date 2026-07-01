@@ -40,13 +40,53 @@ class AuthRemoteDataSource {
 
   Future<User> login(String email, String password) async {
     await _account.createEmailPasswordSession(email: email, password: password);
-    return await _account.get();
+    final user = await _account.get();
+    if (!user.emailVerification) {
+      await _account.deleteSession(sessionId: 'current');
+      throw Exception('Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
+    }
+    return user;
   }
 
   Future<void> sendPasswordReset(String email) async {
-    await _account.createRecovery(
-      email: email,
-      url: 'sistema-electoral://recovery',
+    try {
+      await _account.createRecovery(
+        email: email,
+        url: 'sistema-electoral://recovery',
+      );
+    } on AppwriteException catch (e) {
+      if (e.message?.contains('register your new client') == true ||
+          e.message?.contains('platform') == true) {
+        throw Exception(
+          'Error de configuración: debes registrar "sistema-electoral://" '
+          'como plataforma Web en Appwrite Console (Settings → Platforms). '
+          'Contacta al administrador.',
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> completePasswordReset({
+    required String userId,
+    required String secret,
+    required String password,
+  }) async {
+    await _account.updateRecovery(
+      userId: userId,
+      secret: secret,
+      password: password,
+    );
+  }
+
+  Future<void> completeEmailVerification({
+    required String userId,
+    required String secret,
+  }) async {
+    // Appwrite v25 SDK renamed updateVerification to updateEmailVerification
+    await _account.updateVerification(
+      userId: userId,
+      secret: secret,
     );
   }
 
@@ -95,8 +135,20 @@ class AuthRemoteDataSource {
   /// autenticado como el usuario recién creado (por eso se invoca justo
   /// después de crearCuentaAuth, antes de restaurar la sesión original).
   Future<void> enviarVerificacionEmail() async {
-    await _account.createVerification(
-      url: 'sistema-electoral://verify',
-    );
+    try {
+      await _account.createVerification(
+        url: 'sistema-electoral://verify',
+      );
+    } on AppwriteException catch (e) {
+      if (e.message?.contains('register your new client') == true ||
+          e.message?.contains('platform') == true) {
+        throw Exception(
+          'Error de configuración: debes registrar "sistema-electoral://" '
+          'como plataforma Web en Appwrite Console (Settings → Platforms). '
+          'Además, configura SMTP en Appwrite para que los correos se puedan enviar.',
+        );
+      }
+      rethrow;
+    }
   }
 }
