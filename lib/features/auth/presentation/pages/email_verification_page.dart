@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -117,8 +118,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (_) => true),
+                          onPressed: () => context.go('/login'),
                           child: const Text('Ir a iniciar sesión'),
                         ),
                       ),
@@ -158,8 +158,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                            context, '/login', (_) => true),
+                        onPressed: () => context.go('/login'),
                         child: const Text('Ir a iniciar sesión'),
                       ),
                     ] else ...[

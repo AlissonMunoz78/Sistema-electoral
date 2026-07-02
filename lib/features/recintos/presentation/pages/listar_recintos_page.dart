@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/appwrite_client.dart';
 import '../../../actas/data/datasources/acta_datasource.dart';
+import '../../../recintos/domain/entities/recinto.dart';
 import '../bloc/recinto_bloc.dart';
 import '../bloc/recinto_event.dart';
 import '../bloc/recinto_state.dart';
@@ -16,10 +17,30 @@ class ListarRecintosPage extends StatefulWidget {
 }
 
 class _ListarRecintosPageState extends State<ListarRecintosPage> {
+  Map<String, String> _coordinadorNombres = {};
+
   @override
   void initState() {
     super.initState();
     context.read<RecintoBloc>().add(CargarRecintosEvent());
+  }
+
+  Future<void> _cargarNombresCoordinadores() async {
+    try {
+      final result = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteUsersCollectionId,
+        queries: [Query.equal('rol', 'coordinatorRecinto')],
+      );
+      final nombres = <String, String>{};
+      for (final doc in result.documents) {
+        final authId = doc.data['authUserId'] as String?;
+        if (authId != null && authId.isNotEmpty) {
+          nombres[authId] = '${doc.data['nombres'] ?? ''} ${doc.data['apellidos'] ?? ''}'.trim();
+        }
+      }
+      if (mounted) setState(() => _coordinadorNombres = nombres);
+    } catch (_) {}
   }
 
   @override
@@ -41,7 +62,10 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<RecintoBloc>().add(CargarRecintosEvent()),
+            onPressed: () {
+              context.read<RecintoBloc>().add(CargarRecintosEvent());
+              _cargarNombresCoordinadores();
+            },
           ),
         ],
       ),
@@ -70,6 +94,9 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
             );
           }
           if (state is RecintosLoaded) {
+            if (_coordinadorNombres.isEmpty) {
+              _cargarNombresCoordinadores();
+            }
             if (state.recintos.isEmpty) {
               return const Center(
                 child: Column(
@@ -89,6 +116,9 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
               itemCount: state.recintos.length,
               itemBuilder: (context, index) {
                 final r = state.recintos[index];
+                final coordNombre = r.coordinadorId != null && r.coordinadorId!.isNotEmpty
+                    ? _coordinadorNombres[r.coordinadorId] ?? r.coordinadorId
+                    : 'Sin asignar';
                 return Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   decoration: BoxDecoration(
@@ -107,12 +137,12 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('${r.provincia} — ${r.canton} — ${r.parroquia}'),
-                        Text('JRVs: ${r.numeroJRV}  |  Coordinador: ${r.coordinadorId ?? "Sin asignar"}',
+                        Text('JRVs: ${r.numeroJRV}  |  Coordinador: $coordNombre',
                             style: const TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _mostrarDetalle(context, r.id, r.nombre, r.numeroJRV),
+                    onTap: () => _mostrarDetalle(context, r),
                   ),
                 );
               },
@@ -125,7 +155,8 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
     );
   }
 
-  void _mostrarDetalle(BuildContext context, String? id, String nombre, int numeroJRV) {
+  void _mostrarDetalle(BuildContext context, Recinto recinto) {
+    final tieneCoordinador = recinto.coordinadorId != null && recinto.coordinadorId!.isNotEmpty;
     showModalBottomSheet(
       context: context,
       builder: (ctx) => Padding(
@@ -134,21 +165,26 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(recinto.nombre, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             const Text('Funciones disponibles:', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             _opcion(ctx, 'Asignar coordinador de recinto', Icons.person_add, () async {
               Navigator.pop(ctx);
-              await _asignarCoordinador(context, id);
+              await _asignarCoordinador(context, recinto.id);
             }),
+            if (tieneCoordinador)
+              _opcion(ctx, 'Desasignar coordinador', Icons.person_remove, () async {
+                Navigator.pop(ctx);
+                await _desasignarCoordinador(context, recinto);
+              }),
             _opcion(ctx, 'Ver coordenadas GPS de actas', Icons.map, () async {
               Navigator.pop(ctx);
-              await _mostrarGpsActas(context, id);
+              await _mostrarGpsActas(context, recinto.id);
             }),
             _opcion(ctx, 'Ver avance (actas registradas vs pendientes)', Icons.bar_chart, () async {
               Navigator.pop(ctx);
-              await _mostrarAvance(context, id, nombre, numeroJRV);
+              await _mostrarAvance(context, recinto.id, recinto.nombre, recinto.numeroJRV);
             }),
           ],
         ),
@@ -223,6 +259,45 @@ class _ListarRecintosPageState extends State<ListarRecintosPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al cargar coordinadores: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+  Future<void> _desasignarCoordinador(BuildContext context, Recinto recinto) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Desasignar coordinador'),
+        content: Text('¿Estás seguro de desasignar al coordinador de "${recinto.nombre}"?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Desasignar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || recinto.id == null) return;
+    try {
+      await databases.updateDocument(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteRecintosCollectionId,
+        documentId: recinto.id!,
+        data: {'coordinadorId': ''},
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Coordinador desasignado correctamente'), backgroundColor: Colors.green),
+        );
+        context.read<RecintoBloc>().add(CargarRecintosEvent());
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al desasignar: $e'), backgroundColor: Colors.red),
         );
       }
     }

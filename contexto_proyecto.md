@@ -3,10 +3,2075 @@
 
 
 ================================================
+📄 ARCHIVO: .agents\skills\appwrite-cli\SKILL.md
+================================================
+
+---
+name: appwrite-cli
+description: Appwrite CLI skill. Use when managing Appwrite projects from the command line. Covers installation, login, project initialization, multi-file project configuration, deploying functions/sites/tables/buckets/teams/webhooks/topics, flag-based list queries, non-interactive CI/CD mode, and generating type-safe SDKs.
+---
+
+
+# Appwrite CLI
+
+## Installation
+
+```bash
+# npm
+npm install -g appwrite-cli
+
+# macOS (Homebrew native binary)
+brew tap appwrite/appwrite
+brew install appwrite/appwrite/appwrite
+
+# macOS / Linux (script)
+curl -sL https://appwrite.io/cli/install.sh | bash
+
+# Windows (Scoop)
+scoop install https://raw.githubusercontent.com/appwrite/sdk-for-cli/master/scoop/appwrite.config.json
+```
+
+Verify installation:
+
+```bash
+appwrite -v
+```
+
+## Login & Initialization
+
+```bash
+# Login to your account
+appwrite login
+
+# Login to a self-hosted instance
+appwrite login --endpoint "https://your-instance.com/v1"
+
+# Switch to a different saved account
+appwrite login --switch
+
+# Initialize a project (creates appwrite.config.json)
+appwrite init project
+
+# Verify by fetching project info
+appwrite projects get --project-id "<PROJECT_ID>"
+```
+
+`appwrite whoami` can show `https://cloud.appwrite.io/v1` as the account login endpoint. That is expected for Appwrite Cloud login. Do not rewrite it to a regional endpoint. Only project configuration and project-scoped API calls use the region endpoint, such as `https://<REGION>.cloud.appwrite.io/v1`.
+
+## Configuration
+
+```bash
+# Switch endpoint/project for scripted use
+appwrite client --endpoint "https://<REGION>.cloud.appwrite.io/v1"
+appwrite client --project-id "<PROJECT_ID>"
+```
+
+> For the full list of CLI commands, see [CLI Commands](https://appwrite.io/docs/tooling/command-line/commands).
+> For headless / CI/CD usage, see [Non-Interactive Mode](https://appwrite.io/docs/tooling/command-line/non-interactive).
+
+## appwrite.config.json
+
+Resources can be configured inline in `appwrite.config.json` or split into separate JSON array files using `includes`.
+
+```json
+{
+    "projectId": "<PROJECT_ID>",
+    "projectName": "Production",
+    "endpoint": "https://<REGION>.cloud.appwrite.io/v1",
+    "includes": {
+        "functions": "appwrite/functions.json",
+        "sites": "appwrite/sites.json",
+        "webhooks": "appwrite/webhooks.json"
+    },
+    "settings": {
+        "services": {
+            "account": true,
+            "databases": true,
+            "functions": true,
+            "sites": true,
+            "messaging": true
+        },
+        "protocols": {
+            "rest": true,
+            "graphql": true,
+            "websocket": true
+        },
+        "auth": {
+            "methods": {
+                "email-password": true,
+                "magic-url": true
+            },
+            "security": {
+                "sessionsLimit": 10,
+                "passwordDictionary": true
+            }
+        }
+    },
+    "tablesDB": [],
+    "tables": [],
+    "buckets": [],
+    "teams": [],
+    "topics": []
+}
+```
+
+Each `includes` value must be a relative `.json` path inside the project directory and must point to a JSON array. A resource cannot be defined both inline and in `includes`. When functions or sites are included, their `path` values are resolved relative to the include file directory.
+
+Example `appwrite/functions.json`:
+
+```json
+[
+    {
+        "$id": "<FUNCTION_ID>",
+        "name": "userAuth",
+        "enabled": true,
+        "logging": true,
+        "runtime": "node-22",
+        "buildSpecification": "s-1vcpu-512mb",
+        "runtimeSpecification": "s-1vcpu-512mb",
+        "deploymentRetention": 7,
+        "events": [],
+        "schedule": "",
+        "timeout": 15,
+        "entrypoint": "src/main.js",
+        "commands": "npm install",
+        "ignore": "node_modules\n.tmp",
+        "path": "../functions/userAuth"
+    }
+]
+```
+
+### Pull and push project configuration
+
+```bash
+# Pull or push everything
+appwrite pull all --all
+appwrite push all --all
+
+# Pull or push individual resource groups
+appwrite pull settings
+appwrite push settings
+appwrite pull webhooks
+appwrite push webhooks
+appwrite pull functions
+appwrite push functions
+```
+
+## Deploying Functions
+
+```bash
+# Create a new function
+appwrite init functions
+
+# Pull existing functions from Console
+appwrite pull functions
+
+# Deploy functions
+appwrite push functions
+```
+
+### Function configuration in appwrite.config.json
+
+```json
+{
+    "functions": [
+        {
+            "$id": "<FUNCTION_ID>",
+            "name": "userAuth",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-22",
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "deploymentRetention": 7,
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "ignore": "node_modules\n.tmp",
+            "path": "functions/userAuth"
+        }
+    ]
+}
+```
+
+Key function config fields:
+
+| Field | Description |
+|-------|-------------|
+| `enabled` | Enables or disables the function. Disabled functions cannot be executed. |
+| `logging` | Stores execution logs for debugging and observability. |
+| `runtime` | Runtime used to execute the function, such as `node-22`. |
+| `buildSpecification` | Compute specification used while building the deployment. |
+| `runtimeSpecification` | Compute specification used while running executions. |
+| `deploymentRetention` | Number of days to retain old deployments before they are automatically deleted. |
+| `scopes` | API scopes granted to the function's generated execution key. |
+| `events` | Event patterns that trigger the function. |
+| `schedule` | Cron expression for scheduled execution. Empty string disables scheduling. |
+| `timeout` | Maximum execution duration in seconds. |
+| `entrypoint` | File inside `path` that starts the function. |
+| `commands` | Build/install command run before deployment. |
+| `ignore` | Extra newline-separated ignore rules used when packaging code. `.gitignore` is read automatically. |
+| `path` | Local function source directory. If configured through `includes`, this is resolved relative to the include file. |
+
+### Function commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite functions list` | List all functions |
+| `appwrite functions create` | Create a new function |
+| `appwrite functions get --function-id <ID>` | Get a function by ID |
+| `appwrite functions update --function-id <ID>` | Update a function |
+| `appwrite functions delete --function-id <ID>` | Delete a function |
+| `appwrite functions list-runtimes` | List all active runtimes |
+| `appwrite functions list-deployments --function-id <ID>` | List deployments |
+| `appwrite functions create-deployment --function-id <ID>` | Upload a new deployment |
+| `appwrite functions update-deployment --function-id <ID> --deployment-id <ID>` | Set active deployment |
+| `appwrite functions delete-deployment --function-id <ID> --deployment-id <ID>` | Delete a deployment |
+| `appwrite functions download-deployment --function-id <ID> --deployment-id <ID>` | Download deployment |
+| `appwrite functions create-execution --function-id <ID>` | Trigger execution |
+| `appwrite functions list-executions --function-id <ID>` | List execution logs |
+| `appwrite functions get-execution --function-id <ID> --execution-id <ID>` | Get execution log |
+| `appwrite functions list-variables --function-id <ID>` | List variables |
+| `appwrite functions create-variable --function-id <ID> --key <KEY> --value <VALUE>` | Create variable |
+| `appwrite functions update-variable --function-id <ID> --variable-id <ID> --key <KEY> --value <VALUE>` | Update variable |
+| `appwrite functions delete-variable --function-id <ID> --variable-id <ID>` | Delete variable |
+
+### List functions with flag-based queries
+
+Prefer the query flags for common filtering, sorting, and pagination. Use `--queries` only for raw Appwrite JSON query strings or advanced automation.
+
+```bash
+appwrite functions list \
+    --where 'name=api' \
+    --sort-desc '$createdAt' \
+    --limit 10 \
+    --offset 0 \
+    --json
+
+appwrite functions list-deployments \
+    --function-id <FUNCTION_ID> \
+    --limit 5 \
+    --cursor-after <DEPLOYMENT_ID>
+```
+
+### Trigger a function with body
+
+```bash
+appwrite functions create-execution \
+    --function-id <FUNCTION_ID> \
+    --body '{"key": "value"}'
+```
+
+### Local development
+
+```bash
+appwrite run functions
+```
+
+### Deployment activation
+
+```bash
+# Deploy and activate the deployment
+appwrite push functions --function-id <FUNCTION_ID> --activate
+
+# Deploy without switching live traffic
+appwrite push functions --function-id <FUNCTION_ID> --activate=false
+```
+
+### Function variables
+
+Do not define function variables in `appwrite.config.json`. Put them in a `.env` file inside the configured function `path`. Variables are saved after they are pushed, so use `--with-variables` only when you want to create, replace, or remove the remote variables from the local `.env` file.
+
+```bash
+# functions/userAuth/.env
+PUBLIC_FLAG=enabled
+SECRET_TOKEN=replace-me
+
+# Sync function variables from .env
+appwrite push functions --function-id <FUNCTION_ID> --with-variables
+
+# Push code without changing saved variables
+appwrite push functions --function-id <FUNCTION_ID>
+
+# Run locally with variables fetched from function settings
+appwrite run functions --with-variables
+```
+
+## Deploying Sites
+
+```bash
+# Create a new site
+appwrite init sites
+
+# Pull existing sites from Console
+appwrite pull sites
+
+# Deploy sites
+appwrite push sites
+```
+
+### Site configuration in appwrite.config.json
+
+```json
+{
+    "sites": [
+        {
+            "$id": "<SITE_ID>",
+            "name": "Documentation template",
+            "logging": true,
+            "framework": "astro",
+            "timeout": 30,
+            "installCommand": "npm install",
+            "buildCommand": "npm run build",
+            "outputDirectory": "./dist",
+            "buildSpecification": "s-1vcpu-512mb",
+            "runtimeSpecification": "s-1vcpu-512mb",
+            "buildRuntime": "node-22",
+            "adapter": "ssr",
+            "fallbackFile": "",
+            "startCommand": "npm run start",
+            "deploymentRetention": 7,
+            "path": "sites/documentation-template"
+        }
+    ]
+}
+```
+
+Key site config fields:
+
+| Field | Description |
+|-------|-------------|
+| `logging` | Stores site request and build logs. |
+| `framework` | Framework preset used for build and deployment defaults. |
+| `timeout` | Maximum request or function duration in seconds for server-rendered sites. |
+| `installCommand` | Command used to install dependencies. |
+| `buildCommand` | Command used to build the site. |
+| `outputDirectory` | Directory containing static build output. |
+| `buildSpecification` | Compute specification used while building the deployment. |
+| `runtimeSpecification` | Compute specification used while serving runtime workloads. |
+| `buildRuntime` | Runtime used to build the site, such as `node-22`. |
+| `adapter` | Deployment adapter, such as static or SSR behavior. |
+| `fallbackFile` | Fallback file for SPA routing or missing routes. |
+| `startCommand` | Command used to start server-rendered output. |
+| `deploymentRetention` | Number of days to retain old deployments before they are automatically deleted. |
+| `path` | Local site source directory. If configured through `includes`, this is resolved relative to the include file. |
+
+### Site commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite sites list` | List all sites |
+| `appwrite sites create` | Create a new site |
+| `appwrite sites get --site-id <ID>` | Get a site by ID |
+| `appwrite sites update --site-id <ID>` | Update a site |
+| `appwrite sites delete --site-id <ID>` | Delete a site |
+| `appwrite sites list-frameworks` | List available frameworks |
+| `appwrite sites list-specifications` | List allowed specs |
+| `appwrite sites list-templates` | List available templates |
+| `appwrite sites get-template --template-id <ID>` | Get template details |
+| `appwrite sites list-deployments --site-id <ID>` | List deployments |
+| `appwrite sites create-deployment --site-id <ID>` | Create deployment |
+| `appwrite sites get-deployment --site-id <ID> --deployment-id <ID>` | Get deployment |
+| `appwrite sites delete-deployment --site-id <ID> --deployment-id <ID>` | Delete deployment |
+| `appwrite sites update-site-deployment --site-id <ID> --deployment-id <ID>` | Set active deployment |
+| `appwrite sites update-deployment-status --site-id <ID> --deployment-id <ID>` | Cancel ongoing build |
+| `appwrite sites list-variables --site-id <ID>` | List variables |
+| `appwrite sites create-variable --site-id <ID> --key <KEY> --value <VALUE>` | Create variable |
+| `appwrite sites update-variable --site-id <ID> --variable-id <ID> --key <KEY> --value <VALUE>` | Update variable |
+| `appwrite sites delete-variable --site-id <ID> --variable-id <ID>` | Delete variable |
+| `appwrite sites list-logs --site-id <ID>` | List request logs |
+| `appwrite sites get-log --site-id <ID> --log-id <ID>` | Get a log |
+| `appwrite sites delete-log --site-id <ID> --log-id <ID>` | Delete a log |
+
+### Site variables
+
+Do not define site variables in `appwrite.config.json`. Put them in a `.env` file inside the configured site `path`. Variables are saved after they are pushed, so use `--with-variables` only when you want to create, replace, or remove the remote variables from the local `.env` file.
+
+```bash
+# sites/documentation-template/.env
+PUBLIC_SITE_NAME=docs
+
+appwrite push sites --site-id <SITE_ID> --with-variables
+
+# Push code without changing saved variables
+appwrite push sites --site-id <SITE_ID>
+```
+
+## Managing Tables (Databases)
+
+```bash
+# Create a new table
+appwrite init tables
+
+# Pull existing tables from Console
+appwrite pull tables
+
+# Deploy tables
+appwrite push tables
+```
+
+### Table configuration in appwrite.config.json
+
+```json
+{
+    "tablesDB": [
+        {
+            "$id": "<DATABASE_ID>",
+            "name": "songs",
+            "enabled": true
+        }
+    ],
+    "tables": [
+        {
+            "$id": "<TABLE_ID>",
+            "$permissions": ["create(\"any\")", "read(\"any\")"],
+            "databaseId": "<DATABASE_ID>",
+            "name": "music",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "title",
+                    "type": "varchar",
+                    "required": true,
+                    "size": 255
+                }
+            ],
+            "indexes": []
+        }
+    ]
+}
+```
+
+### Database commands (TablesDB)
+
+| Command | Description |
+|---------|-------------|
+| `appwrite tables-db list-tables --database-id <ID>` | List tables |
+| `appwrite tables-db create-table --database-id <ID>` | Create table |
+| `appwrite tables-db get-table --database-id <ID> --table-id <ID>` | Get table |
+| `appwrite tables-db update-table --database-id <ID> --table-id <ID>` | Update table |
+| `appwrite tables-db delete-table --database-id <ID> --table-id <ID>` | Delete table |
+| `appwrite tables-db list-columns --database-id <ID> --table-id <ID>` | List columns |
+| `appwrite tables-db get-column --database-id <ID> --table-id <ID> --key <KEY>` | Get column |
+| `appwrite tables-db delete-column --database-id <ID> --table-id <ID> --key <KEY>` | Delete column |
+| `appwrite tables-db list-column-indexes --database-id <ID> --table-id <ID>` | List indexes |
+| `appwrite tables-db create-column-index --database-id <ID> --table-id <ID>` | Create index |
+| `appwrite tables-db delete-column-index --database-id <ID> --table-id <ID> --key <KEY>` | Delete index |
+
+### Column type commands
+
+> **Note:** The legacy `string` type is deprecated. Use explicit string column types instead.
+
+| Command | Description |
+|---------|-------------|
+| `create-varchar-column` | Varchar column — inline storage, fully indexable (max 16,383 chars, size ≤ 768 for full index) |
+| `create-text-column` | Text column — off-page storage, prefix index only (max 16,383 chars) |
+| `create-mediumtext-column` | Mediumtext column — off-page storage (max ~4M chars) |
+| `create-longtext-column` | Longtext column — off-page storage (max ~1B chars) |
+| `create-boolean-column` | Boolean column |
+| `create-integer-column` | Integer column (optional min/max) |
+| `create-float-column` | Float column (optional min/max) |
+| `create-email-column` | Email column |
+| `create-url-column` | URL column |
+| `create-ip-column` | IP address column |
+| `create-datetime-column` | Datetime column (ISO 8601) |
+| `create-enum-column` | Enum column (whitelist of accepted values) |
+| `create-relationship-column` | Relationship column |
+
+All column commands use `appwrite tables-db <command> --database-id <ID> --table-id <ID>`.
+
+### Row operations
+
+```bash
+# Create a row
+appwrite tables-db create-row \
+    --database-id "<DATABASE_ID>" --table-id "<TABLE_ID>" \
+    --row-id 'unique()' --data '{ "title": "Hello World" }' \
+    --permissions 'read("any")' 'write("team:abc")'
+
+# List rows (JSON output)
+appwrite tables-db list-rows \
+    --database-id "<DATABASE_ID>" --table-id "<TABLE_ID>" --json
+
+# Get a row
+appwrite tables-db get-row \
+    --database-id "<DATABASE_ID>" --table-id "<TABLE_ID>" --row-id "<ROW_ID>"
+```
+
+### List rows and documents with query flags
+
+Use `--where`, `--sort-asc`, `--sort-desc`, `--limit`, `--offset`, `--cursor-after`, and `--cursor-before` on list commands. Row and document list/get commands also support repeated `--select` flags.
+
+```bash
+appwrite tables-db list-rows \
+    --database-id "<DATABASE_ID>" \
+    --table-id "<TABLE_ID>" \
+    --where 'status=active' \
+    --where 'score>=10' \
+    --sort-asc 'name' \
+    --select '$id' \
+    --select 'name' \
+    --limit 25 \
+    --json
+
+appwrite databases list-documents \
+    --database-id "<DATABASE_ID>" \
+    --collection-id "<COLLECTION_ID>" \
+    --where 'email!=null' \
+    --cursor-before "<DOCUMENT_ID>"
+```
+
+`--where` parses strings, numbers, booleans, `null`, and JSON arrays. Supported operators are `=`, `!=`, `>`, `>=`, `<`, and `<=`.
+
+## Managing Buckets (Storage)
+
+```bash
+# Create a new bucket
+appwrite init buckets
+
+# Pull existing buckets from Console
+appwrite pull buckets
+
+# Deploy buckets
+appwrite push buckets
+```
+
+### Storage commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite storage list-buckets` | List all buckets |
+| `appwrite storage create-bucket` | Create a bucket |
+| `appwrite storage get-bucket --bucket-id <ID>` | Get a bucket |
+| `appwrite storage update-bucket --bucket-id <ID>` | Update a bucket |
+| `appwrite storage delete-bucket --bucket-id <ID>` | Delete a bucket |
+| `appwrite storage list-files --bucket-id <ID>` | List files |
+| `appwrite storage create-file --bucket-id <ID>` | Upload a file |
+| `appwrite storage get-file --bucket-id <ID> --file-id <ID>` | Get file metadata |
+| `appwrite storage delete-file --bucket-id <ID> --file-id <ID>` | Delete a file |
+| `appwrite storage get-file-download --bucket-id <ID> --file-id <ID>` | Download a file |
+| `appwrite storage get-file-preview --bucket-id <ID> --file-id <ID>` | Get image preview |
+| `appwrite storage get-file-view --bucket-id <ID> --file-id <ID>` | View file in browser |
+
+## Managing Teams
+
+```bash
+# Create a new team
+appwrite init teams
+
+# Pull existing teams from Console
+appwrite pull teams
+
+# Deploy teams
+appwrite push teams
+```
+
+### Team commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite teams list` | List all teams |
+| `appwrite teams create` | Create a team |
+| `appwrite teams get --team-id <ID>` | Get a team |
+| `appwrite teams update-name --team-id <ID>` | Update team name |
+| `appwrite teams delete --team-id <ID>` | Delete a team |
+| `appwrite teams list-memberships --team-id <ID>` | List members |
+| `appwrite teams create-membership --team-id <ID>` | Invite a member |
+| `appwrite teams update-membership --team-id <ID> --membership-id <ID>` | Update member roles |
+| `appwrite teams delete-membership --team-id <ID> --membership-id <ID>` | Remove a member |
+| `appwrite teams get-prefs --team-id <ID>` | Get team preferences |
+| `appwrite teams update-prefs --team-id <ID>` | Update team preferences |
+
+## Managing Webhooks
+
+```bash
+# Pull existing webhooks from Console
+appwrite pull webhooks
+
+# Deploy configured webhooks
+appwrite push webhooks
+```
+
+### Webhook configuration in `appwrite/webhooks.json`
+
+```json
+[
+    {
+        "$id": "<WEBHOOK_ID>",
+        "name": "Deploy events",
+        "url": "https://example.com/appwrite/webhook",
+        "events": ["functions.*.deployments.*.create"],
+        "enabled": true,
+        "tls": true
+    }
+]
+```
+
+### Webhook commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite webhooks list` | List webhooks |
+| `appwrite webhooks create` | Create a webhook |
+| `appwrite webhooks get --webhook-id <ID>` | Get a webhook |
+| `appwrite webhooks update --webhook-id <ID>` | Update a webhook |
+| `appwrite webhooks delete --webhook-id <ID>` | Delete a webhook |
+
+## Managing Topics (Messaging)
+
+```bash
+# Create a new topic
+appwrite init topics
+
+# Pull existing topics from Console
+appwrite pull topics
+
+# Deploy topics
+appwrite push topics
+```
+
+### Messaging commands
+
+| Command | Description |
+|---------|-------------|
+| `appwrite messaging list-messages` | List all messages |
+| `appwrite messaging create-email` | Create email message |
+| `appwrite messaging create-push` | Create push notification |
+| `appwrite messaging create-sms` | Create SMS message |
+| `appwrite messaging get-message --message-id <ID>` | Get a message |
+| `appwrite messaging delete --message-id <ID>` | Delete a message |
+| `appwrite messaging list-topics` | List all topics |
+| `appwrite messaging create-topic` | Create a topic |
+| `appwrite messaging get-topic --topic-id <ID>` | Get a topic |
+| `appwrite messaging update-topic --topic-id <ID>` | Update a topic |
+| `appwrite messaging delete-topic --topic-id <ID>` | Delete a topic |
+| `appwrite messaging list-subscribers --topic-id <ID>` | List subscribers |
+| `appwrite messaging create-subscriber --topic-id <ID>` | Add subscriber |
+| `appwrite messaging delete-subscriber --topic-id <ID> --subscriber-id <ID>` | Remove subscriber |
+
+## User Management
+
+```bash
+# Create a user
+appwrite users create --user-id "unique()" \
+    --email hello@appwrite.io
+
+# List users
+appwrite users list
+
+# Get a user
+appwrite users get --user-id "<USER_ID>"
+
+# Delete a user
+appwrite users delete --user-id "<USER_ID>"
+```
+
+## Project Management
+
+Project-level commands use the singular `project` service for current-project operations that do not need `--project-id`.
+
+```bash
+# Project settings and policies
+appwrite project update-service --service-id functions --enabled true
+appwrite project update-protocol --protocol-id rest --enabled true
+appwrite project list-policies
+appwrite project get-policy --policy-id "<POLICY_ID>"
+
+# OAuth2 providers
+appwrite project list-o-auth-2-providers
+appwrite project get-o-auth-2-provider --provider github
+appwrite project update-o-auth-2-git-hub --enabled true
+
+# Mock phones and short-lived API keys
+appwrite project create-mock-phone --phone "+12025550123" --otp "123456"
+appwrite project list-mock-phones
+appwrite project create-ephemeral-key
+```
+
+## Generate Type-Safe SDK
+
+```bash
+# Auto-detect language and generate
+appwrite generate
+
+# Specify output directory
+appwrite generate --output ./src/generated
+
+# Specify language
+appwrite generate --language typescript
+
+# Override generated import settings
+appwrite generate --appwrite-import-source node-appwrite --import-extension .js
+```
+
+Generated files:
+
+| File | Description |
+|------|-------------|
+| `types.ts` | Type definitions from your database schema |
+| `databases.ts` | Typed database helpers for querying and mutating rows |
+| `constants.ts` | Configuration constants (endpoint, project ID) |
+| `index.ts` | Entry point that exports all helpers |
+
+Usage:
+
+```typescript
+import { databases } from "./generated/appwrite";
+
+const customers = databases.use("main").use("customers");
+
+// Create
+const customer = await customers.create({
+    name: "Walter O' Brian",
+    email: "walter@example.com"
+});
+
+// List with typed queries
+const results = await customers.list({
+    queries: (q) => [
+        q.equal("name", "Walter O' Brian"),
+        q.orderDesc("$createdAt"),
+        q.limit(10)
+    ]
+});
+
+// Update
+await customers.update("customer-id-123", {
+    email: "walter@scorpion.com"
+});
+
+// Delete
+await customers.delete("customer-id-123");
+
+// Bulk create
+await customers.createMany([
+    { name: "Walter O' Brian", email: "walter@example.com" },
+    { name: "Paige Dineen", email: "paige@example.com" }
+]);
+```
+
+## Non-Interactive / CI/CD Mode
+
+For headless automation, see the [Non-Interactive Mode docs](https://appwrite.io/docs/tooling/command-line/non-interactive).
+
+### Deploy non-interactively
+
+```bash
+# Push everything
+appwrite push all --all --force
+
+# Push specific resources
+appwrite push functions --all --force
+appwrite push functions --function-id <FUNCTION_ID> --force
+appwrite push sites --all --force
+appwrite push tables --all --force
+appwrite push teams --all --force
+appwrite push buckets --all --force
+appwrite push webhooks --all --force
+appwrite push topics --all --force
+```
+
+## Global Command Options
+
+| Option | Description |
+|--------|-------------|
+| `-v, --version` | Output version number |
+| `-V, --verbose` | Show complete error log |
+| `-j, --json` | Output in JSON format |
+| `-f, --force` | Confirm all warnings |
+| `-a, --all` | Select all resources |
+| `--id [id...]` | Pass a list of IDs |
+| `--report` | Generate GitHub error report link |
+| `--console` | Get direct link to Console |
+| `--open` | Open Console link in browser |
+| `-h, --help` | Display help |
+
+## Maintenance Commands
+
+```bash
+# Update CLI using the detected install method
+appwrite update
+
+# Show manual update instructions
+appwrite update --manual
+
+# Install shell completions
+appwrite completion install
+```
+
+## Examples
+
+```bash
+# List users with JSON output
+appwrite users list --json
+
+# Get verbose error output
+appwrite users list --verbose
+
+# View a row in the Console
+appwrite tables-db get-row \
+    --database-id "<DATABASE_ID>" \
+    --table-id "<TABLE_ID>" \
+    --row-id "<ROW_ID>" \
+    --console --open
+
+# Generate error report
+appwrite login --report
+```
+
+
+
+================================================
+📄 ARCHIVO: .agents\skills\appwrite-dart\SKILL.md
+================================================
+
+---
+name: appwrite-dart
+description: Appwrite Dart SDK skill. Use when building Flutter apps (mobile, web, desktop) or server-side Dart applications with Appwrite. Covers client-side auth (email, OAuth), database queries, file uploads with native file handling, real-time subscriptions, and server-side admin via API keys for user management, database administration, storage, and functions.
+---
+
+
+# Appwrite Dart SDK
+
+## Installation
+
+```bash
+# Flutter (client-side)
+flutter pub add appwrite
+
+# Dart (server-side)
+dart pub add dart_appwrite
+```
+
+## Setting Up the Client
+
+### Client-side (Flutter)
+
+```dart
+import 'package:appwrite/appwrite.dart';
+
+final client = Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]');
+```
+
+### Server-side (Dart)
+
+```dart
+import 'package:dart_appwrite/dart_appwrite.dart';
+
+final client = Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject(Platform.environment['APPWRITE_PROJECT_ID']!)
+    .setKey(Platform.environment['APPWRITE_API_KEY']!);
+```
+
+## Code Examples
+
+### Authentication (client-side)
+
+```dart
+final account = Account(client);
+
+// Signup
+await account.create(userId: ID.unique(), email: 'user@example.com', password: 'password123', name: 'User Name');
+
+// Login
+final session = await account.createEmailPasswordSession(email: 'user@example.com', password: 'password123');
+
+// OAuth login
+await account.createOAuth2Session(provider: OAuthProvider.google);
+
+// Get current user
+final user = await account.get();
+
+// Logout
+await account.deleteSession(sessionId: 'current');
+```
+
+### User Management (server-side)
+
+```dart
+final users = Users(client);
+
+// Create user
+final user = await users.create(userId: ID.unique(), email: 'user@example.com', password: 'password123', name: 'User Name');
+
+// List users
+final list = await users.list(queries: [Query.limit(25)]);
+
+// Get user
+final fetched = await users.get(userId: '[USER_ID]');
+
+// Delete user
+await users.delete(userId: '[USER_ID]');
+```
+
+### Database Operations
+
+> **Note:** Use `TablesDB` (not the deprecated `Databases` class) for all new code. Only use `Databases` if the existing codebase already relies on it or the user explicitly requests it.
+>
+> **Tip:** Prefer named parameters (e.g., `databaseId: '...'`) for all SDK method calls. Only use positional arguments if the existing codebase already uses them or the user explicitly requests it.
+
+```dart
+final tablesDB = TablesDB(client);
+
+// Create database (server-side only)
+final db = await tablesDB.create(databaseId: ID.unique(), name: 'My Database');
+
+// Create table (server-side only)
+final col = await tablesDB.createTable(databaseId: '[DATABASE_ID]', tableId: ID.unique(), name: 'My Table');
+
+// Create row
+final doc = await tablesDB.createRow(
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: ID.unique(),
+    data: {'title': 'Hello', 'done': false},
+);
+
+// Query rows
+final results = await tablesDB.listRows(
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    queries: [Query.equal('done', false), Query.limit(10)],
+);
+
+// Get row
+final row = await tablesDB.getRow(databaseId: '[DATABASE_ID]', tableId: '[TABLE_ID]', rowId: '[ROW_ID]');
+
+// Update row
+await tablesDB.updateRow(
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: '[ROW_ID]',
+    data: {'done': true},
+);
+
+// Delete row
+await tablesDB.deleteRow(
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: '[ROW_ID]',
+);
+```
+
+#### String Column Types
+
+> **Note:** The legacy `string` type is deprecated. Use explicit column types for all new columns.
+
+| Type | Max characters | Indexing | Storage |
+|------|---------------|----------|---------|
+| `varchar` | 16,383 | Full index (if size ≤ 768) | Inline in row |
+| `text` | 16,383 | Prefix only | Off-page |
+| `mediumtext` | 4,194,303 | Prefix only | Off-page |
+| `longtext` | 1,073,741,823 | Prefix only | Off-page |
+
+- `varchar` is stored inline and counts towards the 64 KB row size limit. Prefer for short, indexed fields like names, slugs, or identifiers.
+- `text`, `mediumtext`, and `longtext` are stored off-page (only a 20-byte pointer lives in the row), so they don't consume the row size budget. `size` is not required for these types.
+
+```dart
+// Create table with explicit string column types
+await tablesDB.createTable(
+    databaseId: '[DATABASE_ID]',
+    tableId: ID.unique(),
+    name: 'articles',
+    columns: [
+        {'key': 'title',    'type': 'varchar',    'size': 255, 'required': true},   // inline, fully indexable
+        {'key': 'summary',  'type': 'text',                    'required': false},  // off-page, prefix index only
+        {'key': 'body',     'type': 'mediumtext',              'required': false},  // up to ~4 M chars
+        {'key': 'raw_data', 'type': 'longtext',                'required': false},  // up to ~1 B chars
+    ],
+);
+```
+
+### Query Methods
+
+```dart
+// Filtering
+Query.equal('field', 'value')             // == (or pass list for IN)
+Query.notEqual('field', 'value')          // !=
+Query.lessThan('field', 100)              // <
+Query.lessThanEqual('field', 100)         // <=
+Query.greaterThan('field', 100)           // >
+Query.greaterThanEqual('field', 100)      // >=
+Query.between('field', 1, 100)            // 1 <= field <= 100
+Query.isNull('field')                     // is null
+Query.isNotNull('field')                  // is not null
+Query.startsWith('field', 'prefix')       // starts with
+Query.endsWith('field', 'suffix')         // ends with
+Query.contains('field', 'sub')            // contains
+Query.search('field', 'keywords')         // full-text search (requires index)
+
+// Sorting
+Query.orderAsc('field')
+Query.orderDesc('field')
+
+// Pagination
+Query.limit(25)                           // max rows (default 25, max 100)
+Query.offset(0)                           // skip N rows
+Query.cursorAfter('[ROW_ID]')             // cursor pagination (preferred)
+Query.cursorBefore('[ROW_ID]')
+
+// Selection & Logic
+Query.select(['field1', 'field2'])        // return only specified fields
+Query.or([Query.equal('a', 1), Query.equal('b', 2)])   // OR
+Query.and([Query.greaterThan('age', 18), Query.lessThan('age', 65)])  // AND (default)
+```
+
+### File Storage
+
+```dart
+final storage = Storage(client);
+
+// Upload file
+final file = await storage.createFile(
+    bucketId: '[BUCKET_ID]',
+    fileId: ID.unique(),
+    file: InputFile.fromPath(path: '/path/to/file.png', filename: 'file.png'),
+);
+
+// Get file preview
+final preview = storage.getFilePreview(bucketId: '[BUCKET_ID]', fileId: '[FILE_ID]', width: 300, height: 300);
+
+// List files
+final files = await storage.listFiles(bucketId: '[BUCKET_ID]');
+
+// Delete file
+await storage.deleteFile(bucketId: '[BUCKET_ID]', fileId: '[FILE_ID]');
+```
+
+#### InputFile Factory Methods
+
+```dart
+// Client-side (Flutter)
+InputFile.fromPath(path: '/path/to/file.png', filename: 'file.png')    // from path
+InputFile.fromBytes(bytes: uint8List, filename: 'file.png')            // from Uint8List
+
+// Server-side (Dart)
+InputFile.fromPath(path: '/path/to/file.png', filename: 'file.png')
+InputFile.fromBytes(bytes: uint8List, filename: 'file.png')
+```
+
+### Teams
+
+```dart
+final teams = Teams(client);
+
+// Create team
+final team = await teams.create(teamId: ID.unique(), name: 'Engineering');
+
+// List teams
+final list = await teams.list();
+
+// Create membership (invite user by email)
+final membership = await teams.createMembership(
+    teamId: '[TEAM_ID]',
+    roles: ['editor'],
+    email: 'user@example.com',
+);
+
+// List memberships
+final members = await teams.listMemberships(teamId: '[TEAM_ID]');
+
+// Update membership roles
+await teams.updateMembership(teamId: '[TEAM_ID]', membershipId: '[MEMBERSHIP_ID]', roles: ['admin']);
+
+// Delete team
+await teams.delete(teamId: '[TEAM_ID]');
+```
+
+> **Role-based access:** Use `Role.team('[TEAM_ID]')` for all team members or `Role.team('[TEAM_ID]', 'editor')` for a specific team role when setting permissions.
+
+### Real-time Subscriptions (client-side)
+
+```dart
+final realtime = Realtime(client);
+
+// Subscribe to row changes
+final subscription = realtime.subscribe([
+    Channel.tablesdb('[DATABASE_ID]').table('[TABLE_ID]').row(),
+]);
+subscription.stream.listen((response) {
+    print(response.events);   // e.g. ['tablesdb.*.tables.*.rows.*.create']
+    print(response.payload);  // the affected resource
+});
+
+// Subscribe to multiple channels
+final multi = realtime.subscribe([
+    Channel.tablesdb('[DATABASE_ID]').table('[TABLE_ID]').row(),
+    Channel.bucket('[BUCKET_ID]').file(),
+]);
+
+// Cleanup
+subscription.close();
+```
+
+**Available channels:**
+
+| Channel | Description |
+|---------|-------------|
+| `account` | Changes to the authenticated user's account |
+| `tablesdb.[DB_ID].tables.[TABLE_ID].rows` | All rows in a table |
+| `tablesdb.[DB_ID].tables.[TABLE_ID].rows.[ROW_ID]` | A specific row |
+| `buckets.[BUCKET_ID].files` | All files in a bucket |
+| `buckets.[BUCKET_ID].files.[FILE_ID]` | A specific file |
+| `teams` | Changes to teams the user belongs to |
+| `teams.[TEAM_ID]` | A specific team |
+| `memberships` | The user's team memberships |
+| `memberships.[MEMBERSHIP_ID]` | A specific membership |
+| `functions.[FUNCTION_ID].executions` | Function execution updates |
+
+Response fields: `events` (array), `payload` (resource), `channels` (matched), `timestamp` (ISO 8601).
+
+### Serverless Functions (server-side)
+
+```dart
+final functions = Functions(client);
+
+// Execute function
+final execution = await functions.createExecution(functionId: '[FUNCTION_ID]', body: '{"key": "value"}');
+
+// List executions
+final executions = await functions.listExecutions(functionId: '[FUNCTION_ID]');
+```
+
+#### Writing a Function Handler (Dart runtime)
+
+```dart
+// lib/main.dart — Appwrite Function entry point
+Future<dynamic> main(final context) async {
+    // context.req.body        — raw body (String)
+    // context.req.bodyJson    — parsed JSON (Map or null)
+    // context.req.headers     — headers (Map)
+    // context.req.method      — HTTP method
+    // context.req.path        — URL path
+    // context.req.query       — query params (Map)
+
+    context.log('Processing: ${context.req.method} ${context.req.path}');
+
+    if (context.req.method == 'GET') {
+        return context.res.json({'message': 'Hello from Appwrite Function!'});
+    }
+
+    return context.res.json({'success': true});      // JSON
+    // return context.res.text('Hello');              // plain text
+    // return context.res.empty();                    // 204
+    // return context.res.redirect('https://...');    // 302
+}
+```
+
+### Server-Side Rendering (SSR) Authentication
+
+SSR apps using server-side Dart (Dart Frog, Shelf, etc.) use the **server SDK** (`dart_appwrite`) to handle auth. You need two clients:
+
+- **Admin client** — uses an API key, creates sessions, bypasses rate limits (reusable singleton)
+- **Session client** — uses a session cookie, acts on behalf of a user (create per-request, never share)
+
+```dart
+import 'package:dart_appwrite/dart_appwrite.dart';
+
+// Admin client (reusable)
+final adminClient = Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]')
+    .setKey(Platform.environment['APPWRITE_API_KEY']!);
+
+// Session client (create per-request)
+final sessionClient = Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]');
+
+final session = request.cookies['a_session_[PROJECT_ID]'];
+if (session != null) {
+    sessionClient.setSession(session);
+}
+```
+
+#### Email/Password Login
+
+```dart
+final account = Account(adminClient);
+final session = await account.createEmailPasswordSession(
+    email: body['email'],
+    password: body['password'],
+);
+
+// Cookie name must be a_session_<PROJECT_ID>
+response.headers.add('Set-Cookie',
+    'a_session_[PROJECT_ID]=${session.secret}; '
+    'HttpOnly; Secure; SameSite=Strict; '
+    'Expires=${HttpDate.format(DateTime.parse(session.expire))}; Path=/');
+```
+
+#### Authenticated Requests
+
+```dart
+final session = request.cookies['a_session_[PROJECT_ID]'];
+if (session == null) {
+    return Response(statusCode: 401, body: 'Unauthorized');
+}
+
+final sessionClient = Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]')
+    .setSession(session);
+
+final account = Account(sessionClient);
+final user = await account.get();
+```
+
+#### OAuth2 SSR Flow
+
+```dart
+// Step 1: Redirect to OAuth provider
+final account = Account(adminClient);
+final redirectUrl = await account.createOAuth2Token(
+    provider: OAuthProvider.github,
+    success: 'https://example.com/oauth/success',
+    failure: 'https://example.com/oauth/failure',
+);
+return Response(statusCode: 302, headers: {'Location': redirectUrl});
+
+// Step 2: Handle callback — exchange token for session
+final account = Account(adminClient);
+final session = await account.createSession(
+    userId: request.uri.queryParameters['userId']!,
+    secret: request.uri.queryParameters['secret']!,
+);
+// Set session cookie as above
+```
+
+> **Cookie security:** Always use `HttpOnly`, `Secure`, and `SameSite=Strict` to prevent XSS. The cookie name must be `a_session_<PROJECT_ID>`.
+
+> **Forwarding user agent:** Call `sessionClient.setForwardedUserAgent(request.headers['user-agent'])` to record the end-user's browser info for debugging and security.
+
+## Error Handling
+
+```dart
+import 'package:appwrite/appwrite.dart';
+// AppwriteException is included in the main import
+
+try {
+    final row = await tablesDB.getRow(databaseId: '[DATABASE_ID]', tableId: '[TABLE_ID]', rowId: '[ROW_ID]');
+} on AppwriteException catch (e) {
+    print(e.message);    // human-readable message
+    print(e.code);       // HTTP status code (int)
+    print(e.type);       // error type (e.g. 'document_not_found')
+    print(e.response);   // full response body (Map)
+}
+```
+
+**Common error codes:**
+
+| Code | Meaning |
+|------|---------|
+| `401` | Unauthorized — missing or invalid session/API key |
+| `403` | Forbidden — insufficient permissions |
+| `404` | Not found — resource does not exist |
+| `409` | Conflict — duplicate ID or unique constraint |
+| `429` | Rate limited — too many requests |
+
+## Permissions & Roles (Critical)
+
+Appwrite uses permission strings to control access to resources. Each permission pairs an action (`read`, `update`, `delete`, `create`, or `write` which grants create + update + delete) with a role target. By default, **no user has access** unless permissions are explicitly set at the row/file level or inherited from the table/bucket settings. Permissions are arrays of strings built with the `Permission` and `Role` helpers.
+
+```dart
+import 'package:appwrite/appwrite.dart';
+// Permission and Role are included in the main package import
+```
+
+### Database Row with Permissions
+
+```dart
+final doc = await tablesDB.createRow(
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: ID.unique(),
+    data: {'title': 'Hello World'},
+    permissions: [
+        Permission.read(Role.user('[USER_ID]')),     // specific user can read
+        Permission.update(Role.user('[USER_ID]')),   // specific user can update
+        Permission.read(Role.team('[TEAM_ID]')),     // all team members can read
+        Permission.read(Role.any()),                 // anyone (including guests) can read
+    ],
+);
+```
+
+### File Upload with Permissions
+
+```dart
+final file = await storage.createFile(
+    bucketId: '[BUCKET_ID]',
+    fileId: ID.unique(),
+    file: InputFile.fromPath(path: '/path/to/file.png', filename: 'file.png'),
+    permissions: [
+        Permission.read(Role.any()),
+        Permission.update(Role.user('[USER_ID]')),
+        Permission.delete(Role.user('[USER_ID]')),
+    ],
+);
+```
+
+> **When to set permissions:** Set row/file-level permissions when you need per-resource access control. If all rows in a table share the same rules, configure permissions at the table/bucket level and leave row permissions empty.
+
+> **Common mistakes:**
+> - **Forgetting permissions** — the resource becomes inaccessible to all users (including the creator)
+> - **`Role.any()` with `write`/`update`/`delete`** — allows any user, including unauthenticated guests, to modify or remove the resource
+> - **`Permission.read(Role.any())` on sensitive data** — makes the resource publicly readable
+
+
+
+
+================================================
+📄 ARCHIVO: .agents\skills\appwrite-typescript\SKILL.md
+================================================
+
+---
+name: appwrite-typescript
+description: Appwrite TypeScript SDK skill. Use when building browser-based JavaScript/TypeScript apps, React Native mobile apps, or server-side Node.js/Deno backends with Appwrite. Covers client-side auth (email, OAuth, anonymous), database queries, file uploads, real-time subscriptions, and server-side admin via API keys for user management, database administration, storage, and functions.
+---
+
+
+# Appwrite TypeScript SDK
+
+## Installation
+
+```bash
+# Web
+npm install appwrite
+
+# React Native
+npm install react-native-appwrite
+
+# Node.js / Deno
+npm install node-appwrite
+```
+
+## Setting Up the Client
+
+### Client-side (Web / React Native)
+
+```typescript
+// Web
+import { Client, Account, TablesDB, Storage, ID, Query } from 'appwrite';
+
+// React Native
+import { Client, Account, TablesDB, Storage, ID, Query } from 'react-native-appwrite';
+
+const client = new Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]');
+```
+
+### Server-side (Node.js / Deno)
+
+```typescript
+import { Client, Users, TablesDB, Storage, Functions, ID, Query } from 'node-appwrite';
+
+const client = new Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject(process.env.APPWRITE_PROJECT_ID)
+    .setKey(process.env.APPWRITE_API_KEY);
+```
+
+## Code Examples
+
+### Authentication (client-side)
+
+```typescript
+const account = new Account(client);
+
+// Email signup
+await account.create({
+    userId: ID.unique(),
+    email: 'user@example.com',
+    password: 'password123',
+    name: 'User Name'
+});
+
+// Email login
+const session = await account.createEmailPasswordSession({
+    email: 'user@example.com',
+    password: 'password123'
+});
+
+// OAuth login (Web)
+account.createOAuth2Session({
+    provider: OAuthProvider.Github,
+    success: 'https://example.com/success',
+    failure: 'https://example.com/fail',
+    scopes: ['repo', 'user'] // optional — provider-specific scopes
+});
+
+// Get current user
+const user = await account.get();
+
+// Logout
+await account.deleteSession({ sessionId: 'current' });
+```
+
+### OAuth 2 Login (React Native)
+
+> **Important:** `createOAuth2Session()` does **not** work on React Native. You must use `createOAuth2Token()` with deep linking instead.
+
+#### Setup
+
+Install the required dependencies:
+
+```bash
+npx expo install react-native-appwrite react-native-url-polyfill
+npm install expo-auth-session expo-web-browser expo-linking
+```
+
+Set the URL scheme in your `app.json`:
+
+```json
+{
+  "expo": {
+    "scheme": "appwrite-callback-[PROJECT_ID]"
+  }
+}
+```
+
+#### OAuth Flow
+
+```typescript
+import { Client, Account, OAuthProvider } from 'react-native-appwrite';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+
+const client = new Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]');
+
+const account = new Account(client);
+
+async function oauthLogin(provider: OAuthProvider) {
+    // Create deep link that works across Expo environments
+    const deepLink = new URL(makeRedirectUri({ preferLocalhost: true }));
+    const scheme = `${deepLink.protocol}//`; // e.g. 'exp://' or 'appwrite-callback-[PROJECT_ID]://'
+
+    // Get the OAuth login URL
+    const loginUrl = await account.createOAuth2Token({
+        provider,
+        success: `${deepLink}`,
+        failure: `${deepLink}`,
+    });
+
+    // Open browser and listen for the scheme redirect
+    const result = await WebBrowser.openAuthSessionAsync(`${loginUrl}`, scheme);
+
+    if (result.type !== 'success') return;
+
+    // Extract credentials from the redirect URL
+    const url = new URL(result.url);
+    const secret = url.searchParams.get('secret');
+    const userId = url.searchParams.get('userId');
+
+    // Create session with the OAuth credentials
+    await account.createSession({ userId, secret });
+}
+
+// Usage
+await oauthLogin(OAuthProvider.Github);
+await oauthLogin(OAuthProvider.Google);
+```
+
+### User Management (server-side)
+
+```typescript
+const users = new Users(client);
+
+// Create user
+const user = await users.create({
+    userId: ID.unique(),
+    email: 'user@example.com',
+    password: 'password123',
+    name: 'User Name'
+});
+
+// List users
+const list = await users.list({ queries: [Query.limit(25)] });
+
+// Get user
+const fetched = await users.get({ userId: '[USER_ID]' });
+
+// Delete user
+await users.delete({ userId: '[USER_ID]' });
+```
+
+### Database Operations
+
+> **Note:** Use `TablesDB` (not the deprecated `Databases` class) for all new code. Only use `Databases` if the existing codebase already relies on it or the user explicitly requests it.
+>
+> **Tip:** Prefer the object-params calling style (e.g., `{ databaseId: '...' }`) for all SDK method calls. Only use positional arguments if the existing codebase already uses them or the user explicitly requests it.
+
+```typescript
+const tablesDB = new TablesDB(client);
+
+// Create database (server-side only)
+const db = await tablesDB.create({ databaseId: ID.unique(), name: 'My Database' });
+
+// Create table (server-side only)
+const col = await tablesDB.createTable({
+    databaseId: '[DATABASE_ID]',
+    tableId: ID.unique(),
+    name: 'My Table'
+});
+
+// Create row
+const doc = await tablesDB.createRow({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: ID.unique(),
+    data: { title: 'Hello World', content: 'Example content' }
+});
+
+// List rows with query
+const results = await tablesDB.listRows({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    queries: [Query.equal('status', 'active'), Query.limit(10)]
+});
+
+// Get row
+const row = await tablesDB.getRow({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: '[ROW_ID]'
+});
+
+// Update row
+await tablesDB.updateRow({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: '[ROW_ID]',
+    data: { title: 'Updated Title' }
+});
+
+// Delete row
+await tablesDB.deleteRow({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: '[ROW_ID]'
+});
+```
+
+#### String Column Types
+
+> **Note:** The legacy `string` type is deprecated. Use explicit column types for all new columns.
+
+| Type | Max characters | Indexing | Storage |
+|------|---------------|----------|---------|
+| `varchar` | 16,383 | Full index (if size ≤ 768) | Inline in row |
+| `text` | 16,383 | Prefix only | Off-page |
+| `mediumtext` | 4,194,303 | Prefix only | Off-page |
+| `longtext` | 1,073,741,823 | Prefix only | Off-page |
+
+- `varchar` is stored inline and counts towards the 64 KB row size limit. Prefer for short, indexed fields like names, slugs, or identifiers.
+- `text`, `mediumtext`, and `longtext` are stored off-page (only a 20-byte pointer lives in the row), so they don't consume the row size budget. `size` is not required for these types.
+
+```typescript
+// Create table with explicit string column types
+await tablesDB.createTable({
+    databaseId: '[DATABASE_ID]',
+    tableId: ID.unique(),
+    name: 'articles',
+    columns: [
+        { key: 'title',    type: 'varchar',    size: 255, required: true  },  // inline, fully indexable
+        { key: 'summary',  type: 'text',                  required: false },  // off-page, prefix index only
+        { key: 'body',     type: 'mediumtext',            required: false },  // up to ~4 M chars
+        { key: 'raw_data', type: 'longtext',              required: false },  // up to ~1 B chars
+    ]
+});
+```
+
+#### TypeScript Generics
+
+```typescript
+import { Models } from 'appwrite';
+// Server-side: import from 'node-appwrite'
+
+// Define a typed interface for your row data
+interface Todo {
+    title: string;
+    done: boolean;
+    priority: number;
+}
+
+// listRows returns Models.DocumentList<Models.Document> by default
+// Cast or use generics for typed results
+const results = await tablesDB.listRows({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    queries: [Query.equal('done', false)]
+});
+
+// Each document includes built-in fields alongside your data
+const doc = results.documents[0];
+doc.$id;            // string — unique row ID
+doc.$createdAt;     // string — ISO 8601 creation timestamp
+doc.$updatedAt;     // string — ISO 8601 update timestamp
+doc.$permissions;   // string[] — permission strings
+doc.$databaseId;    // string
+doc.$collectionId;  // string
+
+// Common model types
+// Models.User<Preferences>  — user account
+// Models.Session             — auth session
+// Models.File                — storage file metadata
+// Models.Team                — team object
+// Models.Execution           — function execution result
+// Models.DocumentList<T>     — paginated list with total count
+```
+
+### Query Methods
+
+```typescript
+// Filtering
+Query.equal('field', 'value')           // field == value (or pass array for IN)
+Query.notEqual('field', 'value')        // field != value
+Query.lessThan('field', 100)            // field < value
+Query.lessThanEqual('field', 100)       // field <= value
+Query.greaterThan('field', 100)         // field > value
+Query.greaterThanEqual('field', 100)    // field >= value
+Query.between('field', 1, 100)          // 1 <= field <= 100
+Query.isNull('field')                   // field is null
+Query.isNotNull('field')                // field is not null
+Query.startsWith('field', 'prefix')     // string starts with prefix
+Query.endsWith('field', 'suffix')       // string ends with suffix
+Query.contains('field', 'substring')    // string/array contains value
+Query.search('field', 'keywords')       // full-text search (requires full-text index)
+
+// Sorting
+Query.orderAsc('field')                 // sort ascending
+Query.orderDesc('field')                // sort descending
+
+// Pagination
+Query.limit(25)                         // max rows returned (default 25, max 100)
+Query.offset(0)                         // skip N rows
+Query.cursorAfter('[ROW_ID]')           // paginate after this row ID (preferred for large datasets)
+Query.cursorBefore('[ROW_ID]')          // paginate before this row ID
+
+// Selection
+Query.select(['field1', 'field2'])      // return only specified fields
+
+// Logical
+Query.or([Query.equal('a', 1), Query.equal('b', 2)])   // OR condition
+Query.and([Query.greaterThan('age', 18), Query.lessThan('age', 65)])  // explicit AND (queries are AND by default)
+```
+
+### File Storage
+
+```typescript
+const storage = new Storage(client);
+
+// Upload file (client-side — from file input)
+const file = await storage.createFile({
+    bucketId: '[BUCKET_ID]',
+    fileId: ID.unique(),
+    file: document.getElementById('file-input').files[0]
+});
+
+// Upload file (server-side — from path)
+import { InputFile } from 'node-appwrite/file';
+
+const file2 = await storage.createFile({
+    bucketId: '[BUCKET_ID]',
+    fileId: ID.unique(),
+    file: InputFile.fromPath('/path/to/file.png', 'file.png')
+});
+
+// List files
+const files = await storage.listFiles({ bucketId: '[BUCKET_ID]' });
+
+// Get file preview (image)
+const preview = storage.getFilePreview({
+    bucketId: '[BUCKET_ID]',
+    fileId: '[FILE_ID]',
+    width: 300,
+    height: 300
+});
+
+// Download file
+const download = await storage.getFileDownload({
+    bucketId: '[BUCKET_ID]',
+    fileId: '[FILE_ID]'
+});
+
+// Delete file
+await storage.deleteFile({ bucketId: '[BUCKET_ID]', fileId: '[FILE_ID]' });
+```
+
+#### InputFile Factory Methods (server-side)
+
+```typescript
+import { InputFile } from 'node-appwrite/file';
+
+InputFile.fromPath('/path/to/file.png', 'file.png')          // from filesystem path
+InputFile.fromBuffer(buffer, 'file.png')                       // from Buffer
+InputFile.fromStream(readableStream, 'file.png', size)         // from ReadableStream (size in bytes required)
+InputFile.fromPlainText('Hello world', 'hello.txt')            // from string content
+```
+
+### Teams
+
+```typescript
+const teams = new Teams(client);
+
+// Create team
+const team = await teams.create({ teamId: ID.unique(), name: 'Engineering' });
+
+// List teams
+const list = await teams.list();
+
+// Create membership (invite a user by email)
+const membership = await teams.createMembership({
+    teamId: '[TEAM_ID]',
+    roles: ['editor'],
+    email: 'user@example.com',
+});
+
+// List memberships
+const members = await teams.listMemberships({ teamId: '[TEAM_ID]' });
+
+// Update membership roles
+await teams.updateMembership({
+    teamId: '[TEAM_ID]',
+    membershipId: '[MEMBERSHIP_ID]',
+    roles: ['admin'],
+});
+
+// Delete team
+await teams.delete({ teamId: '[TEAM_ID]' });
+```
+
+> **Role-based access:** Use `Role.team('[TEAM_ID]')` for all team members or `Role.team('[TEAM_ID]', 'editor')` for a specific team role when setting permissions.
+
+### Real-time Subscriptions (client-side)
+
+```typescript
+import { Realtime, Channel } from 'appwrite';
+
+const realtime = new Realtime(client);
+
+// Subscribe to row changes
+const subscription = await realtime.subscribe(
+    Channel.tablesdb('[DATABASE_ID]').table('[TABLE_ID]').row(),
+    (response) => {
+        console.log(response.events);   // e.g. ['tablesdb.*.tables.*.rows.*.create']
+        console.log(response.payload);  // the affected resource
+    }
+);
+
+// Subscribe to a specific row
+await realtime.subscribe(
+    Channel.tablesdb('[DATABASE_ID]').table('[TABLE_ID]').row('[ROW_ID]'),
+    (response) => { /* ... */ }
+);
+
+// Subscribe to multiple channels
+await realtime.subscribe([
+    Channel.tablesdb('[DATABASE_ID]').table('[TABLE_ID]').row(),
+    Channel.bucket('[BUCKET_ID]').file(),
+], (response) => { /* ... */ });
+
+// Unsubscribe
+await subscription.close();
+```
+
+**Available channels:**
+
+| Channel | Description |
+|---------|-------------|
+| `account` | Changes to the authenticated user's account |
+| `tablesdb.[DB_ID].tables.[TABLE_ID].rows` | All rows in a table |
+| `tablesdb.[DB_ID].tables.[TABLE_ID].rows.[ROW_ID]` | A specific row |
+| `buckets.[BUCKET_ID].files` | All files in a bucket |
+| `buckets.[BUCKET_ID].files.[FILE_ID]` | A specific file |
+| `teams` | Changes to teams the user belongs to |
+| `teams.[TEAM_ID]` | Changes to a specific team |
+| `memberships` | Changes to the user's team memberships |
+| `memberships.[MEMBERSHIP_ID]` | A specific membership |
+| `functions.[FUNCTION_ID].executions` | Execution updates for a function |
+
+The `response` object includes: `events` (array of event strings), `payload` (the affected resource), `channels` (channels matched), and `timestamp` (ISO 8601).
+
+### Serverless Functions (server-side)
+
+```typescript
+const functions = new Functions(client);
+
+// Execute function
+const execution = await functions.createExecution({
+    functionId: '[FUNCTION_ID]',
+    body: JSON.stringify({ key: 'value' })
+});
+
+// List executions
+const executions = await functions.listExecutions({ functionId: '[FUNCTION_ID]' });
+```
+
+#### Writing a Function Handler (Node.js runtime)
+
+When deploying your own Appwrite Function, the entry point file must export a default async function:
+
+```typescript
+// src/main.js (or src/main.ts)
+export default async ({ req, res, log, error }) => {
+    // Request properties
+    // req.body        — raw request body (string)
+    // req.bodyJson    — parsed JSON body (object, or undefined if not JSON)
+    // req.headers     — request headers (object)
+    // req.method      — HTTP method (GET, POST, PUT, DELETE, PATCH)
+    // req.path        — URL path (e.g. '/hello')
+    // req.query       — parsed query parameters (object)
+    // req.queryString — raw query string
+
+    log('Processing request: ' + req.method + ' ' + req.path);
+
+    if (req.method === 'GET') {
+        return res.json({ message: 'Hello from Appwrite Function!' });
+    }
+
+    const data = req.bodyJson;
+    if (!data?.name) {
+        error('Missing name field');
+        return res.json({ error: 'Name is required' }, 400);
+    }
+
+    // Response methods
+    return res.json({ success: true });                    // JSON (sets Content-Type automatically)
+    // return res.text('Hello');                           // plain text
+    // return res.empty();                                 // 204 No Content
+    // return res.redirect('https://example.com');         // 302 Redirect
+    // return res.send('data', 200, { 'X-Custom': '1' }); // custom body, status, headers
+};
+```
+
+### Server-Side Rendering (SSR) Authentication
+
+SSR apps (Next.js, SvelteKit, Nuxt, Remix, Astro) use the **server SDK** (`node-appwrite`) to handle auth. You need two clients:
+
+- **Admin client** — uses an API key, creates sessions, bypasses rate limits (reusable singleton)
+- **Session client** — uses a session cookie, acts on behalf of a user (create per-request, never share)
+
+```typescript
+import { Client, Account, OAuthProvider } from 'node-appwrite';
+
+// Admin client (reusable)
+const adminClient = new Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]')
+    .setKey(process.env.APPWRITE_API_KEY);
+
+// Session client (create per-request)
+const sessionClient = new Client()
+    .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+    .setProject('[PROJECT_ID]');
+
+const session = req.cookies['a_session_[PROJECT_ID]'];
+if (session) {
+    sessionClient.setSession(session);
+}
+```
+
+#### Email/Password Login
+
+```typescript
+app.post('/login', async (req, res) => {
+    const account = new Account(adminClient);
+    const session = await account.createEmailPasswordSession({
+        email: req.body.email,
+        password: req.body.password,
+    });
+
+    // Cookie name must be a_session_<PROJECT_ID>
+    res.cookie('a_session_[PROJECT_ID]', session.secret, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        expires: new Date(session.expire),
+        path: '/',
+    });
+
+    res.json({ success: true });
+});
+```
+
+#### Authenticated Requests
+
+```typescript
+app.get('/user', async (req, res) => {
+    const session = req.cookies['a_session_[PROJECT_ID]'];
+    if (!session) return res.status(401).json({ error: 'Unauthorized' });
+
+    // Create a fresh session client per request
+    const sessionClient = new Client()
+        .setEndpoint('https://<REGION>.cloud.appwrite.io/v1')
+        .setProject('[PROJECT_ID]')
+        .setSession(session);
+
+    const account = new Account(sessionClient);
+    const user = await account.get();
+    res.json(user);
+});
+```
+
+#### OAuth2 SSR Flow
+
+```typescript
+// Step 1: Redirect to OAuth provider
+app.get('/oauth', async (req, res) => {
+    const account = new Account(adminClient);
+    const redirectUrl = await account.createOAuth2Token({
+        provider: OAuthProvider.Github,
+        success: 'https://example.com/oauth/success',
+        failure: 'https://example.com/oauth/failure',
+    });
+    res.redirect(redirectUrl);
+});
+
+// Step 2: Handle callback — exchange token for session
+app.get('/oauth/success', async (req, res) => {
+    const account = new Account(adminClient);
+    const session = await account.createSession({
+        userId: req.query.userId,
+        secret: req.query.secret,
+    });
+
+    res.cookie('a_session_[PROJECT_ID]', session.secret, {
+        httpOnly: true, secure: true, sameSite: 'strict',
+        expires: new Date(session.expire), path: '/',
+    });
+    res.json({ success: true });
+});
+```
+
+> **Cookie security:** Always use `httpOnly`, `secure`, and `sameSite: 'strict'` to prevent XSS. The cookie name must be `a_session_<PROJECT_ID>`.
+
+> **Forwarding user agent:** Call `sessionClient.setForwardedUserAgent(req.headers['user-agent'])` to record the end-user's browser info for debugging and security.
+
+## Error Handling
+
+```typescript
+import { AppwriteException } from 'appwrite';
+// Server-side: import from 'node-appwrite'
+
+try {
+    const doc = await tablesDB.getRow({
+        databaseId: '[DATABASE_ID]',
+        tableId: '[TABLE_ID]',
+        rowId: '[ROW_ID]',
+    });
+} catch (err) {
+    if (err instanceof AppwriteException) {
+        console.log(err.message);   // human-readable error message
+        console.log(err.code);      // HTTP status code (number)
+        console.log(err.type);      // Appwrite error type string (e.g. 'document_not_found')
+        console.log(err.response);  // full response body (object)
+    }
+}
+```
+
+**Common error codes:**
+
+| Code | Meaning |
+|------|---------|
+| `401` | Unauthorized — missing or invalid session/API key |
+| `403` | Forbidden — insufficient permissions for this action |
+| `404` | Not found — resource does not exist |
+| `409` | Conflict — duplicate ID or unique constraint violation |
+| `429` | Rate limited — too many requests, retry after backoff |
+
+## Permissions & Roles (Critical)
+
+Appwrite uses permission strings to control access to resources. Each permission pairs an action (`read`, `update`, `delete`, `create`, or `write` which grants create + update + delete) with a role target. By default, **no user has access** unless permissions are explicitly set at the row/file level or inherited from the table/bucket settings. Permissions are arrays of strings built with the `Permission` and `Role` helpers.
+
+```typescript
+import { Permission, Role } from 'appwrite';
+// Server-side: import from 'node-appwrite'
+```
+
+### Database Row with Permissions
+
+```typescript
+const doc = await tablesDB.createRow({
+    databaseId: '[DATABASE_ID]',
+    tableId: '[TABLE_ID]',
+    rowId: ID.unique(),
+    data: { title: 'Hello World' },
+    permissions: [
+        Permission.read(Role.user('[USER_ID]')),     // specific user can read
+        Permission.update(Role.user('[USER_ID]')),   // specific user can update
+        Permission.read(Role.team('[TEAM_ID]')),     // all team members can read
+        Permission.read(Role.any()),                 // anyone (including guests) can read
+    ]
+});
+```
+
+### File Upload with Permissions
+
+```typescript
+const file = await storage.createFile({
+    bucketId: '[BUCKET_ID]',
+    fileId: ID.unique(),
+    file: document.getElementById('file-input').files[0],
+    permissions: [
+        Permission.read(Role.any()),
+        Permission.update(Role.user('[USER_ID]')),
+        Permission.delete(Role.user('[USER_ID]')),
+    ]
+});
+```
+
+> **When to set permissions:** Set row/file-level permissions when you need per-resource access control. If all rows in a table share the same rules, configure permissions at the table/bucket level and leave row permissions empty.
+
+> **Common mistakes:**
+> - **Forgetting permissions** — the resource becomes inaccessible to all users (including the creator)
+> - **`Role.any()` with `write`/`update`/`delete`** — allows any user, including unauthenticated guests, to modify or remove the resource
+> - **`Permission.read(Role.any())` on sensitive data** — makes the resource publicly readable
+
+
+
+
+================================================
+📄 ARCHIVO: .env
+================================================
+
+APPWRITE_ENDPOINT=https://sfo.cloud.appwrite.io/v1
+APPWRITE_PROJECT_ID=sistema-electoral
+APPWRITE_DATABASE_ID=6a3ca5420008a6f70fe1
+COLLECTION_USERS_PROFILES=ususarios
+COLLECTION_RECINTOS=recintos
+COLLECTION_MESAS=mesas
+COLLECTION_ACTAS=actas
+COLLECTION_VOTOS_DETALLE=votos_detalle
+COLLECTION_ORGANIZACIONES=organizaciones
+COLLECTION_LOGIN_LOOKUP=login_lookup
+STORAGE_BUCKET_FOTOS=6a3ca946002e1039870d
+APP_NAME=Sistema Electoral
+CANTON=Rumiñahui
+PROVINCIA=Pichincha
+DEFAULT_PASSWORD=Ecuador2026
+APPWRITE_ACCOUNT_VERIFICATION_URL=https://example.com/verify
+APPWRITE_PASSWORD_RECOVERY_URL=
+SHARPNESS_THRESHOLD=100.0
+EMAIL_SUFFIX=@electoral.ec
+APPWRITE_API_KEY=
+
+
+
+================================================
 📄 ARCHIVO: .flutter-plugins-dependencies
 ================================================
 
-{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_ios","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_ios-0.8.13+6\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_ios","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_ios-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_plugin_android_lifecycle","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_plugin_android_lifecycle-2.0.35\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_android-4.6.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_android-0.8.13+17\\\\","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni_flutter-1.0.1\\\\","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_android-2.3.1\\\\","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"url_launcher_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_android-6.3.30\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_selector_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_macos-0.9.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_macos-0.2.2+1\\\\","native_build":false,"dependencies":["file_selector_macos"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_macos-3.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"app_links_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links_linux-1.0.3\\\\","native_build":false,"dependencies":["gtk"],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_linux-0.9.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"gtk","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\gtk-2.2.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_linux-0.2.2\\\\","native_build":false,"dependencies":["file_selector_linux"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_linux-2.2.2\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_linux-3.2.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"windows":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_windows-0.9.3+5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_windows-0.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_windows-0.2.2\\\\","native_build":false,"dependencies":["file_selector_windows"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_windows-2.3.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_windows-3.1.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"web":[{"name":"app_links_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links_web-1.0.4\\\\","dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","dependencies":[],"dev_dependency":false},{"name":"geolocator_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_web-4.1.4\\\\","dependencies":[],"dev_dependency":false},{"name":"image_picker_for_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_for_web-3.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","dependencies":[],"dev_dependency":false},{"name":"url_launcher_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_web-2.4.3\\\\","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"app_links","dependencies":["app_links_linux","app_links_web"]},{"name":"app_links_linux","dependencies":["gtk"]},{"name":"app_links_web","dependencies":[]},{"name":"connectivity_plus","dependencies":[]},{"name":"desktop_webview_window","dependencies":[]},{"name":"device_info_plus","dependencies":[]},{"name":"file_selector_linux","dependencies":[]},{"name":"file_selector_macos","dependencies":[]},{"name":"file_selector_windows","dependencies":[]},{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"flutter_web_auth_2","dependencies":["desktop_webview_window","path_provider","url_launcher","window_to_front"]},{"name":"geolocator","dependencies":["geolocator_android","geolocator_apple","geolocator_web","geolocator_windows"]},{"name":"geolocator_android","dependencies":[]},{"name":"geolocator_apple","dependencies":[]},{"name":"geolocator_web","dependencies":[]},{"name":"geolocator_windows","dependencies":[]},{"name":"gtk","dependencies":[]},{"name":"image_picker","dependencies":["image_picker_android","image_picker_for_web","image_picker_ios","image_picker_linux","image_picker_macos","image_picker_windows"]},{"name":"image_picker_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_for_web","dependencies":[]},{"name":"image_picker_ios","dependencies":[]},{"name":"image_picker_linux","dependencies":["file_selector_linux"]},{"name":"image_picker_macos","dependencies":["file_selector_macos"]},{"name":"image_picker_windows","dependencies":["file_selector_windows"]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"package_info_plus","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"url_launcher","dependencies":["url_launcher_android","url_launcher_ios","url_launcher_linux","url_launcher_macos","url_launcher_web","url_launcher_windows"]},{"name":"url_launcher_android","dependencies":[]},{"name":"url_launcher_ios","dependencies":[]},{"name":"url_launcher_linux","dependencies":[]},{"name":"url_launcher_macos","dependencies":[]},{"name":"url_launcher_web","dependencies":[]},{"name":"url_launcher_windows","dependencies":[]},{"name":"window_to_front","dependencies":[]}],"date_created":"2026-07-01 17:04:31.779481","version":"3.41.9","swift_package_manager_enabled":{"ios":false,"macos":false}}
+{"info":"This is a generated file; do not edit or check into version control.","plugins":{"ios":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_ios","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_ios-0.8.13+6\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_ios","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_ios-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"android":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_plugin_android_lifecycle","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_plugin_android_lifecycle-2.0.35\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"geolocator_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_android-4.6.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_android-0.8.13+17\\\\","native_build":true,"dependencies":["flutter_plugin_android_lifecycle"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"jni_flutter","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni_flutter-1.0.1\\\\","native_build":true,"dependencies":["jni"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_android-2.3.1\\\\","native_build":false,"dependencies":["jni","jni_flutter"],"dev_dependency":false},{"name":"url_launcher_android","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_android-6.3.30\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"macos":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"file_selector_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_macos-0.9.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":true,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_apple","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_apple-2.3.14\\\\","shared_darwin_source":true,"native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_macos-0.2.2+1\\\\","native_build":false,"dependencies":["file_selector_macos"],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"path_provider_foundation","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_foundation-2.6.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_macos","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_macos-3.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"linux":[{"name":"app_links_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links_linux-1.0.3\\\\","native_build":false,"dependencies":["gtk"],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_linux-0.9.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"gtk","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\gtk-2.2.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_linux-0.2.2\\\\","native_build":false,"dependencies":["file_selector_linux"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_linux-2.2.2\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_linux","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_linux-3.2.2\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"windows":[{"name":"app_links","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links-6.4.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"desktop_webview_window","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\desktop_webview_window-0.3.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"file_selector_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\file_selector_windows-0.9.3+5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","native_build":false,"dependencies":["desktop_webview_window","window_to_front"],"dev_dependency":false},{"name":"geolocator_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_windows-0.2.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"image_picker_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_windows-0.2.2\\\\","native_build":false,"dependencies":["file_selector_windows"],"dev_dependency":false},{"name":"jni","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\jni-1.0.0\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"path_provider_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\path_provider_windows-2.3.0\\\\","native_build":false,"dependencies":[],"dev_dependency":false},{"name":"url_launcher_windows","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_windows-3.1.5\\\\","native_build":true,"dependencies":[],"dev_dependency":false},{"name":"window_to_front","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\window_to_front-0.0.4\\\\","native_build":true,"dependencies":[],"dev_dependency":false}],"web":[{"name":"app_links_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\app_links_web-1.0.4\\\\","dependencies":[],"dev_dependency":false},{"name":"connectivity_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\connectivity_plus-7.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"device_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\device_info_plus-12.4.0\\\\","dependencies":[],"dev_dependency":false},{"name":"flutter_web_auth_2","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\flutter_web_auth_2-5.0.3\\\\","dependencies":[],"dev_dependency":false},{"name":"geolocator_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\geolocator_web-4.1.4\\\\","dependencies":[],"dev_dependency":false},{"name":"image_picker_for_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\image_picker_for_web-3.1.1\\\\","dependencies":[],"dev_dependency":false},{"name":"package_info_plus","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\package_info_plus-9.0.1\\\\","dependencies":[],"dev_dependency":false},{"name":"url_launcher_web","path":"C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\hosted\\\\pub.dev\\\\url_launcher_web-2.4.3\\\\","dependencies":[],"dev_dependency":false}]},"dependencyGraph":[{"name":"app_links","dependencies":["app_links_linux","app_links_web"]},{"name":"app_links_linux","dependencies":["gtk"]},{"name":"app_links_web","dependencies":[]},{"name":"connectivity_plus","dependencies":[]},{"name":"desktop_webview_window","dependencies":[]},{"name":"device_info_plus","dependencies":[]},{"name":"file_selector_linux","dependencies":[]},{"name":"file_selector_macos","dependencies":[]},{"name":"file_selector_windows","dependencies":[]},{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"flutter_web_auth_2","dependencies":["desktop_webview_window","path_provider","url_launcher","window_to_front"]},{"name":"geolocator","dependencies":["geolocator_android","geolocator_apple","geolocator_web","geolocator_windows"]},{"name":"geolocator_android","dependencies":[]},{"name":"geolocator_apple","dependencies":[]},{"name":"geolocator_web","dependencies":[]},{"name":"geolocator_windows","dependencies":[]},{"name":"gtk","dependencies":[]},{"name":"image_picker","dependencies":["image_picker_android","image_picker_for_web","image_picker_ios","image_picker_linux","image_picker_macos","image_picker_windows"]},{"name":"image_picker_android","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_for_web","dependencies":[]},{"name":"image_picker_ios","dependencies":[]},{"name":"image_picker_linux","dependencies":["file_selector_linux"]},{"name":"image_picker_macos","dependencies":["file_selector_macos"]},{"name":"image_picker_windows","dependencies":["file_selector_windows"]},{"name":"jni","dependencies":[]},{"name":"jni_flutter","dependencies":["jni"]},{"name":"package_info_plus","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_android","path_provider_foundation","path_provider_linux","path_provider_windows"]},{"name":"path_provider_android","dependencies":["jni","jni_flutter"]},{"name":"path_provider_foundation","dependencies":[]},{"name":"path_provider_linux","dependencies":[]},{"name":"path_provider_windows","dependencies":[]},{"name":"url_launcher","dependencies":["url_launcher_android","url_launcher_ios","url_launcher_linux","url_launcher_macos","url_launcher_web","url_launcher_windows"]},{"name":"url_launcher_android","dependencies":[]},{"name":"url_launcher_ios","dependencies":[]},{"name":"url_launcher_linux","dependencies":[]},{"name":"url_launcher_macos","dependencies":[]},{"name":"url_launcher_web","dependencies":[]},{"name":"url_launcher_windows","dependencies":[]},{"name":"window_to_front","dependencies":[]}],"date_created":"2026-07-01 20:00:10.055309","version":"3.41.9","swift_package_manager_enabled":{"ios":false,"macos":false}}
 
 
 ================================================
@@ -60,6 +2125,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment / secrets (nunca subir claves de API o config sensibles)
+.env
+*.env.local
+*.env.production
+local.properties
 
 
 
@@ -148,6 +2219,528 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 
+
+
+================================================
+📄 ARCHIVO: appwrite.config.json
+================================================
+
+{
+    "organizationId": "6a169a9f003160f2dccb",
+    "projectId": "sistema-electoral",
+    "projectName": "Sistema Electoral",
+    "endpoint": "https://sfo.cloud.appwrite.io/v1",
+    "settings": {
+        "services": {
+            "account": true,
+            "avatars": true,
+            "databases": true,
+            "locale": true,
+            "health": true,
+            "storage": true,
+            "teams": true,
+            "users": true,
+            "sites": true,
+            "functions": true,
+            "graphql": true,
+            "messaging": true
+        },
+        "protocols": {
+            "rest": true,
+            "graphql": true,
+            "websocket": true
+        },
+        "auth": {
+            "methods": {
+                "jwt": true,
+                "phone": true,
+                "invites": true,
+                "anonymous": true,
+                "email-otp": true,
+                "magic-url": true,
+                "email-password": true
+            },
+            "security": {
+                "duration": 31536000,
+                "limit": null,
+                "sessionsLimit": null,
+                "passwordHistory": null,
+                "passwordDictionary": false,
+                "personalDataCheck": false,
+                "sessionAlerts": false,
+                "mockNumbers": []
+            }
+        }
+    },
+    "tablesDB": [
+        {
+            "$id": "6a3ca5420008a6f70fe1",
+            "name": "db_electoral",
+            "enabled": true
+        }
+    ],
+    "tables": [
+        {
+            "$id": "actas",
+            "$permissions": [
+                "create(\"any\")"
+            ],
+            "databaseId": "6a3ca5420008a6f70fe1",
+            "name": "actas",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "junta",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "provincia",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "canton",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "parroquia",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "blancos",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "nulos",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "fotoId",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "fecha",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "imagenValida",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "dignidad",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "totalSufragantes",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "latitud",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "longitud",
+                    "type": "double",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
+                },
+                {
+                    "key": "userId",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "votosOrganizaciones",
+                    "type": "integer",
+                    "required": false,
+                    "array": true,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "ususarios",
+            "$permissions": [
+                "create(\"any\")",
+                "read(\"any\")",
+                "update(\"any\")",
+                "delete(\"any\")"
+            ],
+            "databaseId": "6a3ca5420008a6f70fe1",
+            "name": "usuarios",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "cedula",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "nombres",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "apellidos",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "telefono",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "correo",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "rol",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "recintoId",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "authUserId",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": "6a3d9803000b19c519c1",
+                    "encrypt": false
+                },
+                {
+                    "key": "primerLogin",
+                    "type": "boolean",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "recintos",
+            "$permissions": [
+                "create(\"any\")",
+                "read(\"any\")"
+            ],
+            "databaseId": "6a3ca5420008a6f70fe1",
+            "name": "recintos",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "nombre",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "provincia",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "canton",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "parroquia",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "coordinadorId",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "numeroJRV",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "asignaciones_mesa",
+            "$permissions": [
+                "create(\"any\")"
+            ],
+            "databaseId": "6a3ca5420008a6f70fe1",
+            "name": "asignaciones_mesa",
+            "enabled": true,
+            "rowSecurity": true,
+            "columns": [
+                {
+                    "key": "veedorId",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "mesa",
+                    "type": "integer",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "min": -9223372036854775808,
+                    "max": 9223372036854775807
+                },
+                {
+                    "key": "recintoId",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "size": 255,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": []
+        }
+    ],
+    "buckets": [
+        {
+            "$id": "6a3ca946002e1039870d",
+            "$permissions": [
+                "create(\"any\")",
+                "read(\"any\")",
+                "update(\"any\")",
+                "delete(\"any\")"
+            ],
+            "fileSecurity": false,
+            "name": "actas-images",
+            "enabled": true,
+            "maximumFileSize": 50000000,
+            "allowedFileExtensions": [
+                "jpg",
+                "png",
+                "jpeg"
+            ],
+            "compression": "none",
+            "encryption": true,
+            "antivirus": true
+        }
+    ],
+    "teams": [
+        {
+            "$id": "6a4592c2000b48ca1945",
+            "$createdAt": "2026-07-01T22:20:49.954+00:00",
+            "$updatedAt": "2026-07-02T01:52:30.052+00:00",
+            "name": "coordinadores_provinciales",
+            "total": 1,
+            "prefs": {}
+        }
+    ]
+}
+
+
+================================================
+📄 ARCHIVO: lib\core\appwrite_admin_db.dart
+================================================
+
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'appwrite_client.dart';
+
+/// Acceso a la REST API de Databases usando la Admin API Key.
+class AppwriteAdminDb {
+  static String get _apiKey => dotenv.env['APPWRITE_API_KEY'] ?? '';
+  static bool get isAvailable => _apiKey.isNotEmpty;
+
+  static Future<Map<String, dynamic>> createDocument({
+    required String databaseId,
+    required String collectionId,
+    required String documentId,
+    required Map<String, dynamic> data,
+    List<String>? permissions,
+  }) async {
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(Uri.parse(
+        '$appwriteEndpoint/databases/$databaseId/collections/$collectionId/documents',
+      ));
+      request.headers.set('X-Appwrite-Project', appwriteProjectId);
+      request.headers.set('Authorization', 'Bearer $_apiKey');
+      request.headers.set('Content-Type', 'application/json');
+      request.write(jsonEncode({
+        'documentId': documentId,
+        'data': data,
+        if (permissions != null) 'permissions': permissions,
+      }));
+      final response = await request.close();
+      final body = await response.transform(utf8.decoder).join();
+      if (response.statusCode != 201) {
+        throw Exception('Error creando documento ($collectionId): $body');
+      }
+      return jsonDecode(body) as Map<String, dynamic>;
+    } finally {
+      client.close();
+    }
+  }
+
+  static Future<void> updateDocument({
+    required String databaseId,
+    required String collectionId,
+    required String documentId,
+    Map<String, dynamic>? data,
+    List<String>? permissions,
+  }) async {
+    final client = HttpClient();
+    try {
+      final request = await client.patchUrl(Uri.parse(
+        '$appwriteEndpoint/databases/$databaseId/collections/$collectionId/documents/$documentId',
+      ));
+      request.headers.set('X-Appwrite-Project', appwriteProjectId);
+      request.headers.set('Authorization', 'Bearer $_apiKey');
+      request.headers.set('Content-Type', 'application/json');
+      request.write(jsonEncode({
+        if (data != null) 'data': data,
+        if (permissions != null) 'permissions': permissions,
+      }));
+      final response = await request.close();
+      if (response.statusCode != 200) {
+        final body = await response.transform(utf8.decoder).join();
+        debugPrint('Error actualizando documento ($collectionId): $body');
+      }
+      client.close();
+    } catch (e) {
+      debugPrint('Error actualizando documento admin: $e');
+    }
+  }
+}
 
 
 ================================================
@@ -281,6 +2874,237 @@ class ConnectivityService {
   void dispose() {
     _subscription?.cancel();
   }
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\constants\app_constants.dart
+================================================
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+class AppConstants {
+  AppConstants._();
+
+  static String get appwriteEndpoint =>
+      dotenv.env['APPWRITE_ENDPOINT'] ?? 'https://cloud.appwrite.io/v1';
+  static String get appwriteProjectId =>
+      dotenv.env['APPWRITE_PROJECT_ID'] ?? '';
+  static String get databaseId =>
+      dotenv.env['APPWRITE_DATABASE_ID'] ?? 'electoral_db';
+  static String get appwriteApiKey => dotenv.env['APPWRITE_API_KEY'] ?? '';
+
+  static String get colUsersProfiles =>
+      dotenv.env['COLLECTION_USERS_PROFILES'] ?? 'users_profiles';
+  static String get colRecintos =>
+      dotenv.env['COLLECTION_RECINTOS'] ?? 'recintos';
+  static String get colMesas => dotenv.env['COLLECTION_MESAS'] ?? 'mesas';
+  static String get colActas => dotenv.env['COLLECTION_ACTAS'] ?? 'actas';
+  static String get colVotosDetalle =>
+      dotenv.env['COLLECTION_VOTOS_DETALLE'] ?? 'votos_detalle';
+  static String get colOrganizaciones =>
+      dotenv.env['COLLECTION_ORGANIZACIONES'] ?? 'organizaciones_politicas';
+  static String get colLoginLookup =>
+      dotenv.env['COLLECTION_LOGIN_LOOKUP'] ?? 'login_lookup';
+  static String get storageBucketFotos =>
+      dotenv.env['STORAGE_BUCKET_FOTOS'] ?? 'fotos_actas';
+
+  static String get appName => dotenv.env['APP_NAME'] ?? 'Sistema Electoral';
+  static String get canton => dotenv.env['CANTON'] ?? 'Rumiñahui';
+  static String get provincia => dotenv.env['PROVINCIA'] ?? 'Pichincha';
+  static String get defaultPassword =>
+      dotenv.env['DEFAULT_PASSWORD'] ?? 'Ecuador2026';
+  static String get accountVerificationUrl =>
+      dotenv.env['APPWRITE_ACCOUNT_VERIFICATION_URL'] ?? '';
+  static String get passwordRecoveryUrl =>
+      dotenv.env['APPWRITE_PASSWORD_RECOVERY_URL'] ?? '';
+  static double get sharpnessThreshold =>
+      double.tryParse(dotenv.env['SHARPNESS_THRESHOLD'] ?? '220.0') ?? 220.0;
+  static String get emailSuffix =>
+      dotenv.env['EMAIL_SUFFIX'] ?? '@electoral.ec';
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\constants\roles.dart
+================================================
+
+enum UserRole {
+  coordinadorProvincial,
+  coordinadorRecinto,
+  veedor;
+
+  static UserRole fromString(String value) {
+    switch (value) {
+      case 'coordinador_provincial':
+        return UserRole.coordinadorProvincial;
+      case 'coordinador_recinto':
+        return UserRole.coordinadorRecinto;
+      case 'veedor':
+        return UserRole.veedor;
+      default:
+        throw ArgumentError('Rol desconocido: $value');
+    }
+  }
+
+  String toAppwriteLabel() {
+    switch (this) {
+      case UserRole.coordinadorProvincial:
+        return 'coordinador_provincial';
+      case UserRole.coordinadorRecinto:
+        return 'coordinador_recinto';
+      case UserRole.veedor:
+        return 'veedor';
+    }
+  }
+
+  String get displayName {
+    switch (this) {
+      case UserRole.coordinadorProvincial:
+        return 'Coordinador Provincial';
+      case UserRole.coordinadorRecinto:
+        return 'Coordinador de Recinto';
+      case UserRole.veedor:
+        return 'Veedor de Mesa';
+    }
+  }
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\constants\routes.dart
+================================================
+
+class AppRoutes {
+  AppRoutes._();
+
+  static const String loading = '/loading';
+  static const String login = '/login';
+  static const String verifyEmail = '/verify';
+  static const String resetPassword = '/reset-password';
+  static const String changePassword = '/change-password';
+  static const String provincial = '/provincial';
+  static const String recinto = '/recinto';
+  static const String veedor = '/veedor';
+
+  static String recintoDetalle(String id) => '/provincial/recinto/$id';
+  static String veedorActa(String mesaId, String tipo) =>
+      '/veedor/acta/$mesaId/$tipo';
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\errors\exceptions.dart
+================================================
+
+class AppwriteAuthException implements Exception {
+  final String message;
+  final int? code;
+  AppwriteAuthException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class AppwriteServerException implements Exception {
+  final String message;
+  final int? code;
+  AppwriteServerException(this.message, [this.code]);
+
+  @override
+  String toString() => message;
+}
+
+class NetworkException implements Exception {
+  final String message;
+  NetworkException([this.message = 'Sin conexión']);
+
+  @override
+  String toString() => message;
+}
+
+class LocationException implements Exception {
+  final String message;
+  LocationException([this.message = 'Error de ubicación']);
+
+  @override
+  String toString() => message;
+}
+
+class LocationPermissionDeniedException implements Exception {
+  @override
+  String toString() =>
+      'Permiso de ubicación denegado. Actívalo para continuar.';
+}
+
+class LocalDatabaseException implements Exception {
+  final String message;
+  LocalDatabaseException([this.message = 'Error SQLite']);
+
+  @override
+  String toString() => message;
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\errors\failures.dart
+================================================
+
+abstract class Failure {
+  final String message;
+  const Failure(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class NetworkFailure extends Failure {
+  const NetworkFailure([super.message = 'Sin conexión a internet']);
+}
+
+class AuthFailure extends Failure {
+  const AuthFailure([super.message = 'Credenciales incorrectas']);
+}
+
+class PermissionFailure extends Failure {
+  const PermissionFailure([super.message = 'Sin permisos para esta acción']);
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure(super.message);
+}
+
+class LocationFailure extends Failure {
+  const LocationFailure(
+      [super.message = 'No se pudo obtener la ubicación. Activa el GPS.']);
+}
+
+class BlurryImageFailure extends Failure {
+  const BlurryImageFailure([
+    super.message =
+        'La foto está borrosa. Tómala nuevamente con buena iluminación y sin movimiento.',
+  ]);
+}
+
+class ImageFailure extends Failure {
+  const ImageFailure([super.message = 'Error al procesar la imagen']);
+}
+
+class ServerFailure extends Failure {
+  const ServerFailure([super.message = 'Error del servidor']);
+}
+
+class LocalDatabaseFailure extends Failure {
+  const LocalDatabaseFailure([super.message = 'Error en base de datos local']);
+}
+
+class UnexpectedFailure extends Failure {
+  const UnexpectedFailure([super.message = 'Error inesperado']);
 }
 
 
@@ -432,6 +3256,383 @@ class StorageService {
     );
 
     return result.$id;
+  }
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\theme\app_theme.dart
+================================================
+
+import 'package:flutter/material.dart';
+
+class AppTheme {
+  AppTheme._();
+
+  static const Color primary        = Color(0xFF1565C0);
+  static const Color primaryDark    = Color(0xFF003c8f);
+  static const Color secondary      = Color(0xFFFFC107);
+  static const Color success        = Color(0xFF2E7D32);
+  static const Color warning        = Color(0xFFE65100);
+  static const Color errorColor     = Color(0xFFC62828);
+  static const Color background     = Color(0xFFF5F5F5);
+
+  static const Color provincialColor = Color(0xFF4527A0);
+  static const Color recintoColor    = Color(0xFF00695C);
+  static const Color veedorColor     = Color(0xFFBF360C);
+
+  static ThemeData get lightTheme {
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primary,
+        brightness: Brightness.light,
+      ),
+      scaffoldBackgroundColor: background,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      cardTheme: CardThemeData(
+        elevation: 1,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: errorColor),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16, vertical: 14,
+        ),
+      ),
+    );
+  }
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\utils\gps_helper.dart
+================================================
+
+import 'package:geolocator/geolocator.dart';
+import 'package:sistema_electoral/core/errors/exceptions.dart';
+
+class GpsHelper {
+  GpsHelper._();
+
+  static Future<Position> getCurrentPosition() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw LocationException('El GPS está desactivado. Actívalo para continuar.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw LocationPermissionDeniedException();
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      throw LocationPermissionDeniedException();
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
+      );
+    } catch (e) {
+      throw LocationException('No se pudo obtener la ubicación: $e');
+    }
+  }
+
+  static Future<bool> hasPermission() async {
+    final permission = await Geolocator.checkPermission();
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
+  static Future<bool> openSettings() => Geolocator.openAppSettings();
+
+  static Future<bool> openLocationSettings() =>
+      Geolocator.openLocationSettings();
+
+  static String formatCoords(double lat, double lng) =>
+      '${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}';
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\utils\image_sharpness.dart
+================================================
+
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:image/image.dart' as img;
+
+class ImageSharpnessMetrics {
+  final bool decoded;
+  final int width;
+  final int height;
+  final double variance;
+  final double effectiveThreshold;
+  final String? rejectionReason;
+
+  const ImageSharpnessMetrics({
+    required this.decoded,
+    required this.width,
+    required this.height,
+    required this.variance,
+    required this.effectiveThreshold,
+    required this.rejectionReason,
+  });
+
+  bool get isAcceptable => decoded && rejectionReason == null;
+
+  Map<String, Object?> toMap() => {
+        'decoded': decoded,
+        'width': width,
+        'height': height,
+        'variance': variance,
+        'effectiveThreshold': effectiveThreshold,
+        'rejectionReason': rejectionReason,
+      };
+
+  factory ImageSharpnessMetrics.fromMap(Map<Object?, Object?> map) {
+    return ImageSharpnessMetrics(
+      decoded: map['decoded'] as bool? ?? false,
+      width: map['width'] as int? ?? 0,
+      height: map['height'] as int? ?? 0,
+      variance: (map['variance'] as num?)?.toDouble() ?? -1,
+      effectiveThreshold: (map['effectiveThreshold'] as num?)?.toDouble() ?? 0,
+      rejectionReason: map['rejectionReason'] as String?,
+    );
+  }
+
+  static ImageSharpnessMetrics undecoded({
+    required double threshold,
+    String? reason,
+  }) {
+    return ImageSharpnessMetrics(
+      decoded: false,
+      width: 0,
+      height: 0,
+      variance: -1,
+      effectiveThreshold: threshold,
+      rejectionReason: reason ?? 'No se pudo decodificar la imagen.',
+    );
+  }
+}
+
+class ImageSharpnessValidator {
+  static const double defaultThreshold = 100.0;
+  static const int _maxAnalysisSide = 800;
+  static const int _sampleStep = 3;
+
+  static double calculateVariance(Uint8List imageBytes) {
+    return analyze(imageBytes).variance;
+  }
+
+  static bool isSharp(double variance, {double threshold = defaultThreshold}) =>
+      variance >= threshold;
+
+  static ImageSharpnessMetrics analyze(
+    Uint8List imageBytes, {
+    double threshold = defaultThreshold,
+  }) {
+    final effectiveThreshold =
+        (threshold.isFinite && threshold > 0) ? threshold : defaultThreshold;
+
+    try {
+      final decoded = img.decodeImage(imageBytes);
+      if (decoded == null) {
+        return ImageSharpnessMetrics.undecoded(threshold: effectiveThreshold);
+      }
+
+      final gray = _prepareForAnalysis(decoded);
+      final variance = _laplacianVariance(gray);
+
+      final rejectionReason = variance < effectiveThreshold
+          ? 'La foto se ve borrosa. Mantén el teléfono quieto y asegúrate de tener buena luz.'
+          : null;
+
+      return ImageSharpnessMetrics(
+        decoded: true,
+        width: decoded.width,
+        height: decoded.height,
+        variance: variance,
+        effectiveThreshold: effectiveThreshold,
+        rejectionReason: rejectionReason,
+      );
+    } catch (e) {
+      return ImageSharpnessMetrics.undecoded(
+        threshold: effectiveThreshold,
+        reason: 'Error inesperado al analizar la imagen: $e',
+      );
+    }
+  }
+
+  static img.Image _prepareForAnalysis(img.Image source) {
+    final longestSide = math.max(source.width, source.height);
+    final resized = longestSide > _maxAnalysisSide
+        ? img.copyResize(
+            source,
+            width: source.width >= source.height ? _maxAnalysisSide : null,
+            height: source.height > source.width ? _maxAnalysisSide : null,
+          )
+        : source;
+    return img.grayscale(resized);
+  }
+
+  static double _laplacianVariance(img.Image gray) {
+    final width = gray.width;
+    final height = gray.height;
+    var count = 0;
+    var mean = 0.0;
+    var m2 = 0.0;
+
+    for (var y = 1; y < height - 1; y += _sampleStep) {
+      for (var x = 1; x < width - 1; x += _sampleStep) {
+        final center = img.getLuminance(gray.getPixel(x, y)).toDouble();
+        final top = img.getLuminance(gray.getPixel(x, y - 1)).toDouble();
+        final bottom = img.getLuminance(gray.getPixel(x, y + 1)).toDouble();
+        final left = img.getLuminance(gray.getPixel(x - 1, y)).toDouble();
+        final right = img.getLuminance(gray.getPixel(x + 1, y)).toDouble();
+        final laplacian = top + bottom + left + right - 4 * center;
+
+        count++;
+        final delta = laplacian - mean;
+        mean += delta / count;
+        m2 += delta * (laplacian - mean);
+      }
+    }
+
+    if (count == 0) return 0;
+    return m2 / count;
+  }
+}
+
+
+
+================================================
+📄 ARCHIVO: lib\core\utils\validators.dart
+================================================
+
+class Validators {
+  Validators._();
+
+  static bool validarCedula(String cedula) {
+    final value = cedula.trim();
+    if (value.length != 10) return false;
+    if (!RegExp(r'^\d{10}$').hasMatch(value)) return false;
+    if (RegExp(r'^(\d)\1{9}$').hasMatch(value)) return false;
+
+    final provincia = int.parse(value.substring(0, 2));
+    if (provincia < 1 || provincia > 24) return false;
+
+    final tercerDigito = int.parse(value.substring(2, 3));
+    if (tercerDigito > 5) return false;
+
+    final digits = value.split('').map(int.parse).toList();
+    int suma = 0;
+    for (int i = 0; i < 9; i++) {
+      int val = digits[i];
+      if (i.isEven) {
+        val *= 2;
+        if (val > 9) val -= 9;
+      }
+      suma += val;
+    }
+
+    final digitoVerificador = (10 - (suma % 10)) % 10;
+    return digitoVerificador == digits[9];
+  }
+
+  static bool validarEmail(String email) =>
+      RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email);
+
+  static String? cedulaValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Ingresa la cédula';
+    final cedula = value.trim();
+    if (!RegExp(r'^\d+$').hasMatch(cedula)) {
+      return 'La cédula solo debe contener números';
+    }
+    if (cedula.length != 10) return 'La cédula debe tener 10 dígitos';
+    if (!validarCedula(cedula)) return 'Cédula inválida';
+    return null;
+  }
+
+  static String? requerido(String? value, {String campo = 'Este campo'}) {
+    if (value == null || value.trim().isEmpty) return '$campo es obligatorio';
+    return null;
+  }
+
+  static String? soloLetras(String? value, {String campo = 'Este campo'}) {
+    final requeridoError = requerido(value, campo: campo);
+    if (requeridoError != null) return requeridoError;
+    final text = value!.trim();
+    if (!RegExp(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$").hasMatch(text)) {
+      return '$campo solo debe contener letras';
+    }
+    return null;
+  }
+
+  static String? enteroPositivo(String? value, {String campo = 'Valor'}) {
+    if (value == null || value.isEmpty) return '$campo es obligatorio';
+    final n = int.tryParse(value);
+    if (n == null) return '$campo debe ser un número entero';
+    if (n < 0) return '$campo no puede ser negativo';
+    return null;
+  }
+
+  static String? telefono(String? value, {String campo = 'Teléfono'}) {
+    final requeridoError = requerido(value, campo: campo);
+    if (requeridoError != null) return requeridoError;
+    final text = value!.trim();
+    if (!RegExp(r'^\d+$').hasMatch(text)) {
+      return '$campo solo debe contener números';
+    }
+    if (text.length < 7 || text.length > 10) {
+      return '$campo debe tener entre 7 y 10 dígitos';
+    }
+    return null;
   }
 }
 
@@ -2608,8 +5809,7 @@ class AuthRemoteDataSource {
     required String userId,
     required String secret,
   }) async {
-    // Appwrite v25 SDK renamed updateVerification to updateEmailVerification
-    await _account.updateVerification(
+    await _account.updateEmailVerification(
       userId: userId,
       secret: secret,
     );
@@ -2661,7 +5861,7 @@ class AuthRemoteDataSource {
   /// después de crearCuentaAuth, antes de restaurar la sesión original).
   Future<void> enviarVerificacionEmail() async {
     try {
-      await _account.createVerification(
+      await _account.createEmailVerification(
         url: 'sistema-electoral://verify',
       );
     } on AppwriteException catch (e) {
@@ -3461,7 +6661,7 @@ class AuthUsuarioCreado extends AuthState {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/app_user.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -3490,8 +6690,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Recibe el usuario para mostrar info contextual
-    final user = ModalRoute.of(context)?.settings.arguments as AppUser?;
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is AuthRequirePasswordChange ? authState.user : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -3506,8 +6706,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home',
-                arguments: state.user);
+            context.go('/home');
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -3674,6 +6873,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -3791,8 +6991,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                         width: double.infinity,
                         height: 48,
                         child: ElevatedButton(
-                          onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (_) => true),
+                          onPressed: () => context.go('/login'),
                           child: const Text('Ir a iniciar sesión'),
                         ),
                       ),
@@ -3832,8 +7031,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                            context, '/login', (_) => true),
+                        onPressed: () => context.go('/login'),
                         child: const Text('Ir a iniciar sesión'),
                       ),
                     ] else ...[
@@ -3868,6 +7066,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -3923,6 +7122,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message), backgroundColor: Colors.green),
             );
+            context.go('/login');
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -3989,6 +7189,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -4019,11 +7220,10 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home', arguments: state.user);
+            context.go('/home');
           }
           if (state is AuthRequirePasswordChange) {
-            Navigator.pushReplacementNamed(context, '/change-password',
-                arguments: state.user);
+            context.go('/change-password');
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -4137,7 +7337,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () =>
-                        Navigator.pushNamed(context, '/forgot-password'),
+                        context.push('/forgot-password'),
                     child: const Text('¿Olvidaste tu contraseña?'),
                   ),
                 ],
@@ -4152,11 +7352,246 @@ class _LoginPageState extends State<LoginPage> {
 
 
 ================================================
+📄 ARCHIVO: lib\features\auth\presentation\pages\manual_link_page.dart
+================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../bloc/auth_bloc.dart';
+import '../bloc/auth_event.dart';
+import '../bloc/auth_state.dart';
+import 'reset_password_page.dart';
+
+class ManualLinkPage extends StatefulWidget {
+  const ManualLinkPage({super.key});
+
+  @override
+  State<ManualLinkPage> createState() => _ManualLinkPageState();
+}
+
+class _ManualLinkPageState extends State<ManualLinkPage> {
+  final _linkCtrl = TextEditingController();
+  String? _userId;
+  String? _secret;
+  bool _isVerify = false;
+  bool _isRecovery = false;
+  bool _parsed = false;
+
+  @override
+  void dispose() {
+    _linkCtrl.dispose();
+    super.dispose();
+  }
+
+  void _analizarEnlace() {
+    final raw = _linkCtrl.text.trim();
+    if (raw.isEmpty) {
+      _mostrarError('Pega el enlace del correo primero.');
+      return;
+    }
+
+    Uri? uri;
+    try {
+      uri = Uri.parse(raw);
+    } catch (_) {}
+
+    final userId = uri?.queryParameters['userId'];
+    final secret = uri?.queryParameters['secret'];
+
+    if (userId == null || userId.isEmpty || secret == null || secret.isEmpty) {
+      _mostrarError('El enlace pegado no es válido. Asegúrate de copiar el enlace completo del correo.');
+      return;
+    }
+
+    final host = uri?.host ?? '';
+    final lower = raw.toLowerCase();
+    final isVerify = host == 'verify' || lower.contains('verify');
+    final isRecovery = host == 'recovery' || lower.contains('recovery');
+
+    if (!isVerify && !isRecovery) {
+      _mostrarError('No se pudo determinar si el enlace es de verificación o recuperación de contraseña.');
+      return;
+    }
+
+    setState(() {
+      _userId = userId;
+      _secret = secret;
+      _isVerify = isVerify;
+      _isRecovery = isRecovery;
+      _parsed = true;
+    });
+  }
+
+  void _continuar() {
+    if (_userId == null || _secret == null) return;
+    if (_isVerify) {
+      context.read<AuthBloc>().add(AuthCompleteVerificationRequested(
+        userId: _userId!,
+        secret: _secret!,
+      ));
+    } else if (_isRecovery) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider.value(
+            value: context.read<AuthBloc>(),
+            child: ResetPasswordPage(
+              userId: _userId!,
+              secret: _secret!,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _mostrarError(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: const Text('Pegar enlace del correo'),
+        backgroundColor: const Color(0xFF1A3A6B),
+        foregroundColor: Colors.white,
+      ),
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthMessage) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              context.go('/login');
+            }
+            if (state is AuthFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Si el enlace del correo de verificación o recuperación no abrió la app automáticamente, copia el enlace completo y pégalo aquí.',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _linkCtrl,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: 'Enlace completo del correo',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: _parsed ? null : _analizarEnlace,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1A3A6B),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Analizar enlace'),
+                  ),
+                ),
+                if (_parsed && _userId != null && _secret != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              _isVerify
+                                  ? Icons.verified_user
+                                  : Icons.lock_reset,
+                              color: const Color(0xFF27AE60),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _isVerify
+                                  ? 'Enlace de verificación detectado'
+                                  : 'Enlace de recuperación detectado',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF0D2137),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            onPressed: _continuar,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF27AE60),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(_isVerify
+                                ? 'Continuar verificación'
+                                : 'Continuar recuperación'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+================================================
 📄 ARCHIVO: lib\features\auth\presentation\pages\reset_password_page.dart
 ================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -4211,7 +7646,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   backgroundColor: const Color(0xFF27AE60),
                 ),
               );
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => true);
+              context.go('/login');
             }
             if (state is AuthFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -6147,6 +9582,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_links/app_links.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'core/appwrite_client.dart';
 import 'core/connectivity_service.dart';
@@ -6201,6 +9638,18 @@ import 'offline/sync_service.dart';
 late final HiveService hiveService;
 late final SyncService syncService;
 final ConnectivityService connectivityService = ConnectivityService();
+
+class AuthGuard extends ChangeNotifier {
+  AuthState? _authState;
+  AuthState? get authState => _authState;
+
+  void update(AuthState state) {
+    if (_authState.runtimeType != state.runtimeType) {
+      _authState = state;
+      notifyListeners();
+    }
+  }
+}
 
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
@@ -6290,6 +9739,7 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
+  await dotenv.load(fileName: '.env');
   hiveService = await HiveService.init();
 
   final actaDatasource = ActaDatasource(databases);
@@ -6315,6 +9765,8 @@ void main() async {
   ));
 }
 
+final AuthGuard authGuard = AuthGuard();
+
 class MyApp extends StatefulWidget {
   final AuthRepository authRepository;
   final ActaRepository actaRepository;
@@ -6333,13 +9785,78 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final AppLinks _appLinks;
+  late final GoRouter _router;
   StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
     super.initState();
+    _router = _createRouter();
     _appLinks = AppLinks();
     _initDeepLinks();
+  }
+
+  GoRouter _createRouter() {
+    return GoRouter(
+      refreshListenable: authGuard,
+      initialLocation: '/login',
+      redirect: (context, state) {
+        final s = authGuard.authState;
+        final location = state.matchedLocation;
+
+        if (s == null || s is AuthInitial || s is AuthLoading || s is AuthFailure) {
+          if (location != '/login' && location != '/forgot-password' &&
+              !location.startsWith('/recovery') && !location.startsWith('/verify')) {
+            return '/login';
+          }
+          return null;
+        }
+
+        if (s is AuthRequirePasswordChange) {
+          if (location != '/change-password') return '/change-password';
+          return null;
+        }
+
+        if (s is AuthAuthenticated) {
+          if (location == '/login' || location == '/forgot-password' || location == '/') {
+            return '/home';
+          }
+          return null;
+        }
+
+        return null;
+      },
+      routes: [
+        GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+        GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordPage()),
+        GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordPage()),
+        GoRoute(
+          path: '/recovery',
+          builder: (_, state) {
+            final userId = state.uri.queryParameters['userId'] ?? '';
+            final secret = state.uri.queryParameters['secret'] ?? '';
+            return ResetPasswordPage(userId: userId, secret: secret);
+          },
+        ),
+        GoRoute(
+          path: '/verify',
+          builder: (_, state) {
+            final userId = state.uri.queryParameters['userId'] ?? '';
+            final secret = state.uri.queryParameters['secret'] ?? '';
+            return EmailVerificationPage(userId: userId, secret: secret);
+          },
+        ),
+        GoRoute(
+          path: '/home',
+          builder: (_, __) {
+            final s = authGuard.authState;
+            if (s is AuthAuthenticated) return HomePage(user: s.user);
+            return const LoginPage();
+          },
+        ),
+      ],
+      errorBuilder: (_, __) => const LoginPage(),
+    );
   }
 
   Future<void> _initDeepLinks() async {
@@ -6357,21 +9874,13 @@ class _MyAppState extends State<MyApp> {
       final userId = uri.queryParameters['userId'] ?? '';
       final secret = uri.queryParameters['secret'] ?? '';
       if (userId.isNotEmpty && secret.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ResetPasswordPage(userId: userId, secret: secret),
-          ),
-        );
+        _router.go('/recovery?userId=$userId&secret=$secret');
       }
     } else if (uri.host == 'verify' || uri.pathSegments.contains('verify')) {
       final userId = uri.queryParameters['userId'] ?? '';
       final secret = uri.queryParameters['secret'] ?? '';
       if (userId.isNotEmpty && secret.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => EmailVerificationPage(userId: userId, secret: secret),
-          ),
-        );
+        _router.go('/verify?userId=$userId&secret=$secret');
       }
     }
   }
@@ -6413,30 +9922,14 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Sistema Electoral',
-        theme: appTheme,
-        initialRoute: '/login',
-        onGenerateRoute: (settings) {
-          switch (settings.name) {
-            case '/login':
-              return MaterialPageRoute(builder: (_) => const LoginPage());
-            case '/forgot-password':
-              return MaterialPageRoute(
-                  builder: (_) => const ForgotPasswordPage());
-            case '/change-password':
-              return MaterialPageRoute(
-                builder: (_) => const ChangePasswordPage(),
-                settings: settings,
-              );
-            case '/home':
-              final args = settings.arguments as AppUser?;
-              return MaterialPageRoute(builder: (_) => HomePage(user: args));
-            default:
-              return MaterialPageRoute(builder: (_) => const LoginPage());
-          }
-        },
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (_, state) => authGuard.update(state),
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'Sistema Electoral',
+          theme: appTheme,
+          routerConfig: _router,
+        ),
       ),
     );
   }
@@ -6463,7 +9956,7 @@ class HomePage extends StatelessWidget {
           );
         }
         if (state is AuthInitial) {
-          Navigator.pushReplacementNamed(context, '/login');
+          context.go('/login');
         }
       },
       child: Scaffold(
@@ -14577,6 +18070,12 @@ dependencies:
   connectivity_plus: ^7.1.1
   path_provider: ^2.0.17
   app_links: ^6.1.1
+  flutter_dotenv: ^5.1.0
+  go_router: ^14.2.0
+  gap: ^3.0.1
+  shimmer: ^3.0.0
+  collection: ^1.18.0
+  path: ^1.9.0
 
 dev_dependencies:
   flutter_test:
@@ -14585,6 +18084,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - .env
+    - assets/
 
 
 
@@ -14665,9 +18167,11 @@ persistencia offline y sincronización automática mediante Appwrite.
 - En **Auth > Settings**, habilita el método **Email/Password**.
 - Ve a **Auth > Teams** y crea los equipos si lo deseas (no obligatorio).
 
-### 4. Registrar plataformas para recovery y verification
+### 4. Registrar plataformas para recovery y verification (método anterior)
 
-Para que funcione la recuperación de contraseña y la verificación de correo:
+Para que funcione la recuperación de contraseña y la verificación de correo
+(este método usa URL completa, puede dejar de funcionar en versiones recientes
+de Appwrite; ver sección 7 para el método recomendado):
 
 1. Ve a **Project Settings > Platforms**
 2. Haz clic en **Add Platform**
@@ -14691,6 +18195,18 @@ Para que funcione la recuperación de contraseña y la verificación de correo:
 En cada colección, ve a **Settings > Permissions** y añade:
 - `read: users` (para que solo usuarios autenticados puedan leer)
 - `write: users` (para escritura)
+
+### Registrar plataformas para deep links (verificación y recuperación)
+
+1. Buscar "platform" con el buscador global de la consola de Appwrite (icono de lupa o Ctrl/Cmd+K).
+2. Si no aparece ahí, revisar dentro del servicio "Auth" del proyecto (no en Settings/Overview).
+3. Alternativa confiable vía CLI: instalar appwrite-cli, correr `appwrite login`, `appwrite init project`, `appwrite pull project`, editar `appwrite.config.json` agregando dos entradas en el array `"platforms"` (`type`: `"web"`, `hostname`/`key`: `"recovery"` y `"verify"`), y correr `appwrite push project`.
+4. Verificar en la pestaña SMTP del proyecto que haya un proveedor de correo configurado; si se usa el mailer por defecto de Appwrite Cloud, advertir que puede tener límites de envío y que los correos pueden llegar a spam.
+
+> **Nota importante:** No uses protocolo (`https://`) ni barras (`/`) en el
+> campo Hostname. Solo la palabra `recovery` o `verify`. Tampoco es necesario
+> registrar `sistema-electoral://` como URL completa; el esquema se resuelve
+> automáticamente por el deep link nativo de la app.
 
 ## Instalación
 
@@ -14866,8 +18382,14 @@ como plataforma en Appwrite Console (ver sección de configuración arriba).
 ## Generar APK
 
 ```bash
-flutter build apk --release
+flutter build apk --release --dart-define=APPWRITE_API_KEY=<clave_desde_Appwrite_Console>
 ```
+
+> La API Key se inyecta en tiempo de compilación mediante `--dart-define`. Si no
+> se proporciona, `appwriteApiKey` queda como cadena vacía y las funciones que
+> la requieren (auto-verificación de correo, eliminación de cuentas Auth) no
+> estarán disponibles. Obtenla en Appwrite Console > Settings > API Keys con
+> los permisos `users.read` y `users.write`.
 
 La APK se genera en `build/app/outputs/flutter-apk/app-release.apk`.
 

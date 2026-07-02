@@ -52,12 +52,29 @@ class SyncService {
         }
       }
 
-      await _datasource.crearActa(ActaModel(
-        junta: item['junta'] as int,
+      final userId = item['userId'] as String?;
+      final junta = item['junta'] as int;
+      final dignidad = item['dignidad'] as String? ?? 'alcalde';
+
+      String? existingDocId;
+      if (userId != null) {
+        try {
+          final existentes = await _datasource.obtenerActas(userId: userId);
+          for (final doc in existentes) {
+            if (doc['junta'] == junta && doc['dignidad'] == dignidad) {
+              existingDocId = doc['\$id'] as String?;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      final model = ActaModel(
+        junta: junta,
         provincia: item['provincia'] as String? ?? '',
         canton: item['canton'] as String? ?? '',
         parroquia: item['parroquia'] as String? ?? '',
-        dignidad: item['dignidad'] as String? ?? 'alcalde',
+        dignidad: dignidad,
         votosOrganizaciones: (item['votosOrganizaciones'] as List).cast<int>(),
         blancos: item['blancos'] as int? ?? 0,
         nulos: item['nulos'] as int? ?? 0,
@@ -67,8 +84,14 @@ class SyncService {
         imagenValida: item['imagenValida'] as bool? ?? true,
         latitud: item['latitud'] as double?,
         longitud: item['longitud'] as double?,
-        userId: item['userId'] as String?,
-      ));
+        userId: userId,
+      );
+
+      if (existingDocId != null && existingDocId.isNotEmpty) {
+        await _datasource.actualizarActa(existingDocId, model.toJson());
+      } else {
+        await _datasource.crearActa(model);
+      }
 
       await _hive.markSynced(key);
 

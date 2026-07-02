@@ -17,7 +17,19 @@ class HiveService {
   }
 
   Future<void> saveActaLocal(Acta acta, {String? fotoLocalPath}) async {
-    final key = '${acta.junta}_${acta.dignidad}_${DateTime.now().millisecondsSinceEpoch}';
+    String? existingKey;
+    for (final k in _box.keys) {
+      final data = _box.get(k);
+      if (data != null) {
+        final map = jsonDecode(data) as Map<String, dynamic>;
+        if (map['junta'] == acta.junta && map['dignidad'] == acta.dignidad && map['userId'] == acta.userId) {
+          existingKey = k;
+          break;
+        }
+      }
+    }
+
+    final key = existingKey ?? '${acta.junta}_${acta.dignidad}_${DateTime.now().millisecondsSinceEpoch}';
     final now = DateTime.now().toIso8601String();
     await _box.put(key, jsonEncode({
       'junta': acta.junta,

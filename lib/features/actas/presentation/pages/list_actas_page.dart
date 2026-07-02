@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../auth/domain/entities/app_user.dart';
 import '../../../../core/appwrite_client.dart';
+import '../../domain/entities/acta.dart';
 import '../bloc/acta_bloc.dart';
 import '../bloc/acta_event.dart';
 import '../bloc/acta_state.dart';
@@ -150,9 +151,12 @@ class ListActasPage extends StatelessWidget {
           }
 
           if (state is ActasLoaded) {
-            var actas = state.actas;
+            var actas = state.actas.latestPerJuntaDignidad();
             if (currentUser?.role == UserRole.observer && currentUser?.id != null) {
-              actas = actas.where((a) => a.userId == currentUser!.id).toList();
+              actas = actas.where((a) =>
+                  a.userId == currentUser!.id ||
+                  a.userId == currentUser!.authUserId
+              ).toList();
             }
             if (actas.isEmpty) {
               return const Center(

@@ -39,6 +39,10 @@ class AuthRemoteDataSource {
   }
 
   Future<User> login(String email, String password) async {
+    try {
+      await _account.deleteSession(sessionId: 'current');
+    } catch (_) {}
+
     await _account.createEmailPasswordSession(email: email, password: password);
     final user = await _account.get();
     if (!user.emailVerification) {
@@ -83,8 +87,7 @@ class AuthRemoteDataSource {
     required String userId,
     required String secret,
   }) async {
-    // Appwrite v25 SDK renamed updateVerification to updateEmailVerification
-    await _account.updateVerification(
+    await _account.updateEmailVerification(
       userId: userId,
       secret: secret,
     );
@@ -110,13 +113,15 @@ class AuthRemoteDataSource {
   }
 
   /// Crea la cuenta real en Appwrite Auth (no solo el documento de la
-  /// colección `users`). Devuelve el $id del usuario creado en Auth.
+  /// colección `users`) e inicia sesión como el usuario recién creado.
+  /// Devuelve el $id del usuario creado en Auth.
   ///
-  /// IMPORTANTE: esto cierra la sesión actual del coordinador porque el SDK
-  /// cliente de Appwrite no permite crear otro usuario sin afectar la
-  /// sesión activa. El llamador debe volver a iniciar sesión con las
-  /// credenciales del coordinador después de esta operación (ver
-  /// AuthRepositoryImpl.crearUsuario, que orquesta esto).
+  /// IMPORTANTE: `account.create()` NO inicia sesión automáticamente.
+  /// Se inicia sesión explícitamente aquí para que el llamador pueda
+  /// ejecutar `enviarVerificacionEmail()` (que opera sobre la sesión
+  /// activa) y el correo llegue al usuario nuevo, no al coordinador
+  /// original. El llamador debe restaurar la sesión del coordinador
+  /// después (ver `AuthRepositoryImpl.crearUsuario`).
   Future<String> crearCuentaAuth({
     required String email,
     required String password,
@@ -128,6 +133,21 @@ class AuthRemoteDataSource {
       password: password,
       name: nombreCompleto,
     );
+
+    // Appwrite no permite dos sesiones activas en el mismo cliente.
+    // Cerramos la sesión del coordinador para poder loguearnos como el
+    // usuario recién creado y enviarle SU propio correo de verificación.
+    try {
+      await _account.deleteSession(sessionId: 'current');
+    } catch (_) {
+      // No había sesión activa o ya expiró; no es crítico.
+    }
+
+    await _account.createEmailPasswordSession(
+      email: email,
+      password: password,
+    );
+
     return nuevoUsuario.$id;
   }
 
@@ -136,7 +156,7 @@ class AuthRemoteDataSource {
   /// después de crearCuentaAuth, antes de restaurar la sesión original).
   Future<void> enviarVerificacionEmail() async {
     try {
-      await _account.createVerification(
+      await _account.createEmailVerification(
         url: 'sistema-electoral://verify',
       );
     } on AppwriteException catch (e) {

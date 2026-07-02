@@ -108,6 +108,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           authUserId: result.authUserId,
           sessionRestored: result.sessionRestored,
         ));
+        if (result.sessionRestored) {
+          final user = await checkAuthUseCase();
+          if (user != null) {
+            emit(AuthAuthenticated(user));
+          }
+        }
       } catch (e) {
         emit(AuthFailure(e.toString()));
       }

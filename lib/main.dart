@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_links/app_links.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'core/appwrite_client.dart';
 import 'core/connectivity_service.dart';
@@ -38,6 +40,7 @@ import 'features/actas/presentation/bloc/acta_event.dart';
 import 'features/actas/presentation/pages/form_acta_page.dart';
 import 'features/actas/presentation/pages/list_actas_page.dart';
 import 'features/actas/presentation/pages/dashboard_page.dart';
+import 'features/recintos/presentation/pages/gestion_coordinadores_page.dart';
 
 import 'features/recintos/data/datasources/recinto_datasource.dart';
 import 'features/recintos/data/repositories/recinto_repository_impl.dart';
@@ -57,6 +60,18 @@ import 'offline/sync_service.dart';
 late final HiveService hiveService;
 late final SyncService syncService;
 final ConnectivityService connectivityService = ConnectivityService();
+
+class AuthGuard extends ChangeNotifier {
+  AuthState? _authState;
+  AuthState? get authState => _authState;
+
+  void update(AuthState state) {
+    if (_authState.runtimeType != state.runtimeType) {
+      _authState = state;
+      notifyListeners();
+    }
+  }
+}
 
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
@@ -146,6 +161,7 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
+  await dotenv.load(fileName: '.env');
   hiveService = await HiveService.init();
 
   final actaDatasource = ActaDatasource(databases);
@@ -171,6 +187,8 @@ void main() async {
   ));
 }
 
+final AuthGuard authGuard = AuthGuard();
+
 class MyApp extends StatefulWidget {
   final AuthRepository authRepository;
   final ActaRepository actaRepository;
@@ -189,13 +207,92 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late final AppLinks _appLinks;
+  late final GoRouter _router;
   StreamSubscription<Uri>? _linkSubscription;
 
   @override
   void initState() {
     super.initState();
+    _router = _createRouter();
     _appLinks = AppLinks();
     _initDeepLinks();
+  }
+
+  GoRouter _createRouter() {
+    return GoRouter(
+      refreshListenable: authGuard,
+      initialLocation: '/login',
+      redirect: (context, state) {
+        final s = authGuard.authState;
+        final location = state.matchedLocation;
+
+        if (s == null || s is AuthInitial || s is AuthLoading || s is AuthFailure) {
+          if (location != '/login' && location != '/forgot-password' &&
+              !location.startsWith('/recovery') && !location.startsWith('/verify')) {
+            return '/login';
+          }
+          return null;
+        }
+
+        if (s is AuthRequirePasswordChange) {
+          if (location != '/change-password') return '/change-password';
+          return null;
+        }
+
+        if (s is AuthAuthenticated) {
+          if (location == '/login' || location == '/forgot-password' || location == '/') {
+            return '/home';
+          }
+          return null;
+        }
+
+        return null;
+      },
+      routes: [
+        GoRoute(path: '/login', builder: (_, __) => const LoginPage()),
+        GoRoute(path: '/forgot-password', builder: (_, __) => const ForgotPasswordPage()),
+        GoRoute(path: '/change-password', builder: (_, __) => const ChangePasswordPage()),
+        GoRoute(
+          path: '/recovery',
+          builder: (_, state) {
+            final userId = state.uri.queryParameters['userId'] ?? '';
+            final secret = state.uri.queryParameters['secret'] ?? '';
+            return ResetPasswordPage(userId: userId, secret: secret);
+          },
+        ),
+        GoRoute(
+          path: '/verify',
+          builder: (_, state) {
+            final userId = state.uri.queryParameters['userId'] ?? '';
+            final secret = state.uri.queryParameters['secret'] ?? '';
+            return EmailVerificationPage(userId: userId, secret: secret);
+          },
+        ),
+        GoRoute(
+          path: '/home',
+          builder: (_, __) {
+            final s = authGuard.authState;
+            if (s is AuthAuthenticated) return HomePage(user: s.user);
+            if (s is AuthUsuarioCreado && s.sessionRestored) {
+              return const Scaffold(
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Color(0xFF0D2137)),
+                      SizedBox(height: 16),
+                      Text('Restaurando sesión...', style: TextStyle(color: Colors.grey)),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return const LoginPage();
+          },
+        ),
+      ],
+      errorBuilder: (_, __) => const LoginPage(),
+    );
   }
 
   Future<void> _initDeepLinks() async {
@@ -213,21 +310,13 @@ class _MyAppState extends State<MyApp> {
       final userId = uri.queryParameters['userId'] ?? '';
       final secret = uri.queryParameters['secret'] ?? '';
       if (userId.isNotEmpty && secret.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ResetPasswordPage(userId: userId, secret: secret),
-          ),
-        );
+        _router.go('/recovery?userId=$userId&secret=$secret');
       }
     } else if (uri.host == 'verify' || uri.pathSegments.contains('verify')) {
       final userId = uri.queryParameters['userId'] ?? '';
       final secret = uri.queryParameters['secret'] ?? '';
       if (userId.isNotEmpty && secret.isNotEmpty) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => EmailVerificationPage(userId: userId, secret: secret),
-          ),
-        );
+        _router.go('/verify?userId=$userId&secret=$secret');
       }
     }
   }
@@ -269,30 +358,14 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Sistema Electoral',
-        theme: appTheme,
-        initialRoute: '/login',
-        onGenerateRoute: (settings) {
-          switch (settings.name) {
-            case '/login':
-              return MaterialPageRoute(builder: (_) => const LoginPage());
-            case '/forgot-password':
-              return MaterialPageRoute(
-                  builder: (_) => const ForgotPasswordPage());
-            case '/change-password':
-              return MaterialPageRoute(
-                builder: (_) => const ChangePasswordPage(),
-                settings: settings,
-              );
-            case '/home':
-              final args = settings.arguments as AppUser?;
-              return MaterialPageRoute(builder: (_) => HomePage(user: args));
-            default:
-              return MaterialPageRoute(builder: (_) => const LoginPage());
-          }
-        },
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (_, state) => authGuard.update(state),
+        child: MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'Sistema Electoral',
+          theme: appTheme,
+          routerConfig: _router,
+        ),
       ),
     );
   }
@@ -319,7 +392,7 @@ class HomePage extends StatelessWidget {
           );
         }
         if (state is AuthInitial) {
-          Navigator.pushReplacementNamed(context, '/login');
+          context.go('/login');
         }
       },
       child: Scaffold(
@@ -430,6 +503,17 @@ class HomePage extends StatelessWidget {
                 child: CrearCoordinadorPage(currentUser: user!),
               ),
             ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _navCard(
+          icon: Icons.people,
+          iconColor: const Color(0xFFE67E22),
+          title: 'Gestión de Usuarios (Coordinadores de Recinto)',
+          subtitle: 'Ver, desasignar coordinadores de recinto',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GestionCoordinadoresPage()),
           ),
         ),
         const SizedBox(height: 12),

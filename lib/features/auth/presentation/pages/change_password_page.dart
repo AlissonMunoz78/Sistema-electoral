@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../domain/entities/app_user.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -29,8 +29,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Recibe el usuario para mostrar info contextual
-    final user = ModalRoute.of(context)?.settings.arguments as AppUser?;
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is AuthRequirePasswordChange ? authState.user : null;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -45,8 +45,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home',
-                arguments: state.user);
+            context.go('/home');
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(

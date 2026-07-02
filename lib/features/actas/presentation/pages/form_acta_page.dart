@@ -7,9 +7,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../../../core/image_service.dart';
 import '../../../../core/storage_service.dart';
+import '../../../../core/utils/image_sharpness.dart';
 import '../../../../core/appwrite_client.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/provincias.dart';
 import '../../../../core/political_organizations.dart';
 import '../../../asignaciones/data/datasources/asignacion_datasource.dart';
@@ -55,8 +56,6 @@ class _FormActaPageState extends State<FormActaPage> {
   bool _lockedRecinto = false;
   String? _recintoNombre;
   String? _dignidadGuardando;
-  bool _actasCheckeadas = false;
-
   @override
   void initState() {
     super.initState();
@@ -84,17 +83,12 @@ class _FormActaPageState extends State<FormActaPage> {
       _latitud = a.latitud;
       _longitud = a.longitud;
     }
-  }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_actasCheckeadas) {
-      _actasCheckeadas = true;
-      final st = context.read<ActaBloc>().state;
-      if (st is ActasLoaded) {
-        _checkExistingActas(st.actas);
-      }
+    final st = context.read<ActaBloc>().state;
+    if (st is ActasLoaded) {
+      _checkExistingActas(st.actas);
+    } else {
+      context.read<ActaBloc>().add(CargarActasEvent());
     }
   }
 
@@ -225,7 +219,7 @@ class _FormActaPageState extends State<FormActaPage> {
 
     final picked = await picker.pickImage(
       source: ImageSource.camera,
-      imageQuality: 90,
+      imageQuality: 100,
     );
     if (picked == null) return;
 
@@ -278,9 +272,10 @@ class _FormActaPageState extends State<FormActaPage> {
     }
 
     if (imageFile != null) {
-      final isBlurry = ImageService.isImageBlurry(imageFile!);
-      if (isBlurry) {
-        _mostrarError('Imagen borrosa. Tome la foto nuevamente.');
+      final bytes = imageFile!.readAsBytesSync();
+      final metrics = ImageSharpnessValidator.analyze(bytes, threshold: AppConstants.sharpnessThreshold);
+      if (!metrics.isAcceptable) {
+        _mostrarError(metrics.rejectionReason ?? 'Imagen borrosa. Tome la foto nuevamente.');
         return;
       }
     }
@@ -327,7 +322,7 @@ class _FormActaPageState extends State<FormActaPage> {
           imagenValida: true,
           latitud: _latitud,
           longitud: _longitud,
-          userId: widget.currentUser?.id,
+          userId: widget.currentUser?.id ?? widget.actaExistente?.userId,
         );
 
         if (!mounted) return;
@@ -351,7 +346,7 @@ class _FormActaPageState extends State<FormActaPage> {
         imagenValida: true,
         latitud: _latitud,
         longitud: _longitud,
-        userId: widget.currentUser?.id,
+        userId: widget.currentUser?.id ?? widget.actaExistente?.userId,
       );
 
       if (!online) {
@@ -498,7 +493,16 @@ class _FormActaPageState extends State<FormActaPage> {
                     ButtonSegment(value: 'prefecto', label: Text('Prefecto')),
                   ],
                   selected: {_dignidadSeleccionada},
-                  onSelectionChanged: (v) => setState(() => _dignidadSeleccionada = v.first),
+                  onSelectionChanged: (v) {
+                    for (final c in _votosOrg) c.clear();
+                    blancos.clear();
+                    nulos.clear();
+                    totalSufragantes.clear();
+                    setState(() {
+                      _dignidadSeleccionada = v.first;
+                      imageFile = null;
+                    });
+                  },
                 ),
               ],
             ),

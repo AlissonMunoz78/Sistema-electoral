@@ -71,9 +71,11 @@ persistencia offline y sincronización automática mediante Appwrite.
 - En **Auth > Settings**, habilita el método **Email/Password**.
 - Ve a **Auth > Teams** y crea los equipos si lo deseas (no obligatorio).
 
-### 4. Registrar plataformas para recovery y verification
+### 4. Registrar plataformas para recovery y verification (método anterior)
 
-Para que funcione la recuperación de contraseña y la verificación de correo:
+Para que funcione la recuperación de contraseña y la verificación de correo
+(este método usa URL completa, puede dejar de funcionar en versiones recientes
+de Appwrite; ver sección 7 para el método recomendado):
 
 1. Ve a **Project Settings > Platforms**
 2. Haz clic en **Add Platform**
@@ -97,6 +99,18 @@ Para que funcione la recuperación de contraseña y la verificación de correo:
 En cada colección, ve a **Settings > Permissions** y añade:
 - `read: users` (para que solo usuarios autenticados puedan leer)
 - `write: users` (para escritura)
+
+### Registrar plataformas para deep links (verificación y recuperación)
+
+1. Buscar "platform" con el buscador global de la consola de Appwrite (icono de lupa o Ctrl/Cmd+K).
+2. Si no aparece ahí, revisar dentro del servicio "Auth" del proyecto (no en Settings/Overview).
+3. Alternativa confiable vía CLI: instalar appwrite-cli, correr `appwrite login`, `appwrite init project`, `appwrite pull project`, editar `appwrite.config.json` agregando dos entradas en el array `"platforms"` (`type`: `"web"`, `hostname`/`key`: `"recovery"` y `"verify"`), y correr `appwrite push project`.
+4. Verificar en la pestaña SMTP del proyecto que haya un proveedor de correo configurado; si se usa el mailer por defecto de Appwrite Cloud, advertir que puede tener límites de envío y que los correos pueden llegar a spam.
+
+> **Nota importante:** No uses protocolo (`https://`) ni barras (`/`) en el
+> campo Hostname. Solo la palabra `recovery` o `verify`. Tampoco es necesario
+> registrar `sistema-electoral://` como URL completa; el esquema se resuelve
+> automáticamente por el deep link nativo de la app.
 
 ## Instalación
 
@@ -272,8 +286,14 @@ como plataforma en Appwrite Console (ver sección de configuración arriba).
 ## Generar APK
 
 ```bash
-flutter build apk --release
+flutter build apk --release --dart-define=APPWRITE_API_KEY=<clave_desde_Appwrite_Console>
 ```
+
+> La API Key se inyecta en tiempo de compilación mediante `--dart-define`. Si no
+> se proporciona, `appwriteApiKey` queda como cadena vacía y las funciones que
+> la requieren (auto-verificación de correo, eliminación de cuentas Auth) no
+> estarán disponibles. Obtenla en Appwrite Console > Settings > API Keys con
+> los permisos `users.read` y `users.write`.
 
 La APK se genera en `build/app/outputs/flutter-apk/app-release.apk`.
 

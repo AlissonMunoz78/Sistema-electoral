@@ -45,6 +45,7 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
   Recinto? _recinto;
   final _asignacionDs = AsignacionDatasource(databases);
   List<Map<String, dynamic>> _asignaciones = [];
+  Map<String, String> _veedorNombres = {};
 
   @override
   void initState() {
@@ -52,6 +53,25 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
     context.read<RecintoBloc>().add(CargarRecintosEvent());
     context.read<ActaBloc>().add(CargarActasEvent());
     _cargarAsignaciones();
+    _cargarNombresVeedores();
+  }
+
+  Future<void> _cargarNombresVeedores() async {
+    try {
+      final result = await databases.listDocuments(
+        databaseId: appwriteDatabaseId,
+        collectionId: appwriteUsersCollectionId,
+        queries: [Query.equal('rol', 'observer')],
+      );
+      final nombres = <String, String>{};
+      for (final doc in result.documents) {
+        final authId = doc.data['authUserId'] as String?;
+        if (authId != null && authId.isNotEmpty) {
+          nombres[authId] = '${doc.data['nombres'] ?? ''} ${doc.data['apellidos'] ?? ''}'.trim();
+        }
+      }
+      if (mounted) setState(() => _veedorNombres = nombres);
+    } catch (_) {}
   }
 
   Future<void> _cargarAsignaciones() async {
@@ -75,7 +95,7 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
 
   List<Acta> _filtrarActasDelRecinto(List<Acta> actas) {
     if (_recinto == null) return [];
-    return actas.where((a) =>
+    return actas.latestPerJuntaDignidad().where((a) =>
         a.provincia == _recinto!.provincia &&
         a.canton == _recinto!.canton &&
         a.parroquia == _recinto!.parroquia
@@ -253,6 +273,12 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
           ),
           const SizedBox(height: 16),
           _card(
+            icon: Icons.people,
+            title: 'Gestión de Usuarios (Veedores)',
+            child: _buildListaVeedores(),
+          ),
+          const SizedBox(height: 16),
+          _card(
             icon: Icons.edit_note,
             title: 'Corregir Acta',
             subtitle: 'Selecciona y edita cualquier acta del recinto',
@@ -283,7 +309,7 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
               ),
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const FormActaPage()),
+                MaterialPageRoute(builder: (_) => FormActaPage(currentUser: widget.currentUser)),
               ),
             ),
           ),
@@ -370,6 +396,91 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
     _emailCtrl.clear();
     _mesaCtrl.clear();
     _passwordCoordinadorCtrl.clear();
+  }
+
+  Widget _buildListaVeedores() {
+    final agrupados = <String, Map<String, dynamic>>{};
+    for (final asig in _asignaciones) {
+      final vid = asig['veedorId'] as String? ?? '';
+      if (vid.isEmpty) continue;
+      if (!agrupados.containsKey(vid)) {
+        agrupados[vid] = {
+          'veedorId': vid,
+          'nombre': _veedorNombres[vid] ?? 'Veedor $vid',
+          'mesas': <int>[],
+        };
+      }
+      (agrupados[vid]!['mesas'] as List<int>).add(asig['mesa'] as int);
+    }
+
+    if (agrupados.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(8),
+        child: Text('No hay veedores asignados a este recinto.',
+            style: TextStyle(color: Colors.grey, fontSize: 13)),
+      );
+    }
+
+    return Column(
+      children: agrupados.values.map((v) {
+        final mesas = (v['mesas'] as List<int>)..sort();
+        return ListTile(
+          dense: true,
+          leading: const CircleAvatar(
+            radius: 16,
+            backgroundColor: Color(0xFF1A3A6B),
+            child: Icon(Icons.person, color: Colors.white, size: 18),
+          ),
+          title: Text(v['nombre'] as String,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          subtitle: Text('Recinto: ${_recinto?.nombre ?? "---"} | Mesas: ${mesas.join(", ")}',
+              style: const TextStyle(fontSize: 12)),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+            tooltip: 'Desasignar todas las mesas',
+            onPressed: () => _eliminarAsignacionesVeedor(v['veedorId'] as String),
+          ),
+          onTap: () => _pedirMesaYAsignar(v['veedorId'] as String, v['nombre'] as String, mesas),
+        );
+      }).toList(),
+    );
+  }
+
+  Future<void> _eliminarAsignacionesVeedor(String veedorAuthId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Desasignar veedor'),
+        content: const Text('¿Eliminar todas las asignaciones de mesas de este veedor?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: const Text('Desasignar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      final pendientes = _asignaciones.where((a) => a['veedorId'] == veedorAuthId).toList();
+      for (final asig in pendientes) {
+        await _asignacionDs.eliminarAsignacion(asig['\$id'] as String);
+      }
+      await _cargarAsignaciones();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Veedor desasignado correctamente'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   void _crearVeedor() {
@@ -517,7 +628,7 @@ class _CoordinadorRecintoPageState extends State<CoordinadorRecintoPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => FormActaPage(actaExistente: a),
+                            builder: (_) => FormActaPage(actaExistente: a, currentUser: widget.currentUser),
                           ),
                         );
                       },

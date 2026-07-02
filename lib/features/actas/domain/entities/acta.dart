@@ -1,3 +1,17 @@
+extension ActaListDedup on List<Acta> {
+  List<Acta> latestPerJuntaDignidad() {
+    final map = <String, Acta>{};
+    for (final a in this) {
+      final key = '${a.junta}_${a.dignidad}';
+      final existing = map[key];
+      if (existing == null || a.fecha.isAfter(existing.fecha)) {
+        map[key] = a;
+      }
+    }
+    return map.values.toList();
+  }
+}
+
 class Acta {
   final int junta;
   final String provincia;

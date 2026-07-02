@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -30,11 +31,10 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            Navigator.pushReplacementNamed(context, '/home', arguments: state.user);
+            context.go('/home');
           }
           if (state is AuthRequirePasswordChange) {
-            Navigator.pushReplacementNamed(context, '/change-password',
-                arguments: state.user);
+            context.go('/change-password');
           }
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -148,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 16),
                   TextButton(
                     onPressed: () =>
-                        Navigator.pushNamed(context, '/forgot-password'),
+                        context.push('/forgot-password'),
                     child: const Text('¿Olvidaste tu contraseña?'),
                   ),
                 ],

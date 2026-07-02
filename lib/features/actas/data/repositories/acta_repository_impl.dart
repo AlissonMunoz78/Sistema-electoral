@@ -13,23 +13,56 @@ class ActaRepositoryImpl implements ActaRepository {
   @override
   Future<void> crearActa(Acta acta, {String? fotoLocalPath}) async {
     try {
-      await datasource.crearActa(ActaModel(
-        junta: acta.junta,
-        provincia: acta.provincia,
-        canton: acta.canton,
-        parroquia: acta.parroquia,
-        dignidad: acta.dignidad,
-        votosOrganizaciones: acta.votosOrganizaciones,
-        blancos: acta.blancos,
-        nulos: acta.nulos,
-        totalSufragantes: acta.totalSufragantes,
-        fotoId: acta.fotoId,
-        fecha: acta.fecha,
-        imagenValida: acta.imagenValida,
-        latitud: acta.latitud,
-        longitud: acta.longitud,
-        userId: acta.userId,
-      ));
+      String? existingDocId;
+      if (acta.userId != null) {
+        try {
+          final existentes = await datasource.obtenerActas(userId: acta.userId);
+          for (final doc in existentes) {
+            if (doc['junta'] == acta.junta && doc['dignidad'] == acta.dignidad) {
+              existingDocId = doc['\$id'] as String?;
+              break;
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (existingDocId != null && existingDocId.isNotEmpty) {
+        await datasource.actualizarActa(existingDocId, ActaModel(
+          junta: acta.junta,
+          provincia: acta.provincia,
+          canton: acta.canton,
+          parroquia: acta.parroquia,
+          dignidad: acta.dignidad,
+          votosOrganizaciones: acta.votosOrganizaciones,
+          blancos: acta.blancos,
+          nulos: acta.nulos,
+          totalSufragantes: acta.totalSufragantes,
+          fotoId: acta.fotoId,
+          fecha: acta.fecha,
+          imagenValida: acta.imagenValida,
+          latitud: acta.latitud,
+          longitud: acta.longitud,
+          userId: acta.userId,
+        ).toJson());
+      } else {
+        await datasource.crearActa(ActaModel(
+          junta: acta.junta,
+          provincia: acta.provincia,
+          canton: acta.canton,
+          parroquia: acta.parroquia,
+          dignidad: acta.dignidad,
+          votosOrganizaciones: acta.votosOrganizaciones,
+          blancos: acta.blancos,
+          nulos: acta.nulos,
+          totalSufragantes: acta.totalSufragantes,
+          fotoId: acta.fotoId,
+          fecha: acta.fecha,
+          imagenValida: acta.imagenValida,
+          latitud: acta.latitud,
+          longitud: acta.longitud,
+          userId: acta.userId,
+        ));
+      }
     } catch (_) {
       if (hiveService != null) {
         await hiveService!.saveActaLocal(acta, fotoLocalPath: fotoLocalPath);
